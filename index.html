@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>清翔会 ドクターシフト</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f4f0;
+  --card: #ffffff;
+  --ink: #1c1c1a;
+  --ink2: #5c5c58;
+  --ink3: #9c9c96;
+  --border: #e4e2dc;
+  --header: #1c1c1a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--ink); font-size: 13px; min-height: 100vh; }
+
+/* CLINICS */
+.cl-esca    { --c: #b83030; --cl: #fdf0ee; }
+.cl-r       { --c: #7b2d8b; --cl: #f5eef8; }
+.cl-wiz     { --c: #1a5276; --cl: #e8f4fd; }
+.cl-luminas { --c: #2e7d32; --cl: #e8f5e9; }
+.cl-chaya   { --c: #b8860b; --cl: #fef9e7; }
+.cl-asano   { --c: #c0773a; --cl: #fdf3ea; }
+.cl-chiryu  { --c: #555550; --cl: #f0f0ee; }
+.cl-komaki  { --c: #0d7377; --cl: #e0f4f5; }
+.cl-yagoto  { --c: #8b4513; --cl: #f9ece2; }
+.cl-omori   { --c: #1f6b4e; --cl: #e4f4ed; }
+.cl-kyoto   { --c: #6b3a87; --cl: #f2ecf8; }
+.cl-ginza   { --c: #8b7536; --cl: #f8f3e2; }
+.cl-houmon  { --c: #3a5f8a; --cl: #e6eef5; }
+.cl-yasumi  { --c: #999990; --cl: #f5f5f3; }
+
+/* HEADER */
+.header {
+  background: var(--header);
+  color: #fff;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.site-title { font-size: 14px; font-weight: 500; letter-spacing: .02em; }
+.month-nav { display: flex; align-items: center; gap: 6px; }
+.nav-btn {
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,.12);
+  border: none; border-radius: 5px;
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+  transition: background .12s;
+}
+.nav-btn:hover { background: rgba(255,255,255,.24); }
+.month-label { font-size: 13px; font-weight: 500; min-width: 80px; text-align: center; }
+
+/* VIEW TABS */
+.view-tabs { display: flex; gap: 2px; background: rgba(255,255,255,.1); border-radius: 7px; padding: 2px; }
+.view-tab {
+  padding: 5px 14px;
+  border: none; border-radius: 5px;
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: rgba(255,255,255,.6);
+  background: none; transition: all .15s;
+}
+.view-tab.active { background: rgba(255,255,255,.2); color: #fff; }
+
+/* MODE SWITCH (admin / 閲覧) */
+.mode-switch { display: flex; gap: 2px; background: rgba(255,255,255,.1); border-radius: 7px; padding: 2px; }
+.mode-btn {
+  padding: 5px 12px;
+  border: none; border-radius: 5px;
+  font-family: inherit; font-size: 12px;
+  cursor: pointer; color: rgba(255,255,255,.6);
+  background: none; transition: all .15s;
+}
+.mode-btn.active { background: rgba(255,255,255,.2); color: #fff; }
+
+/* CONTAINER */
+.container { padding: 16px 20px; overflow-x: auto; }
+
+/* RANK BADGE */
+.rank { display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 3px;
+  font-size: 9px; font-weight: 700; margin-right: 3px; flex-shrink: 0; }
+.rank-A { background: #f5eef8; color: #7b2d8b; }
+.rank-B { background: #e8f4fd; color: #1a5276; }
+.rank-C { background: #e8f5e9; color: #2e7d32; }
+
+/* SHARED TABLE STYLES */
+.shift-table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--card);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 0.5px solid var(--border);
+  font-size: 11px;
+}
+.shift-table th {
+  background: #f0ede8;
+  border: 0.5px solid var(--border);
+  padding: 6px 5px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink2);
+  white-space: nowrap;
+}
+.shift-table td {
+  border: 0.5px solid var(--border);
+  padding: 4px 5px;
+  vertical-align: top;
+}
+.shift-table th.sun, .shift-table td.sun { background: #fff8f8; }
+.shift-table th.sat, .shift-table td.sat { background: #f5f8ff; }
+.shift-table th.today-h { background: #fffbf0 !important; }
+.shift-table td.today-c { background: #fffbf0 !important; }
+.th-day { font-size: 9px; font-weight: 400; color: var(--ink3); }
+
+/* ROW HEADER (left sticky) */
+.row-head {
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 11px;
+  padding: 6px 10px;
+  background: #f0ede8;
+  text-align: left;
+  position: sticky; left: 0;
+  z-index: 2;
+  min-width: 88px;
+}
+.row-head-sub { font-size: 9px; font-weight: 400; color: var(--ink3); display: block; }
+
+/* PILL (Pattern A) */
+.pill {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 10px; font-weight: 500;
+  margin: 1px 1px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity .1s;
+}
+.pill:hover { opacity: .75; }
+
+/* PATTERN D cells */
+.d-count { font-size: 14px; font-weight: 700; display: block; text-align: center; }
+.d-names { font-size: 9px; color: var(--ink3); display: block; text-align: center; line-height: 1.5; margin-top: 1px; }
+.d-empty { color: var(--ink3); text-align: center; font-size: 12px; }
+
+/* ADD btn */
+.add-btn {
+  display: block; width: 100%;
+  border: none; background: none;
+  color: var(--ink3); font-size: 10px;
+  padding: 2px 0; cursor: pointer;
+  text-align: center;
+  font-family: inherit;
+  transition: color .1s;
+}
+.add-btn:hover { color: var(--ink); }
+
+/* LEGEND BAR */
+.legend-bar {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 10px 20px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--card);
+}
+.leg-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--ink2); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* MODAL */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.38);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .15s;
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 22px 24px;
+  width: 320px; max-width: 95vw;
+  transform: translateY(6px);
+  transition: transform .15s;
+  box-shadow: 0 16px 48px rgba(0,0,0,.18);
+}
+.overlay.show .modal { transform: translateY(0); }
+.modal-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.modal-sub { font-size: 11px; color: var(--ink3); margin-bottom: 16px; }
+.fg { margin-bottom: 12px; }
+.fg label { display: block; font-size: 10px; font-weight: 600; color: var(--ink3); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 5px; }
+.fg select, .fg input {
+  width: 100%; padding: 8px 10px;
+  border: 0.5px solid var(--border);
+  border-radius: 7px;
+  font-family: inherit; font-size: 12px;
+  background: var(--bg); color: var(--ink);
+  outline: none;
+}
+.fg select:focus, .fg input:focus { border-color: #888; }
+.modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+.btn { padding: 8px 16px; border-radius: 7px; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; border: none; transition: all .12s; }
+.btn-ok { background: var(--ink); color: #fff; flex: 1; }
+.btn-ok:hover { background: #333; }
+.btn-cancel { background: var(--bg); color: var(--ink2); }
+.btn-del { background: #fdf0ee; color: #b83030; }
+
+/* DOCTOR PANEL (admin sidebar) */
+.page-layout { display: flex; gap: 0; }
+.sidebar {
+  width: 200px; min-width: 200px;
+  background: var(--card);
+  border-right: 0.5px solid var(--border);
+  padding: 14px 12px;
+  min-height: calc(100vh - 52px);
+}
+.sidebar-title { font-size: 10px; font-weight: 600; letter-spacing: .07em; color: var(--ink3); text-transform: uppercase; margin-bottom: 10px; }
+.doc-list { display: flex; flex-direction: column; gap: 1px; }
+.doc-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 8px; border-radius: 6px;
+  cursor: pointer; transition: background .1s;
+}
+.doc-row:hover { background: var(--bg); }
+.doc-row.selected { background: #e8f4fd; }
+.doc-name { font-size: 12px; flex: 1; }
+.doc-days { font-size: 10px; color: var(--ink3); }
+.add-doc-btn {
+  width: 100%; margin-top: 8px;
+  padding: 6px; border: 1px dashed var(--border);
+  border-radius: 6px; background: none;
+  color: var(--ink3); font-family: inherit; font-size: 11px;
+  cursor: pointer; transition: all .12s;
+}
+.add-doc-btn:hover { border-color: #888; color: var(--ink); }
+.main-area { flex: 1; overflow: hidden; }
+
+@media (max-width: 700px) {
+  .sidebar { display: none; }
+  .header { padding: 0 12px; }
+  .container { padding: 12px; }
+  .month-label { min-width: 60px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <span class="site-title">清翔会 シフト</span>
+    <div class="month-nav">
+      <button class="nav-btn" onclick="changeMonth(-1)">&#8249;</button>
+      <span class="month-label" id="monthLabel"></span>
+      <button class="nav-btn" onclick="changeMonth(1)">&#8250;</button>
+    </div>
+    <div class="view-tabs">
+      <button class="view-tab active" id="tabA" onclick="setView('A')">A　医院×日</button>
+      <button class="view-tab" id="tabB" onclick="setView('B')">B　人×日</button>
+      <button class="view-tab" id="tabC" onclick="setView('C')">C　集計</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span id="modeLabel" style="font-size:12px;color:rgba(255,255,255,.6)">閲覧モード</span>
+    <button id="settingsBtn" onclick="openSettings()" style="display:none;padding:5px 12px;border:none;border-radius:5px;background:rgba(255,255,255,.15);color:#fff;font-family:inherit;font-size:12px;cursor:pointer;">設定</button>
+    <button id="authBtn" onclick="openAuth()" style="padding:5px 14px;border:none;border-radius:5px;background:rgba(255,255,255,.15);color:#fff;font-family:inherit;font-size:12px;cursor:pointer;">管理者ログイン</button>
+  </div>
+</div>
+
+<div class="overlay" id="authOverlay" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal">
+    <div class="modal-title" id="authTitle">管理者ログイン</div>
+    <div class="modal-sub" style="margin-bottom:16px;">パスワードを入力してください</div>
+    <div class="fg">
+      <label>パスワード</label>
+      <input type="password" id="authPw" placeholder="パスワード" onkeydown="if(event.key==='Enter')doAuth()">
+    </div>
+    <div id="authErr" style="font-size:11px;color:#b83030;margin-top:4px;display:none;">パスワードが違います</div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="document.getElementById('authOverlay').classList.remove('show')">キャンセル</button>
+      <button class="btn btn-ok" onclick="doAuth()">ログイン</button>
+    </div>
+  </div>
+</div>
+
+<div class="page-layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-title">ドクター</div>
+    <div class="doc-list" id="docList"></div>
+    <button class="add-doc-btn" onclick="openAddDoc()">＋ 追加</button>
+    <button class="add-doc-btn" onclick="uploadExcelToDB()" style="margin-top:6px;border-color:#1a5276;color:#1a5276;">Excelデータを初回アップロード</button>
+    <div style="margin-top:16px;">
+      <div class="sidebar-title">フィルター</div>
+      <div style="display:flex;flex-direction:column;gap:4px;" id="rankFilter">
+        <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" checked id="fA" onchange="renderAll()"> <span class="rank rank-A">A</span> 上位
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" checked id="fB" onchange="renderAll()"> <span class="rank rank-B">B</span> 2番手
+        </label>
+        <label style="font-size:11px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" checked id="fC" onchange="renderAll()"> <span class="rank rank-C">C</span> 3番手
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-area">
+    <div class="legend-bar" id="legendBar"></div>
+    <div class="container">
+      <div id="viewA"></div>
+      <div id="viewB" style="display:none"></div>
+      <div id="viewC" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SHIFT MODAL -->
+<div class="overlay" id="shiftOverlay" onclick="overlayClick(event,'shiftOverlay')">
+  <div class="modal">
+    <div class="modal-title" id="shiftModalTitle">シフトを追加</div>
+    <div class="modal-sub" id="shiftModalSub"></div>
+    <div class="fg">
+      <label>ドクター</label>
+      <select id="selDoc"></select>
+    </div>
+    <div class="fg">
+      <label>医院 / 状態</label>
+      <select id="selClinic"></select>
+    </div>
+    <div class="fg">
+      <label>メモ（任意）</label>
+      <input type="text" id="inputMemo" placeholder="午前のみ・訪問あり など">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeOverlay('shiftOverlay')">キャンセル</button>
+      <button class="btn btn-del" id="btnDel" onclick="deleteShift()" style="display:none">削除</button>
+      <button class="btn btn-ok" onclick="saveShift()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DOC MODAL -->
+<div class="overlay" id="docOverlay" onclick="overlayClick(event,'docOverlay')">
+  <div class="modal">
+    <div class="modal-title">ドクターを追加</div>
+    <div class="modal-sub" style="margin-bottom:16px;">ランクは管理画面のみ表示されます</div>
+    <div class="fg"><label>名前</label><input type="text" id="docName" placeholder="例：田中"></div>
+    <div class="fg">
+      <label>ランク（非公開）</label>
+      <select id="docRank">
+        <option value="A">A（上位）</option>
+        <option value="B">B（2番手）</option>
+        <option value="C">C（3番手）</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeOverlay('docOverlay')">キャンセル</button>
+      <button class="btn btn-ok" onclick="saveDoc()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLINICS = [
+  {id:'esca',    name:'エスカ',   cls:'cl-esca'},
+  {id:'r',       name:'アール',   cls:'cl-r'},
+  {id:'wiz',     name:'ウィズ',   cls:'cl-wiz'},
+  {id:'luminas', name:'ルミナス', cls:'cl-luminas'},
+  {id:'chaya',   name:'茶屋',    cls:'cl-chaya'},
+  {id:'asano',   name:'アサノ',  cls:'cl-asano'},
+  {id:'chiryu',  name:'知立',    cls:'cl-chiryu'},
+  {id:'komaki',  name:'小牧',    cls:'cl-komaki'},
+  {id:'yagoto',  name:'八事',    cls:'cl-yagoto'},
+  {id:'omori',   name:'大森',    cls:'cl-omori'},
+  {id:'kyoto',   name:'京都',    cls:'cl-kyoto'},
+  {id:'ginza',   name:'銀座',    cls:'cl-ginza'},
+  {id:'houmon',  name:'訪問',    cls:'cl-houmon'},
+];
+const STATUSES = [
+  {id:'yasumi', name:'休み',     cls:'cl-yasumi'},
+  {id:'yukyu',  name:'有給',     cls:'cl-yasumi'},
+  {id:'kekkin', name:'欠勤',     cls:'cl-yasumi'},
+];
+
+function getColor(id) {
+  const all = [...CLINICS, ...STATUSES];
+  const found = all.find(c => c.id === id);
+  if (!found) return {c:'#888', cl:'#f5f5f5'};
+  const tmp = document.createElement('div');
+  tmp.className = found.cls;
+  document.body.appendChild(tmp);
+  const s = getComputedStyle(tmp);
+  const c = s.getPropertyValue('--c').trim() || '#888';
+  const cl = s.getPropertyValue('--cl').trim() || '#f5f5f5';
+  document.body.removeChild(tmp);
+  return {c, cl};
+}
+const colorCache = {};
+function col(id) {
+  if (!colorCache[id]) colorCache[id] = getColor(id);
+  return colorCache[id];
+}
+
+let doctors = [
+  {id:'d1',  name:'小池', rank:'A'},
+  {id:'d2',  name:'越知', rank:'A'},
+  {id:'d3',  name:'荒木', rank:'A'},
+  {id:'d4',  name:'山田', rank:'A'},
+  {id:'d5',  name:'古田', rank:'A'},
+  {id:'d6',  name:'原',   rank:'A'},
+  {id:'d7',  name:'竹内', rank:'A'},
+  {id:'d8',  name:'大西', rank:'A'},
+  {id:'d9',  name:'田村', rank:'A'},
+  {id:'d10', name:'立松', rank:'A'},
+  {id:'d11', name:'武内', rank:'C'},
+  {id:'d12', name:'長谷', rank:'C'},
+  {id:'d13', name:'永江', rank:'C'},
+  {id:'d14', name:'加藤', rank:'C'},
+  {id:'d15', name:'れみ', rank:'C'},
+  {id:'d16', name:'西村', rank:'C'},
+  {id:'d17', name:'鈴木', rank:'C'},
+  {id:'d18', name:'中山', rank:'C'},
+  {id:'d19', name:'星野', rank:'C'},
+  {id:'d20', name:'綱島', rank:'C'},
+  {id:'d21', name:'向田', rank:'C'},
+  {id:'d22', name:'鶴田', rank:'C'},
+  {id:'d23', name:'清水', rank:'C'},
+  {id:'d24', name:'内藤', rank:'C'},
+  {id:'d25', name:'上野', rank:'C'},
+  {id:'d26', name:'珠里', rank:'C'},
+  {id:'d27', name:'小倉', rank:'C'},
+  {id:'d28', name:'浦野', rank:'C'},
+  {id:'d29', name:'土屋', rank:'C'},
+  {id:'d30', name:'英',   rank:'C'},
+  {id:'d31', name:'明石', rank:'C'},
+  {id:'d32', name:'太田', rank:'C'},
+  {id:'d33', name:'河野', rank:'C'},
+  {id:'d34', name:'青木', rank:'C'},
+  {id:'d35', name:'岩田', rank:'C'},
+];
+
+let shifts = {};
+let currentYear = 2026;
+let currentMonth = 3;
+let currentView = 'A';
+let currentMode = 'view';
+let selectedDoc = null;
+let modalDate = null;
+let editingIdx = null;
+
+const today = new Date();
+
+const SB_URL = 'https://trsugjpvhlkwjvtloype.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc3VnanB2aGxrd2p2dGxveXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc4ODQsImV4cCI6MjA5MDQzMzg4NH0.GASbFeN_dLduCw81DQen8e4Hwc0TkHrcZWbB8dgNsec';
+const SB_H = {apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'};
+
+async function sbReq(path, opts) {
+  opts = opts || {};
+  opts.headers = Object.assign({}, SB_H, opts.headers || {});
+  const r = await fetch(SB_URL + path, opts);
+  if (!r.ok) { const t = await r.text(); throw new Error(t); }
+  return r.status === 204 ? null : r.json();
+}
+
+async function loadFromDB() {
+  showStatus('読み込み中...');
+  try {
+    const rows = await sbReq('/rest/v1/shifts?select=*&limit=5000');
+    // ExcelデータをベースにDBで上書き
+    shifts = {};
+    Object.assign(shifts, EXCEL_SHIFTS);
+    rows.forEach(function(row) {
+      if (!shifts[row.date_str]) shifts[row.date_str] = [];
+      var idx = shifts[row.date_str].findIndex(function(s) { return s.docId === row.doc_id; });
+      var entry = {docId: row.doc_id, clinicId: row.clinic_id, memo: row.memo || ''};
+      if (idx >= 0) shifts[row.date_str][idx] = entry;
+      else shifts[row.date_str].push(entry);
+    });
+    showStatus('');
+  } catch(e) {
+    Object.assign(shifts, EXCEL_SHIFTS);
+    showStatus('オフライン（Excelデータ使用中）', 'warn');
+  }
+}
+
+async function uploadExcelToDB() {
+  if (!confirm('Excelデータ（4月・5月）をデータベースに保存します。\nすでにDBに入っている分はスキップされます。\nよろしいですか？')) return;
+  showStatus('アップロード中...');
+  var rows = [];
+  Object.keys(EXCEL_SHIFTS).forEach(function(ds) {
+    EXCEL_SHIFTS[ds].forEach(function(s) {
+      rows.push({date_str: ds, doc_id: s.docId, clinic_id: s.clinicId, memo: s.memo || ''});
+    });
+  });
+  try {
+    for (var i = 0; i < rows.length; i += 200) {
+      var chunk = rows.slice(i, i + 200);
+      await sbReq('/rest/v1/shifts', {
+        method: 'POST',
+        headers: {Prefer: 'resolution=ignore-duplicates,return=minimal'},
+        body: JSON.stringify(chunk)
+      });
+    }
+    showStatus('アップロード完了！', 'ok');
+    await loadFromDB();
+    renderAll();
+  } catch(e) {
+    showStatus('エラー: ' + e.message, 'err');
+  }
+}
+
+function showStatus(msg, type) {
+  var el = document.getElementById('dbStatus');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'dbStatus';
+    el.style.cssText = 'position:fixed;bottom:16px;right:16px;padding:8px 16px;border-radius:8px;font-size:12px;z-index:999;';
+    document.body.appendChild(el);
+  }
+  if (!msg) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.textContent = msg;
+  el.style.background = type === 'ok' ? '#2e7d32' : type === 'warn' ? '#b8860b' : type === 'err' ? '#b83030' : '#1c1c1a';
+  el.style.color = '#fff';
+  if (type === 'ok') setTimeout(function() { showStatus(''); }, 2500);
+}
+
+async function init() {
+  populateSelects();
+  setMode('view');
+  await loadFromDB();
+  renderAll();
+}
+
+function daysInMonth(y, m) { return new Date(y, m+1, 0).getDate(); }
+function firstDow(y, m) { return new Date(y, m, 1).getDay(); }
+function dateStr(d) { return `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function isToday(d) { return today.getFullYear()===currentYear && today.getMonth()===currentMonth && today.getDate()===d; }
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth=0; currentYear++; }
+  if (currentMonth < 0) { currentMonth=11; currentYear--; }
+  renderAll();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('tabA').classList.toggle('active', v==='A');
+  document.getElementById('tabB').classList.toggle('active', v==='B');
+  document.getElementById('tabC').classList.toggle('active', v==='C');
+  document.getElementById('viewA').style.display = v==='A' ? '' : 'none';
+  document.getElementById('viewB').style.display = v==='B' ? '' : 'none';
+  document.getElementById('viewC').style.display = v==='C' ? '' : 'none';
+  renderAll();
+}
+
+// パスワード設定（変更可能）
+const ADMIN_PASSWORD = 'seishokai2026';
+
+function openAuth() {
+  if (currentMode === 'admin') {
+    // ログアウト
+    setMode('view');
+    document.getElementById('authBtn').textContent = '管理者ログイン';
+    document.getElementById('modeLabel').textContent = '閲覧モード';
+    return;
+  }
+  document.getElementById('authPw').value = '';
+  document.getElementById('authErr').style.display = 'none';
+  document.getElementById('authOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('authPw').focus(), 100);
+}
+
+function doAuth() {
+  const pw = document.getElementById('authPw').value;
+  if (pw === ADMIN_PASSWORD) {
+    document.getElementById('authOverlay').classList.remove('show');
+    setMode('admin');
+    document.getElementById('authBtn').textContent = 'ログアウト';
+    document.getElementById('modeLabel').textContent = '管理モード';
+  } else {
+    document.getElementById('authErr').style.display = 'block';
+    document.getElementById('authPw').value = '';
+    document.getElementById('authPw').focus();
+  }
+}
+
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('sidebar').style.display = m==='admin' ? '' : 'none';
+  const sb = document.getElementById('settingsBtn');
+  if (sb) sb.style.display = m==='admin' ? '' : 'none';
+  renderAll();
+}
+
+function activeDocs() {
+  const fa = document.getElementById('fA')?.checked ?? true;
+  const fb = document.getElementById('fB')?.checked ?? true;
+  const fc = document.getElementById('fC')?.checked ?? true;
+  return doctors.filter(d =>
+    (d.rank==='A'&&fa)||(d.rank==='B'&&fb)||(d.rank==='C'&&fc)
+  );
+}
+
+function buildDayHeaders() {
+  const total = daysInMonth(currentYear, currentMonth);
+  const DOW = ['日','月','火','水','木','金','土'];
+  let headers = [];
+  for (let d=1; d<=total; d++) {
+    const dow = new Date(currentYear, currentMonth, d).getDay();
+    headers.push({d, dow});
+  }
+  return headers;
+}
+
+/* ===== RENDER ALL ===== */
+function renderAll() {
+  document.getElementById('monthLabel').textContent = `${currentYear}年${currentMonth+1}月`;
+  renderLegend();
+  renderDocList();
+  if (currentView==='A') renderViewA();
+  else if (currentView==='B') renderViewB();
+  else renderViewC();
+}
+
+function renderLegend() {
+  const el = document.getElementById('legendBar');
+  el.innerHTML = '';
+  CLINICS.forEach(c => {
+    const {c: color} = col(c.id);
+    const div = document.createElement('div');
+    div.className = 'leg-item';
+    div.innerHTML = `<div class="leg-dot" style="background:${color}"></div>${c.name}`;
+    el.appendChild(div);
+  });
+}
+
+function renderDocList() {
+  const el = document.getElementById('docList');
+  el.innerHTML = '';
+  doctors.forEach(d => {
+    const days = Object.values(shifts).filter(ss => ss.some(s => s.docId===d.id && !['yasumi','yukyu','kekkin'].includes(s.clinicId))).length;
+    const div = document.createElement('div');
+    div.className = 'doc-row' + (selectedDoc===d.id ? ' selected' : '');
+    const showRank = currentMode==='admin';
+    div.innerHTML = `
+      ${showRank ? `<span class="rank rank-${d.rank}" style="cursor:pointer" onclick="cycleRank('${d.id}',event)" title="クリックでランク変更">${d.rank}</span>` : ''}
+      <span class="doc-name" onclick="(function(){selectedDoc = selectedDoc==='${d.id}' ? null : '${d.id}'; renderAll();})()">${d.name}</span>
+      <span class="doc-days">${days}日</span>
+    `;
+    el.appendChild(div);
+  });
+}
+
+/* ===== PATTERN A ===== */
+function renderViewA() {
+  const headers = buildDayHeaders();
+  const DOW = ['日','月','火','水','木','金','土'];
+  let html = `<table class="shift-table" style="min-width:${88 + headers.length * 58}px">`;
+
+  // Header row
+  html += '<thead><tr>';
+  html += `<th class="row-head" style="top:0;z-index:3">医院</th>`;
+  headers.forEach(({d, dow}) => {
+    const cls = dow===0 ? 'sun' : dow===6 ? 'sat' : '';
+    const todayCls = isToday(d) ? 'today-h' : '';
+    html += `<th class="${cls} ${todayCls}" style="min-width:58px">
+      ${d}<span class="th-day">${DOW[dow]}</span>
+    </th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  // Clinic rows
+  CLINICS.forEach(clinic => {
+    const {c: color, cl: bg} = col(clinic.id);
+    html += '<tr>';
+    html += `<td class="row-head" style="color:${color}">${clinic.name}</td>`;
+
+    headers.forEach(({d, dow}) => {
+      const ds = dateStr(d);
+      const dayShifts = (shifts[ds] || []).filter(s => s.clinicId === clinic.id);
+      const filtered = selectedDoc ? dayShifts.filter(s => s.docId===selectedDoc) : dayShifts;
+      const cls = dow===0 ? 'sun' : dow===6 ? 'sat' : '';
+      const todayCls = isToday(d) ? 'today-c' : '';
+      html += `<td class="${cls} ${todayCls}">`;
+
+      filtered.forEach((s, idx) => {
+        const doc = doctors.find(dd => dd.id===s.docId);
+        if (!doc) return;
+        const realIdx = (shifts[ds]||[]).indexOf(s);
+        const showRank = currentMode==='admin';
+        html += `<span class="pill" style="background:${bg};color:${color}" onclick="openEdit('${ds}',${realIdx})">`;
+        if (showRank) html += `<span class="rank rank-${doc.rank}" style="font-size:8px;width:13px;height:13px">${doc.rank}</span>`;
+        html += `${doc.name}${s.memo ? ' ✦' : ''}</span>`;
+      });
+
+      if (currentMode==='admin') {
+        html += `<button class="add-btn" onclick="openAdd('${ds}','${clinic.id}')">＋</button>`;
+      }
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('viewA').innerHTML = html;
+}
+
+/* ===== PATTERN B ===== */
+function renderViewB() {
+  const total = daysInMonth(currentYear, currentMonth);
+  const DOW = ['日','月','火','水','木','金','土'];
+  const docs = activeDocs();
+
+  // min-width: 左固定列 + ドクター列
+  const minW = 60 + docs.length * 52;
+  let html = `<table class="shift-table" style="min-width:${minW}px">`;
+
+  // Header row — ドクター名
+  html += '<thead><tr>';
+  html += `<th class="row-head" style="top:0;z-index:3;min-width:60px">日付</th>`;
+  docs.forEach(d => {
+    const showRank = currentMode === 'admin';
+    html += `<th style="min-width:52px;text-align:center;padding:5px 3px">`;
+    if (showRank) html += `<span class="rank rank-${d.rank}" style="display:block;margin:0 auto 2px">${d.rank}</span>`;
+    html += `<span style="font-size:11px;font-weight:600">${d.name}</span></th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  // Day rows
+  for (let d = 1; d <= total; d++) {
+    const ds = dateStr(d);
+    const dow = new Date(currentYear, currentMonth, d).getDay();
+    const dowLabel = DOW[dow];
+    const isSun = dow === 0;
+    const isSat = dow === 6;
+    const dayCls = isSun ? 'sun' : isSat ? 'sat' : '';
+    const todayCls = isToday(d) ? 'today-c' : '';
+
+    html += `<tr>`;
+    // Date cell
+    html += `<td class="row-head ${dayCls} ${todayCls}" style="text-align:center;${isSun?'color:#b83030':isSat?'color:#1a5276':''}">
+      <span style="font-size:12px;font-weight:600">${d}</span>
+      <span style="font-size:9px;display:block;color:inherit;opacity:.7">${dowLabel}</span>
+    </td>`;
+
+    // Doctor cells
+    docs.forEach(doc => {
+      const dayShifts = (shifts[ds] || []).filter(s => s.docId === doc.id);
+      html += `<td class="${dayCls} ${todayCls}" style="text-align:center;padding:3px 2px">`;
+
+      if (dayShifts.length === 0) {
+        if (currentMode === 'admin') {
+          html += `<button class="add-btn" onclick="openAdd('${ds}','')" style="font-size:10px">＋</button>`;
+        }
+      } else {
+        dayShifts.forEach((s, idx) => {
+          const realIdx = (shifts[ds] || []).indexOf(s);
+          const clinic = CLINICS.find(c => c.id === s.clinicId) || STATUSES.find(c => c.id === s.clinicId);
+          const {c: color, cl: bg} = col(s.clinicId);
+          const label = clinic ? clinic.name : s.clinicId;
+          html += `<span class="pill" style="background:${bg};color:${color};display:block;margin:1px auto;font-size:10px" onclick="${currentMode==='admin' ? `openEdit('${ds}',${realIdx})` : ''}">`;
+          html += `${label}${s.memo ? ' ✦' : ''}</span>`;
+        });
+        if (currentMode === 'admin') {
+          html += `<button class="add-btn" onclick="openAdd('${ds}','')" style="font-size:10px">＋</button>`;
+        }
+      }
+      html += `</td>`;
+    });
+
+    html += `</tr>`;
+  }
+
+  html += '</tbody></table>';
+  document.getElementById('viewB').innerHTML = html;
+}
+
+
+function renderViewC() {
+  const headers = buildDayHeaders();
+  const DOW = ['日','月','火','水','木','金','土'];
+  let html = `<table class="shift-table" style="min-width:${88 + headers.length * 58}px">`;
+
+  html += '<thead><tr>';
+  html += `<th class="row-head" style="top:0;z-index:3">医院</th>`;
+  headers.forEach(({d, dow}) => {
+    const cls = dow===0 ? 'sun' : dow===6 ? 'sat' : '';
+    const todayCls = isToday(d) ? 'today-h' : '';
+    html += `<th class="${cls} ${todayCls}" style="min-width:58px">${d}<span class="th-day">${DOW[dow]}</span></th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  CLINICS.forEach(clinic => {
+    const {c: color, cl: bg} = col(clinic.id);
+    html += '<tr>';
+    html += `<td class="row-head" style="color:${color}">${clinic.name}</td>`;
+
+    headers.forEach(({d, dow}) => {
+      const ds = dateStr(d);
+      let dayShifts = (shifts[ds] || []).filter(s => s.clinicId === clinic.id);
+      if (selectedDoc) dayShifts = dayShifts.filter(s => s.docId===selectedDoc);
+      const cls = dow===0 ? 'sun' : dow===6 ? 'sat' : '';
+      const todayCls = isToday(d) ? 'today-c' : '';
+      html += `<td class="${cls} ${todayCls}" style="min-width:58px">`;
+
+      if (dayShifts.length === 0) {
+        if (currentMode==='admin') {
+          html += `<button class="add-btn" onclick="openAdd('${ds}','${clinic.id}')">＋</button>`;
+        } else {
+          html += `<span class="d-empty">—</span>`;
+        }
+      } else {
+        const names = dayShifts.map(s => {
+          const doc = doctors.find(dd => dd.id===s.docId);
+          return doc ? doc.name : '';
+        }).join(' ');
+        html += `<span class="d-count" style="color:${color}">${dayShifts.length}</span>`;
+        html += `<span class="d-names">${names}</span>`;
+        if (currentMode==='admin') {
+          html += `<button class="add-btn" onclick="openAdd('${ds}','${clinic.id}')">＋</button>`;
+        }
+      }
+
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('viewC').innerHTML = html;
+}
+
+/* ===== MODAL ===== */
+function populateSelects() {
+  const sd = document.getElementById('selDoc');
+  sd.innerHTML = '';
+  doctors.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.id;
+    o.textContent = currentMode==='admin' ? `${d.name}（${d.rank}）` : d.name;
+    sd.appendChild(o);
+  });
+
+  const sc = document.getElementById('selClinic');
+  sc.innerHTML = '';
+  CLINICS.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.id; o.textContent = c.name;
+    sc.appendChild(o);
+  });
+  sc.innerHTML += '<option disabled>──────</option>';
+  STATUSES.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s.id; o.textContent = s.name;
+    sc.appendChild(o);
+  });
+}
+
+function openAdd(ds, clinicId) {
+  modalDate = ds; editingIdx = null;
+  populateSelects();
+  const [y,m,d] = ds.split('-');
+  const dow = ['日','月','火','水','木','金','土'][new Date(ds).getDay()];
+  document.getElementById('shiftModalTitle').textContent = 'シフトを追加';
+  document.getElementById('shiftModalSub').textContent = `${parseInt(m)}月${parseInt(d)}日（${dow}）`;
+  document.getElementById('selDoc').value = selectedDoc || doctors[0]?.id;
+  document.getElementById('selClinic').value = clinicId || CLINICS[0].id;
+  document.getElementById('inputMemo').value = '';
+  document.getElementById('btnDel').style.display = 'none';
+  document.getElementById('shiftOverlay').classList.add('show');
+}
+
+function openEdit(ds, idx) {
+  if (currentMode !== 'admin') return;
+  modalDate = ds; editingIdx = idx;
+  populateSelects();
+  const s = shifts[ds][idx];
+  const [y,m,d] = ds.split('-');
+  const dow = ['日','月','火','水','木','金','土'][new Date(ds).getDay()];
+  document.getElementById('shiftModalTitle').textContent = 'シフトを編集';
+  document.getElementById('shiftModalSub').textContent = `${parseInt(m)}月${parseInt(d)}日（${dow}）`;
+  document.getElementById('selDoc').value = s.docId;
+  document.getElementById('selClinic').value = s.clinicId;
+  document.getElementById('inputMemo').value = s.memo || '';
+  document.getElementById('btnDel').style.display = '';
+  document.getElementById('shiftOverlay').classList.add('show');
+}
+
+async function saveShift() {
+  const docId = document.getElementById('selDoc').value;
+  const clinicId = document.getElementById('selClinic').value;
+  const memo = document.getElementById('inputMemo').value.trim();
+  if (!docId || !clinicId) return;
+  if (!shifts[modalDate]) shifts[modalDate] = [];
+  if (editingIdx !== null) {
+    shifts[modalDate][editingIdx] = {docId, clinicId, memo};
+  } else {
+    shifts[modalDate].push({docId, clinicId, memo});
+  }
+  closeOverlay('shiftOverlay');
+  renderAll();
+  try {
+    await sbReq('/rest/v1/shifts', {
+      method: 'POST',
+      headers: {Prefer: 'resolution=merge-duplicates,return=minimal'},
+      body: JSON.stringify({date_str: modalDate, doc_id: docId, clinic_id: clinicId, memo: memo})
+    });
+    showStatus('保存しました', 'ok');
+  } catch(e) { showStatus('DB保存失敗（ローカルのみ）', 'warn'); }
+}
+
+async function deleteShift() {
+  if (editingIdx === null || !shifts[modalDate]) return;
+  const s = shifts[modalDate][editingIdx];
+  shifts[modalDate].splice(editingIdx, 1);
+  if (!shifts[modalDate].length) delete shifts[modalDate];
+  closeOverlay('shiftOverlay');
+  renderAll();
+  try {
+    await sbReq('/rest/v1/shifts?date_str=eq.' + modalDate + '&doc_id=eq.' + s.docId, {method: 'DELETE'});
+    showStatus('削除しました', 'ok');
+  } catch(e) { showStatus('DB削除失敗（ローカルのみ）', 'warn'); }
+}
+
+function openAddDoc() {
+  document.getElementById('docName').value = '';
+  document.getElementById('docOverlay').classList.add('show');
+}
+
+function saveDoc() {
+  const name = document.getElementById('docName').value.trim();
+  const rank = document.getElementById('docRank').value;
+  if (!name) return;
+  doctors.push({id:'d'+Date.now(), name, rank});
+  closeOverlay('docOverlay');
+  populateSelects();
+  renderAll();
+}
+
+function cycleRank(docId, e) {
+  e.stopPropagation();
+  const doc = doctors.find(d => d.id === docId);
+  if (!doc) return;
+  const ranks = ['A', 'B', 'C'];
+  doc.rank = ranks[(ranks.indexOf(doc.rank) + 1) % ranks.length];
+  renderAll();
+}
+
+// ===== SETTINGS =====
+let settingsDoctors = [];
+
+function openSettings() {
+  settingsDoctors = doctors.map(d => ({...d}));
+  renderRankGrid();
+  renderDocEditList();
+  switchStab(1);
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+
+function switchStab(n) {
+  [1,2].forEach(i => {
+    document.getElementById('stabContent'+i).style.display = i===n ? '' : 'none';
+    const btn = document.getElementById('stab'+i);
+    btn.style.background = i===n ? 'var(--ink)' : 'var(--bg)';
+    btn.style.color = i===n ? '#fff' : 'var(--ink2)';
+  });
+}
+
+function renderRankGrid() {
+  const el = document.getElementById('rankGrid');
+  el.innerHTML = '';
+  settingsDoctors.forEach(d => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px;background:var(--bg);';
+    row.innerHTML = `
+      <span style="flex:1;font-size:12px;font-weight:500;">${d.name}</span>
+      <div style="display:flex;gap:4px;">
+        ${['A','B','C'].map(r => `<button onclick="setDocRank('${d.id}','${r}')" style="width:32px;height:28px;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;transition:all .1s;
+          background:${d.rank===r ? (r==='A'?'#7b2d8b':r==='B'?'#1a5276':'#2e7d32') : 'var(--border)'};
+          color:${d.rank===r ? '#fff' : 'var(--ink3)'};">${r}</button>`).join('')}
+      </div>`;
+    el.appendChild(row);
+  });
+}
+
+function setDocRank(id, rank) {
+  const d = settingsDoctors.find(x => x.id === id);
+  if (d) { d.rank = rank; renderRankGrid(); }
+}
+
+function renderDocEditList() {
+  const el = document.getElementById('docEditList');
+  el.innerHTML = '';
+  settingsDoctors.forEach((d, idx) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;';
+    row.innerHTML = `
+      <input value="${d.name}" onchange="settingsDoctors[${idx}].name=this.value"
+        style="flex:1;padding:6px 10px;border:0.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:12px;background:var(--bg);">
+      <select onchange="settingsDoctors[${idx}].rank=this.value"
+        style="padding:6px 8px;border:0.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:12px;background:var(--bg);">
+        ${['A','B','C'].map(r=>`<option value="${r}"${d.rank===r?' selected':''}>${r}</option>`).join('')}
+      </select>
+      <button onclick="removeDoc(${idx})" style="width:28px;height:28px;border:none;border-radius:5px;background:#fdf0ee;color:#b83030;font-size:14px;cursor:pointer;flex-shrink:0;">×</button>`;
+    el.appendChild(row);
+  });
+}
+
+function addNewDoc() {
+  settingsDoctors.push({id:'d'+Date.now(), name:'新ドクター', rank:'C'});
+  renderDocEditList();
+  renderRankGrid();
+}
+
+function removeDoc(idx) {
+  if (!confirm(settingsDoctors[idx].name + ' を削除しますか？')) return;
+  settingsDoctors.splice(idx, 1);
+  renderDocEditList();
+  renderRankGrid();
+}
+
+function saveSettings() {
+  doctors = settingsDoctors.map(d => ({...d}));
+  document.getElementById('settingsOverlay').classList.remove('show');
+  populateSelects();
+  renderAll();
+  showStatus('設定を反映しました', 'ok');
+}
+
+function overlayClick(e, id) { if (e.target.classList.contains('overlay')) closeOverlay(id); }
+function closeOverlay(id) { document.getElementById(id).classList.remove('show'); }
+
+const EXCEL_SHIFTS = {"2026-04-30":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yasumi","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"yasumi","memo":""},{"docId":"d15","clinicId":"esca","memo":""},{"docId":"d16","clinicId":"yukyu","memo":""},{"docId":"d17","clinicId":"daishutsu","memo":""},{"docId":"d19","clinicId":"r","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d22","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"yukyu","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-01":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yukyu","memo":""},{"docId":"d4","clinicId":"daikyu","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"luminas","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"chiryu","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"yagoto","memo":""},{"docId":"d22","clinicId":"daikyu","memo":""},{"docId":"d23","clinicId":"yukyu","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"r","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-02":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"r","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"wiz","memo":""}],"2026-04-03":[{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""}],"2026-04-04":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"luminas","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"daikyu","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d32","clinicId":"ginza","memo":""}],"2026-04-05":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"luminas","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"yasumi","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-06":[{"docId":"d1","clinicId":"esca","memo":""},{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-07":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d22","clinicId":"ginza","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"wiz","memo":""},{"docId":"d29","clinicId":"houmon","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-08":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"daikyu","memo":""},{"docId":"d3","clinicId":"yukyu","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d9","clinicId":"yasumi","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d19","clinicId":"chaya","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d22","clinicId":"ginza","memo":""},{"docId":"d23","clinicId":"yagoto","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d33","clinicId":"wiz","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-09":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yasumi","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"yasumi","memo":""},{"docId":"d15","clinicId":"r","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"yagoto","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"yasumi","memo":""},{"docId":"d22","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"chiryu","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-10":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"luminas","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"komaki","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"yasumi","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d22","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"wiz","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-11":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"luminas","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d32","clinicId":"ginza","memo":""}],"2026-04-12":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"daishutsu","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d7","clinicId":"daikyu","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"r","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"chiryu","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"yasumi","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"r","memo":""}],"2026-04-13":[{"docId":"d1","clinicId":"r","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"daikyu","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chiryu","memo":""},{"docId":"d16","clinicId":"luminas","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"yasumi","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"esca","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-14":[{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"esca","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"chiryu","memo":""},{"docId":"d21","clinicId":"yasumi","memo":""},{"docId":"d22","clinicId":"ginza","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"wiz","memo":""},{"docId":"d27","clinicId":"esca","memo":""},{"docId":"d29","clinicId":"houmon","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-15":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yukyu","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d9","clinicId":"yasumi","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"komaki","memo":""},{"docId":"d13","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"chaya","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d22","clinicId":"ginza","memo":""},{"docId":"d23","clinicId":"yagoto","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"esca","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d33","clinicId":"wiz","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-16":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yasumi","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"yasumi","memo":""},{"docId":"d15","clinicId":"r","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"yagoto","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d22","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"chiryu","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-17":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"daishutsu","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"luminas","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"esca","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"r","memo":""},{"docId":"d20","clinicId":"daishutsu","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d22","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"yukyu","memo":""},{"docId":"d26","clinicId":"wiz","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-18":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"r","memo":""},{"docId":"d16","clinicId":"chaya","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"luminas","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d32","clinicId":"ginza","memo":""}],"2026-04-19":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"yasumi","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"yasumi","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"chaya","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-20":[{"docId":"d1","clinicId":"wiz","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-21":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d22","clinicId":"ginza","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"wiz","memo":""},{"docId":"d29","clinicId":"houmon","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-22":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yukyu","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d9","clinicId":"yasumi","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d20","clinicId":"chaya","memo":""},{"docId":"d22","clinicId":"ginza","memo":""},{"docId":"d23","clinicId":"yagoto","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d33","clinicId":"wiz","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-23":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yasumi","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d13","clinicId":"yasumi","memo":""},{"docId":"d15","clinicId":"r","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"yagoto","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d22","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"chiryu","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"esca","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-24":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"daishutsu","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d13","clinicId":"luminas","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"esca","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"r","memo":""},{"docId":"d20","clinicId":"yasumi","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d22","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-25":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d16","clinicId":"chaya","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d20","clinicId":"luminas","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d32","clinicId":"yukyu","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-26":[{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"esca","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d14","clinicId":"yasumi","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"kyoto","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"yasumi","memo":""},{"docId":"d19","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"r","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d32","clinicId":"yukyu","memo":""}],"2026-04-27":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"yukyu","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"luminas","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-04-28":[{"docId":"d2","clinicId":"daishutsu","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"yukyu","memo":""},{"docId":"d11","clinicId":"yasumi","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d15","clinicId":"wiz","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d22","clinicId":"ginza","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"wiz","memo":""},{"docId":"d29","clinicId":"houmon","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d34","clinicId":"luminas","memo":""}],"2026-04-29":[{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d28","clinicId":"yukyu","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""}],"2026-05-01":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yukyu","memo":""},{"docId":"d4","clinicId":"daikyu","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"daishutsu","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"luminas","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"yagoto","memo":""},{"docId":"d23","clinicId":"yukyu","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"r","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-02":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"chaya","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d15","clinicId":"r","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d19","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d34","clinicId":"esca","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-03":[{"docId":"d21","clinicId":"yagoto","memo":""}],"2026-05-04":[{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d21","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""}],"2026-05-05":[{"docId":"d9","clinicId":"yagoto","memo":""}],"2026-05-06":[{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d28","clinicId":"yukyu","memo":""}],"2026-05-07":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d5","clinicId":"daishutsu","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d12","clinicId":"chaya","memo":""},{"docId":"d13","clinicId":"yasumi","memo":""},{"docId":"d15","clinicId":"luminas","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"yagoto","memo":""},{"docId":"d19","clinicId":"chaya","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d23","clinicId":"chiryu","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d32","clinicId":"ginza","memo":""}],"2026-05-08":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yukyu","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yukyu","memo":""},{"docId":"d7","clinicId":"daishutsu","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d15","clinicId":"daishutsu","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d20","clinicId":"daikyu","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-09":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yukyu","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d15","clinicId":"wiz","memo":""},{"docId":"d16","clinicId":"luminas","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d19","clinicId":"chaya","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"daikyu","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d34","clinicId":"luminas","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-10":[{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d19","clinicId":"r","memo":""},{"docId":"d20","clinicId":"yasumi","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"daikyu","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d34","clinicId":"luminas","memo":""},{"docId":"d33","clinicId":"esca","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-11":[{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"yasumi","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d16","clinicId":"luminas","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"esca","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-12":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d15","clinicId":"chiryu","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"yasumi","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"wiz","memo":""},{"docId":"d29","clinicId":"houmon","memo":""},{"docId":"d34","clinicId":"luminas","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-13":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yukyu","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"chaya","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d19","clinicId":"chaya","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d23","clinicId":"yagoto","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"esca","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"luminas","memo":""},{"docId":"d33","clinicId":"wiz","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-14":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"yasumi","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d15","clinicId":"r","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"yagoto","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"yasumi","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"chiryu","memo":""},{"docId":"d24","clinicId":"yasumi","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d32","clinicId":"ginza","memo":""}],"2026-05-15":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"luminas","memo":""},{"docId":"d15","clinicId":"wiz","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"daishutsu","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-16":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"daikyu","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"komaki","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d20","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-17":[{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d7","clinicId":"daikyu","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"chaya","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d15","clinicId":"luminas","memo":""},{"docId":"d16","clinicId":"kyoto","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d34","clinicId":"wiz","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"yasumi","memo":""}],"2026-05-18":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"yasumi","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d15","clinicId":"luminas","memo":""},{"docId":"d16","clinicId":"kyoto","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"houmon","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"r","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"yasumi","memo":""}],"2026-05-19":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d16","clinicId":"chiryu","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d29","clinicId":"houmon","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-20":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"yagoto","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"luminas","memo":""},{"docId":"d33","clinicId":"yasumi","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-21":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"yasumi","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d13","clinicId":"yukyu","memo":""},{"docId":"d15","clinicId":"komaki","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"yagoto","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"yasumi","memo":""},{"docId":"d23","clinicId":"chiryu","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d32","clinicId":"ginza","memo":""}],"2026-05-22":[{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d11","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d20","clinicId":"r","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-23":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"yasumi","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"yasumi","memo":""},{"docId":"d15","clinicId":"daikyu","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d19","clinicId":"luminas","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"daishutsu","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d34","clinicId":"esca","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-24":[{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d5","clinicId":"yasumi","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"esca","memo":""},{"docId":"d11","clinicId":"yasumi","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"yasumi","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d19","clinicId":"r","memo":""},{"docId":"d20","clinicId":"daishutsu","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d34","clinicId":"esca","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-25":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"yasumi","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"yasumi","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"yasumi","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d15","clinicId":"wiz","memo":""},{"docId":"d16","clinicId":"luminas","memo":""},{"docId":"d19","clinicId":"wiz","memo":""},{"docId":"d20","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"chiryu","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"wiz","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-26":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"daikyu","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"yasumi","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"yasumi","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d15","clinicId":"chiryu","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d19","clinicId":"esca","memo":""},{"docId":"d21","clinicId":"yasumi","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"esca","memo":""},{"docId":"d29","clinicId":"houmon","memo":""},{"docId":"d34","clinicId":"luminas","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-27":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yukyu","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d10","clinicId":"r","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"r","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"wiz","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d19","clinicId":"chaya","memo":""},{"docId":"d23","clinicId":"yagoto","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"luminas","memo":""},{"docId":"d33","clinicId":"wiz","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"yasumi","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-28":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"yukyu","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d10","clinicId":"yasumi","memo":""},{"docId":"d11","clinicId":"r","memo":""},{"docId":"d16","clinicId":"yasumi","memo":""},{"docId":"d17","clinicId":"yagoto","memo":""},{"docId":"d19","clinicId":"r","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"chiryu","memo":""},{"docId":"d24","clinicId":"houmon","memo":""},{"docId":"d25","clinicId":"wiz","memo":""},{"docId":"d26","clinicId":"wiz","memo":""},{"docId":"d29","clinicId":"yagoto","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d35","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d32","clinicId":"ginza","memo":""}],"2026-05-29":[{"docId":"d3","clinicId":"yasumi","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"yasumi","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"chaya","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"luminas","memo":""},{"docId":"d15","clinicId":"chiryu","memo":""},{"docId":"d17","clinicId":"houmon","memo":""},{"docId":"d19","clinicId":"r","memo":""},{"docId":"d20","clinicId":"komaki","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"chaya","memo":""},{"docId":"d25","clinicId":"esca","memo":""},{"docId":"d26","clinicId":"komaki","memo":""},{"docId":"d34","clinicId":"yasumi","memo":""},{"docId":"d28","clinicId":"asano","memo":""},{"docId":"d31","clinicId":"houmon","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-30":[{"docId":"d2","clinicId":"esca","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d5","clinicId":"r","memo":""},{"docId":"d6","clinicId":"wiz","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"luminas","memo":""},{"docId":"d12","clinicId":"esca","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d15","clinicId":"chaya","memo":""},{"docId":"d16","clinicId":"r","memo":""},{"docId":"d17","clinicId":"chiryu","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"esca","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d34","clinicId":"esca","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"omori","memo":""},{"docId":"d32","clinicId":"ginza","memo":""},{"docId":"d18","clinicId":"kyoto","memo":""}],"2026-05-31":[{"docId":"d2","clinicId":"yasumi","memo":""},{"docId":"d3","clinicId":"chaya","memo":""},{"docId":"d4","clinicId":"luminas","memo":""},{"docId":"d7","clinicId":"komaki","memo":""},{"docId":"d8","clinicId":"chiryu","memo":""},{"docId":"d9","clinicId":"yagoto","memo":""},{"docId":"d10","clinicId":"wiz","memo":""},{"docId":"d11","clinicId":"wiz","memo":""},{"docId":"d12","clinicId":"chiryu","memo":""},{"docId":"d13","clinicId":"komaki","memo":""},{"docId":"d16","clinicId":"chaya","memo":""},{"docId":"d17","clinicId":"yasumi","memo":""},{"docId":"d20","clinicId":"wiz","memo":""},{"docId":"d21","clinicId":"luminas","memo":""},{"docId":"d23","clinicId":"yasumi","memo":""},{"docId":"d26","clinicId":"yasumi","memo":""},{"docId":"d29","clinicId":"luminas","memo":""},{"docId":"d30","clinicId":"omori","memo":""},{"docId":"d1","clinicId":"ginza","memo":""},{"docId":"d14","clinicId":"yasumi","memo":""},{"docId":"d32","clinicId":"ginza","memo":""}]};
+init();
+</script>
+</body>
+</html>
