@@ -356,14 +356,7 @@ thead .date-th{top:0;}
       </div>
       <button id="docCalCloseBtn" style="border:none;background:var(--bg);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:var(--ink2);">閉じる</button>
     </div>
-    <div class="cal-dow-row" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;">
-      <div class="cal-dow-lbl sun">日</div>
-      <div class="cal-dow-lbl">月</div><div class="cal-dow-lbl">火</div>
-      <div class="cal-dow-lbl">水</div><div class="cal-dow-lbl">木</div>
-      <div class="cal-dow-lbl">金</div>
-      <div class="cal-dow-lbl sat">土</div>
-    </div>
-    <div class="cal-grid" id="docCalGrid"></div>
+    <div id="docCalGrid"></div>
   </div>
 </div>
 
@@ -1028,63 +1021,60 @@ function renderDocCal(){
   var days=dim(docCalY,docCalM),firstDow=new Date(docCalY,docCalM,1).getDay();
   var restIds=new Set(['yasumi','yukyu','daikyu','daishutsu']);
   var DOWS=['日','月','火','水','木','金','土'];
-  var DOWCOL=['#e05252','var(--ink2)','var(--ink2)','var(--ink2)','var(--ink2)','var(--ink2)','#4a7fd4'];
-  var h='';
-  for(var i=0;i<firstDow;i++)h+='<div></div>';
+  var DOWCOL=['#e05252','#444','#444','#444','#444','#444','#4a7fd4'];
 
+  /* 全部を1グリッドに：曜日7個 + 空白(firstDow個) + 日付セル */
+  var cells='';
+
+  /* 曜日ヘッダー */
+  DOWS.forEach(function(d,i){
+    cells+='<div style="text-align:center;font-size:11px;font-weight:700;color:'+DOWCOL[i]+';padding:4px 0;border-bottom:1px solid var(--border);">'+d+'</div>';
+  });
+
+  /* 空白（月初の曜日分） */
+  for(var i=0;i<firstDow;i++){
+    cells+='<div></div>';
+  }
+
+  /* 日付セル */
   for(var d=1;d<=days;d++){
     var dateStr=docCalY+'-'+String(docCalM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     var w=new Date(docCalY,docCalM,d).getDay();
     var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===docCalDocId;});
     var isT=todayFlagOf(docCalY,docCalM,d);
     var isSun=w===0,isSat=w===6;
-    var closed2=isClosed(dateStr,null)&&!isT;
-
     var c2=sh?getCC(sh.clinicId):null;
-    var bg=closed2?'#f5f4f0':isT&&c2?c2.b:isSun?'#fff5f5':isSat?'#f0f5ff':'#fff';
+    var bg=isT&&c2?c2.b:isSun?'#fff5f5':isSat?'#f0f5ff':'#fff';
     var numCol=isSun?'#e05252':isSat?'#4a7fd4':'var(--ink3)';
     var border=isT?'2px solid '+(c2?c2.c:'var(--ink)'):'1px solid rgba(0,0,0,.06)';
 
-    h+='<div style="background:'+bg+';border-radius:8px;border:'+border+';padding:4px 3px;min-height:60px;display:flex;flex-direction:column;">';
-    h+='<div style="font-size:11px;font-weight:700;color:'+(isT&&c2?c2.c:numCol)+';text-align:center;line-height:1;margin-bottom:3px;">'+d+'</div>';
+    cells+='<div style="background:'+bg+';border-radius:8px;border:'+border+';padding:4px 3px;min-height:64px;display:flex;flex-direction:column;">';
+    cells+='<div style="font-size:12px;font-weight:700;color:'+(isT&&c2?c2.c:numCol)+';text-align:center;line-height:1;margin-bottom:3px;">'+d+'</div>';
 
     if(sh){
-      var isKyu=sh.memo==='休出';
-      var isDai=sh.memo==='代出';
-      // 医院バッジ（大きく目立つ）
-      h+='<div style="text-align:center;margin-bottom:2px;">';
-      h+='<span style="display:inline-block;background:'+c2.c+';color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;white-space:nowrap;letter-spacing:.01em;">'+cname(sh.clinicId)+'</span>';
-      h+='</div>';
-      if(isDai)h+='<div style="text-align:center;font-size:7px;color:#999;font-weight:600;margin-bottom:1px;">代出</div>';
-      if(isKyu)h+='<div style="text-align:center;font-size:7px;color:#e67e22;font-weight:700;margin-bottom:1px;">休出</div>';
-      // 同僚タグ
+      var isKyu=sh.memo==='休出',isDai=sh.memo==='代出';
+      cells+='<div style="text-align:center;margin-bottom:2px;">';
+      cells+='<span style="display:inline-block;background:'+c2.c+';color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;white-space:nowrap;">'+cname(sh.clinicId)+'</span>';
+      cells+='</div>';
+      if(isDai)cells+='<div style="text-align:center;font-size:8px;color:#999;font-weight:600;">代出</div>';
+      if(isKyu)cells+='<div style="text-align:center;font-size:8px;color:#e67e22;font-weight:700;">休出</div>';
       if(!restIds.has(sh.clinicId)){
-        var mates=(shifts[dateStr]||[]).filter(function(s){
-          return s.docId!==docCalDocId&&s.clinicId===sh.clinicId;
-        }).map(function(s){
-          var d2=doctors.find(function(dd){return dd.id===s.docId;});
-          return d2?d2.n:'';
-        }).filter(Boolean);
+        var mates=(shifts[dateStr]||[]).filter(function(s){return s.docId!==docCalDocId&&s.clinicId===sh.clinicId;})
+          .map(function(s){var d2=doctors.find(function(dd){return dd.id===s.docId;});return d2?d2.n:'';}).filter(Boolean);
         if(mates.length){
-          h+='<div style="display:flex;flex-wrap:wrap;gap:1px;justify-content:center;margin-top:auto;">';
+          cells+='<div style="display:flex;flex-wrap:wrap;gap:1px;justify-content:center;margin-top:auto;">';
           mates.forEach(function(name){
-            h+='<span style="background:'+c2.b+';color:'+c2.c+';font-size:8px;font-weight:700;padding:2px 4px;border-radius:4px;line-height:1.5;">'+name+'</span>';
+            cells+='<span style="background:'+c2.b+';color:'+c2.c+';font-size:8px;font-weight:700;padding:1px 4px;border-radius:4px;line-height:1.5;">'+name+'</span>';
           });
-          h+='</div>';
+          cells+='</div>';
         }
       }
     }
-    h+='</div>';
+    cells+='</div>';
   }
 
-  // 曜日ヘッダー + 日付を1つのグリッドに統合
-  var DOWS2=['日','月','火','水','木','金','土'];
-  var dowRow='';
-  DOWS2.forEach(function(d,i){
-    dowRow+='<div style="text-align:center;font-size:10px;font-weight:700;color:'+DOWCOL[i]+';padding:3px 0;letter-spacing:.04em;">'+d+'</div>';
-  });
-  var grid='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">'+dowRow+h+'</div>';
-  document.getElementById('docCalGrid').innerHTML=grid;
+  document.getElementById('docCalGrid').innerHTML=
+    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">'+cells+'</div>';
 }
 
 
