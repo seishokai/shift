@@ -990,6 +990,14 @@ el.innerHTML=guideBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
 }
 
 function updateBalSelBar(el){}
+function balDeleteCell(docId, dateStr){
+  if(shifts[dateStr]){
+    shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
+    if(!shifts[dateStr].length)delete shifts[dateStr];
+  }
+  dbDel(dateStr,docId);
+  renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+}
 
 
 function renderP(){
@@ -2307,32 +2315,6 @@ document.addEventListener('DOMContentLoaded',function(){
     /* よく行く医院（freqBar からワンタップ保存） */
     if(e.target.classList.contains('freq-pill')&&e.target.dataset.cid&&qpopDate===null){
       /* freqBarのpillをタップ→選択中の日がなければ何もしない（カレンダーからのみ） */
-      return;
-    }
-    /* 全体バランス表のセルクリック */
-    var balTd=e.target.closest('[data-bal-doc]');
-    if(balTd&&isAdmin){
-      var bdoc=balTd.dataset.balDoc, bdate=balTd.dataset.balDate;
-      if(e.ctrlKey||e.metaKey){
-        /* Ctrl：選択トグル */
-        if(balSelClinicId){
-          balSaveToCell(bdoc,bdate);
-          setTimeout(function(){balMultiSel.clear();renderAllView('allViewWrap');renderAllView('allViewWrapView');},100);
-        }
-      } else if(balDragging){
-        /* ドラッグ中はスキップ */
-      } else if(balSelClinicId){
-        /* 医院選択中：即保存 */
-        balSaveToCell(bdoc,bdate);
-        setTimeout(function(){balMultiSel.clear();renderAllView('allViewWrap');renderAllView('allViewWrapView');},100);
-      } else {
-        /* 医院未選択：シフト削除 */
-        var existing=(shifts[bdate]||[]).find(function(s){return s.docId===bdoc;});
-        if(existing){
-          balDeleteCell(bdoc,bdate);
-          showSb('削除しました','ok');
-        }
-      }
       return;
     }
     /* 全体バランス表セルタップ→追加/削除 */
