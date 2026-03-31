@@ -150,6 +150,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 /* スマホ: 右ペインは非表示 */
 @media(max-width:680px){
   #vA, #vB-view{height:calc(100vh - 112px) !important;}
+  #docCalOv, #clinicCalOv{align-items:flex-end !important;padding:0 !important;}
+  #docCalOv .sheet, #clinicCalOv .sheet{max-width:100% !important;border-radius:18px 18px 0 0 !important;max-height:92vh !important;}
   .day-cell{min-height:50px !important;}
   .clinic-pick-btn{padding:10px 14px !important;font-size:12px !important;}
   .date-th{min-width:36px !important;}
@@ -329,8 +331,8 @@ thead .date-th{top:0;}
 </div>
 
 <!-- 医院カレンダー -->
-<div class="overlay" id="clinicCalOv">
-  <div class="sheet" style="max-height:96vh;padding:16px 12px 32px;background:#fafaf8;">
+<div class="overlay" id="clinicCalOv" style="align-items:center;padding:16px;">
+  <div class="sheet" style="max-height:95vh;width:100%;max-width:900px;border-radius:18px;padding:16px 12px 32px;background:#fafaf8;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:0;">
         <button id="clinicCalPrev" style="width:38px;height:38px;border:1.5px solid var(--border);background:var(--card);border-radius:10px 0 0 10px;font-size:20px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:600;border-right:none;">‹</button>
@@ -344,8 +346,8 @@ thead .date-th{top:0;}
 </div>
 
 <!-- 個人カレンダー -->
-<div class="overlay" id="docCalOv" style="align-items:flex-end;">
-  <div class="sheet" style="max-height:90vh;background:#fafaf8;">
+<div class="overlay" id="docCalOv" style="align-items:center;padding:16px;">
+  <div class="sheet" style="max-height:95vh;width:100%;max-width:900px;border-radius:18px;background:#fafaf8;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:0;">
         <button id="docCalPrev" style="width:38px;height:38px;border:1.5px solid var(--border);background:var(--card);border-radius:10px 0 0 10px;font-size:20px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:600;border-right:none;">‹</button>
@@ -948,15 +950,12 @@ function renderClinicCal(){
   var DOWS=['日','月','火','水','木','金','土'];
   var DOWCOL=['#e05252','var(--ink2)','var(--ink2)','var(--ink2)','var(--ink2)','var(--ink2)','#4a7fd4'];
 
-  // 曜日ヘッダー
-  var h='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;">';
+  // 曜日ヘッダー + 日付を1グリッドに統合
+  var dowHdr='';
   DOWS.forEach(function(d,i){
-    h+='<div style="text-align:center;font-size:10px;font-weight:700;color:'+DOWCOL[i]+';padding:3px 0;letter-spacing:.04em;">'+d+'</div>';
+    dowHdr+='<div style="text-align:center;font-size:10px;font-weight:700;color:'+DOWCOL[i]+';padding:3px 0;letter-spacing:.04em;">'+d+'</div>';
   });
-  h+='</div>';
-
-  // 日付グリッド
-  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">';
+  var h='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">'+dowHdr;
   for(var i=0;i<firstDow;i++) h+='<div></div>';
 
   for(var d=1;d<=days;d++){
@@ -979,7 +978,7 @@ function renderClinicCal(){
       h+='<div style="flex:1;display:flex;align-items:center;justify-content:center;"><span style="font-size:8px;color:var(--ink3);letter-spacing:.02em;">休診</span></div>';
     } else if(dayS.length){
       // 人数バッジ
-      h+='<div style="text-align:center;margin-bottom:3px;"><span style="background:'+col+';color:#fff;font-size:8px;font-weight:800;border-radius:10px;padding:1px 6px;letter-spacing:.02em;">'+dayS.length+'名</span></div>';
+      h+='<div style="text-align:center;margin-bottom:3px;"><span style="background:'+col+';color:#fff;font-size:9px;font-weight:800;border-radius:8px;padding:1px 6px;white-space:nowrap;letter-spacing:.01em;">'+dayS.length+'名</span></div>';
       // ドクター名
       h+='<div style="flex:1;">';
       dayS.forEach(function(s){
@@ -1046,7 +1045,7 @@ function renderDocCal(){
     var numCol=isSun?'#e05252':isSat?'#4a7fd4':'var(--ink3)';
     var border=isT?'2px solid '+(c2?c2.c:'var(--ink)'):'1px solid rgba(0,0,0,.06)';
 
-    h+='<div style="background:'+bg+';border-radius:8px;border:'+border+';padding:4px 3px;min-height:64px;display:flex;flex-direction:column;">';
+    h+='<div style="background:'+bg+';border-radius:8px;border:'+border+';padding:4px 3px;min-height:60px;display:flex;flex-direction:column;">';
     h+='<div style="font-size:11px;font-weight:700;color:'+(isT&&c2?c2.c:numCol)+';text-align:center;line-height:1;margin-bottom:3px;">'+d+'</div>';
 
     if(sh){
@@ -1054,7 +1053,7 @@ function renderDocCal(){
       var isDai=sh.memo==='代出';
       // 医院バッジ（大きく目立つ）
       h+='<div style="text-align:center;margin-bottom:2px;">';
-      h+='<span style="display:inline-block;background:'+c2.c+';color:#fff;font-size:9px;font-weight:800;border-radius:8px;padding:2px 6px;letter-spacing:.02em;">'+cname(sh.clinicId)+'</span>';
+      h+='<span style="display:inline-block;background:'+c2.c+';color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;white-space:nowrap;letter-spacing:.01em;">'+cname(sh.clinicId)+'</span>';
       h+='</div>';
       if(isDai)h+='<div style="text-align:center;font-size:7px;color:#999;font-weight:600;margin-bottom:1px;">代出</div>';
       if(isKyu)h+='<div style="text-align:center;font-size:7px;color:#e67e22;font-weight:700;margin-bottom:1px;">休出</div>';
@@ -1069,7 +1068,7 @@ function renderDocCal(){
         if(mates.length){
           h+='<div style="display:flex;flex-wrap:wrap;gap:1px;justify-content:center;margin-top:auto;">';
           mates.forEach(function(name){
-            h+='<span style="background:'+c2.b+';color:'+c2.c+';font-size:7px;font-weight:700;padding:1px 3px;border-radius:4px;line-height:1.4;">'+name+'</span>';
+            h+='<span style="background:'+c2.b+';color:'+c2.c+';font-size:8px;font-weight:700;padding:2px 4px;border-radius:4px;line-height:1.5;">'+name+'</span>';
           });
           h+='</div>';
         }
@@ -1078,14 +1077,13 @@ function renderDocCal(){
     h+='</div>';
   }
 
-  // グリッドラッパー
-  var grid='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;">';
+  // 曜日ヘッダー + 日付を1つのグリッドに統合
   var DOWS2=['日','月','火','水','木','金','土'];
+  var dowRow='';
   DOWS2.forEach(function(d,i){
-    grid+='<div style="text-align:center;font-size:10px;font-weight:700;color:'+DOWCOL[i]+';padding:3px 0;letter-spacing:.04em;">'+d+'</div>';
+    dowRow+='<div style="text-align:center;font-size:10px;font-weight:700;color:'+DOWCOL[i]+';padding:3px 0;letter-spacing:.04em;">'+d+'</div>';
   });
-  grid+='</div>';
-  grid+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">'+h+'</div>';
+  var grid='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">'+dowRow+h+'</div>';
   document.getElementById('docCalGrid').innerHTML=grid;
 }
 
