@@ -15,7 +15,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .cc-chiryu{--cc:#0a6b8a;--cb:#e0f2f8;}.cc-komaki{--cc:#d81b60;--cb:#fce4ec;}
 .cc-yagoto{--cc:#8b4513;--cb:#f9ece2;}.cc-omori{--cc:#1f6b4e;--cb:#e4f4ed;}
 .cc-kyoto{--cc:#6b3a87;--cb:#f2ecf8;}.cc-ginza{--cc:#7d6608;--cb:#f8f3e2;}
-.cc-houmon{--cc:#2c6e8a;--cb:#e6eef5;}.cc-yasumi{--cc:#999;--cb:#f2f2f0;}
+.cc-houmon{--cc:#2c6e8a;--cb:#e6eef5;}.cc-yasumi{--cc:#999;--cb:#f2f2f0;}.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
 .cc-yukyu{--cc:#c0392b;--cb:#f0f0ee;}.cc-daikyu{--cc:#1a5276;--cb:#e8f4fd;}
 .cc-daishutsu{--cc:#555;--cb:#f0f0ee;}.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
 /* HEADER */
@@ -65,7 +65,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .leg{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--ink2);background:var(--bg);padding:2px 7px;border-radius:10px;}
 .leg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 /* ===== VIEW B: 人タブ ===== */
-.doc-sel-bar{padding:10px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;gap:6px;-webkit-overflow-scrolling:touch;;scrollbar-width:none;}
+.doc-sel-bar{padding:10px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;gap:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:10;flex-shrink:0;}
 .doc-sel-chip{padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:11px;cursor:pointer;white-space:nowrap;background:var(--card);color:var(--ink2);font-family:inherit;font-weight:600;transition:.15s;}
 .doc-sel-chip:active{transform:scale(.95);}
 .doc-sel-chip.on{background:#1a1a18;color:#fff;border-color:#1a1a18;box-shadow:0 2px 8px rgba(0,0,0,.15);}
@@ -98,15 +98,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .sh-title{font-size:16px;font-weight:700;margin-bottom:2px;}
 .sh-sub{font-size:12px;color:var(--ink3);margin-bottom:14px;}
 .sec-lbl{font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;}
-.clinic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
-.clinic-btn{padding:11px 4px;border-radius:10px;border:2px solid transparent;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:.1s;}
+.clinic-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px;}
+.clinic-btn{padding:13px 6px;border-radius:10px;border:2px solid transparent;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:.1s;}
 .clinic-btn:active{opacity:.7;}
 .clinic-btn.cur{border-width:2px;}
 .rest-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px;}
 .rest-btn{padding:10px 4px;border-radius:10px;border:1.5px solid var(--border);font-family:inherit;font-size:12px;cursor:pointer;text-align:center;background:var(--bg);color:var(--ink2);}
 .rest-btn.on{background:#edebe6;border-color:var(--ink);color:var(--ink);font-weight:700;}
 .more-btn{width:100%;padding:10px;border:none;background:var(--bg);border-radius:8px;font-family:inherit;font-size:12px;color:var(--ink2);cursor:pointer;margin-bottom:14px;}
-.all-clinic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
+.all-clinic-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px;}
 .btns{display:flex;gap:8px;margin-top:4px;}
 .btn{padding:13px 16px;border-radius:12px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;border:none;flex:1;}
 .btn-prim{background:var(--ink);color:#fff;}.btn-prim:active{background:#333;}
@@ -114,7 +114,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .btn-del{background:#fdf0ee;color:#b83030;flex:0 0 auto;padding:13px 14px;}
 /* ===== VIEW B 2ペインレイアウト ===== */
 .b-layout{display:flex;height:calc(100vh - 100px);overflow:hidden;}
-.b-left{flex:0 0 340px;border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
+.b-left{flex:0 0 340px;border-right:1px solid var(--border);overflow-y:hidden;display:flex;flex-direction:column;min-width:0;}
 .b-right{flex:1;overflow:auto;background:var(--bg);}
 .b-right-title{padding:8px 12px;font-size:11px;font-weight:600;color:var(--ink3);background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;}
 /* 医院選択バー */
@@ -170,8 +170,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .fg{margin-bottom:14px;}
 .fg label{display:block;font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px;}
 .fg input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:12px;font-family:inherit;font-size:14px;background:var(--bg);color:var(--ink);outline:none;}
-.stab-bar{display:flex;gap:6px;margin:12px 0 14px;overflow-x:auto;}
-.stab{padding:7px 14px;border-radius:8px;font-family:inherit;font-size:12px;border:none;cursor:pointer;white-space:nowrap;background:var(--bg);color:var(--ink2);}
+.stab-bar{display:flex;gap:6px;margin:12px 0 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
+.stab{padding:7px 12px;border-radius:8px;font-family:inherit;font-size:11px;border:none;cursor:pointer;white-space:nowrap;background:var(--bg);color:var(--ink2);flex-shrink:0;}
 .stab.on{background:var(--ink);color:#fff;}
 .rank-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;background:var(--bg);margin-bottom:3px;}
 /* ===== 印刷用CSS ===== */
@@ -225,9 +225,11 @@ thead .date-th{top:0;}
   <span class="hdr-title" id="hdrTitle">清翔会 シフト</span>
   <span id="hdrAdminBadge" style="display:none;background:#2e7d32;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.04em;white-space:nowrap;">管理画面</span>
   <div style="display:flex;gap:2px;margin:0 6px;">
+    <button class="hdr-tab" id="htab4" style="display:none;">シフト作成</button>
     <button class="hdr-tab" id="htab0">人</button>
     <button class="hdr-tab" id="htab1">医院</button>
     <button class="hdr-tab" id="htab2">人数</button>
+    <button class="hdr-tab" id="htab5">休み希望</button>
     <button class="hdr-tab" id="htab3" style="display:none;">集計</button>
   </div>
   <div style="flex:1;"></div>
@@ -251,15 +253,35 @@ thead .date-th{top:0;}
     <div class="b-layout">
       <div class="b-left">
         <div class="doc-sel-bar" id="docSelBar"></div>
-        <div id="clinicPickBar" style="display:none">
+        <div id="clinicPickBar" style="display:none;position:sticky;top:56px;z-index:9;background:var(--card);">
           <div class="clinic-pick-lbl">医院を選んで → 日付をポチポチ</div>
           <div class="clinic-pick-row" id="clinicPickRow"></div>
         </div>
         <div class="no-doc-msg" id="noDocMsg">ドクターを選んでください</div>
-        <div id="calMain" style="display:none">
+        <div id="calMain" style="display:none;overflow-y:auto;flex:1;">
           <div id="multiSelBar" style="display:none;padding:7px 12px;background:#fff3e0;border-bottom:1px solid #f5d88a;align-items:center;gap:8px;font-size:11px;color:#b8691a;">
             <span id="multiSelCount" style="font-weight:700;flex:1;"></span>
             <button id="multiSelClear" style="padding:5px 12px;background:var(--bg);color:var(--ink2);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:11px;cursor:pointer;">解除</button>
+          </div>
+          <!-- 一括入力バー -->
+          <div id="bulkBar" style="display:none;padding:6px 10px;background:#fff3e0;border-bottom:1px solid #f5d88a;">
+            <div style="font-size:10px;color:#b8691a;font-weight:700;margin-bottom:5px;">⚡ 一括入力</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+              <button class="bulk-btn" data-mode="all" style="padding:5px 10px;border:none;border-radius:8px;background:#1a1a18;color:#fff;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">この月全日</button>
+              <button class="bulk-btn" data-mode="weekday" style="padding:5px 10px;border:none;border-radius:8px;background:#2d6a9f;color:#fff;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">平日のみ</button>
+              <button class="bulk-btn" data-mode="weekend" style="padding:5px 10px;border:none;border-radius:8px;background:#7b2d8b;color:#fff;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">土日のみ</button>
+              <button class="bulk-btn" data-mode="clear" id="clearBtnStep1" style="padding:5px 10px;border:none;border-radius:8px;background:#fdf0ee;color:#b83030;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">この月クリア</button><button class="bulk-btn" data-mode="clear-confirm" id="clearBtnStep2" style="display:none;padding:5px 10px;border:2px solid #b83030;border-radius:8px;background:#b83030;color:#fff;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">本当に削除</button>
+            </div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;" id="dowSelectBar">
+              <span style="font-size:9px;color:#b8691a;padding-top:5px;">曜日指定：</span>
+              <button class="dow-bulk-btn" data-dow="0" style="padding:4px 8px;border:1.5px solid #e05252;border-radius:6px;background:#fff;color:#e05252;font-family:inherit;font-size:10px;cursor:pointer;">日</button>
+              <button class="dow-bulk-btn" data-dow="1" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--ink2);font-family:inherit;font-size:10px;cursor:pointer;">月</button>
+              <button class="dow-bulk-btn" data-dow="2" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--ink2);font-family:inherit;font-size:10px;cursor:pointer;">火</button>
+              <button class="dow-bulk-btn" data-dow="3" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--ink2);font-family:inherit;font-size:10px;cursor:pointer;">水</button>
+              <button class="dow-bulk-btn" data-dow="4" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--ink2);font-family:inherit;font-size:10px;cursor:pointer;">木</button>
+              <button class="dow-bulk-btn" data-dow="5" style="padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--ink2);font-family:inherit;font-size:10px;cursor:pointer;">金</button>
+              <button class="dow-bulk-btn" data-dow="6" style="padding:4px 8px;border:1.5px solid #4a7fd4;border-radius:6px;background:#fff;color:#4a7fd4;font-family:inherit;font-size:10px;cursor:pointer;">土</button>
+            </div>
           </div>
           <div class="cal-wrap">
             <div class="cal-dow-row">
@@ -288,8 +310,7 @@ thead .date-th{top:0;}
   </div>
   <!-- 閲覧モード: 全員一覧 -->
   <div id="vB-view" style="display:none">
-    <div id="balClinicBarView" style="display:none;padding:6px 10px;background:var(--card);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:5px;"></div>
-<div id="allViewWrapView"></div>
+    <div id="allViewWrapView"></div>
   </div>
 </div>
 
@@ -367,7 +388,10 @@ thead .date-th{top:0;}
         <div class="sh-title" id="docCalTitle" style="font-size:14px;padding:0 12px;height:38px;display:flex;align-items:center;border:1.5px solid var(--border);background:var(--card);white-space:nowrap;"></div>
         <button id="docCalNext" style="width:38px;height:38px;border:1.5px solid var(--border);background:var(--card);border-radius:0 10px 10px 0;font-size:20px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:600;border-left:none;">›</button>
       </div>
-      <button id="docCalCloseBtn" style="border:none;background:var(--bg);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:var(--ink2);">閉じる</button>
+      <div style="display:flex;gap:6px;">
+        <button id="docCalKyumiBtn" style="display:none;border:none;background:#e8f5e9;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:#2e7d32;font-weight:700;">📝 休み希望</button>
+        <button id="docCalCloseBtn" style="border:none;background:var(--bg);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:var(--ink2);">閉じる</button>
+      </div>
     </div>
     <div id="docCalGrid"></div>
     </div><!-- max-width wrapper -->
@@ -458,6 +482,7 @@ thead .date-th{top:0;}
       <button class="stab" id="st3">休診日</button>
       <button class="stab" id="st4">初回DB登録</button>
       <button class="stab" id="st5">バックアップ</button>
+      <button class="stab" id="st6">休み希望</button>
     </div>
     <div id="sc0" style="max-height:50vh;overflow-y:auto;"></div>
     <div id="sc1" style="display:none;max-height:50vh;overflow-y:auto;"></div>
@@ -472,9 +497,169 @@ thead .date-th{top:0;}
       <button class="btn btn-prim" id="backupSaveBtn" style="width:100%;margin-bottom:12px;">今すぐバックアップ保存</button>
       <div id="backupList"></div>
     </div>
+    <div id="sc6" style="display:none;">
+      <p style="font-size:12px;color:var(--ink2);margin-bottom:8px;">LINEなどからコピーしたテキストをそのまま貼り付けてください。<br><span style="color:var(--ink3);font-size:11px;">例：「向田 6月3日」「島田6/4」「荒木 6月3日〜5日」</span></p>
+      <textarea id="kyumiText" placeholder="ここに貼り付け（例：向田 6月3日、荒木 6月3日〜5日）" style="width:100%;height:160px;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg);resize:vertical;line-height:1.7;"></textarea>
+      <div style="margin:8px 0 4px;font-size:11px;color:var(--ink3);">対象月（月が書いていない場合に使用）</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <select id="kyumiYear" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);"><option value="2026">2026年</option><option value="2027">2027年</option></select>
+        <select id="kyumiMonth" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);"><option value="1">2月</option><option value="2">3月</option><option value="3">4月</option><option value="4">5月</option><option value="5">6月</option><option value="6">7月</option><option value="7">8月</option><option value="8">9月</option><option value="9">10月</option><option value="10">11月</option><option value="11">12月</option></select>
+      </div>
+      <div id="kyumiPreview" style="display:none;background:#e8f5e9;border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;max-height:150px;overflow-y:auto;"></div>
+      <div style="display:flex;gap:8px;">
+        <button id="kyumiParseBtn" style="flex:1;padding:11px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:inherit;font-size:13px;cursor:pointer;color:var(--ink2);">内容を確認</button>
+        <button id="kyumiApplyBtn" style="flex:1;padding:11px;border:none;border-radius:10px;background:#2e7d32;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">休み希望を反映</button>
+      </div>
+    </div>
     <div class="btns" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
       <button class="btn btn-ghost" id="setCloseBtn">閉じる</button>
       <button class="btn btn-prim" id="setConfirmBtn">確定して反映</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW E: シフト作成（管理用） -->
+<div id="vE" style="display:none;">
+  <div style="max-width:600px;margin:0 auto;padding:16px;">
+
+    <!-- サブタブ -->
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button class="shift-sub-tab on" data-sub="0" style="flex:1;padding:10px;border:none;border-radius:10px;background:#7b2d8b;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">🤖 AI生成</button>
+      <button class="shift-sub-tab" data-sub="1" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">📝 休み希望</button>
+      <button class="shift-sub-tab" data-sub="2" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">✏️ シフト作成</button>
+    </div>
+
+    <!-- AI生成パネル -->
+    <div id="shiftSubPanel0">
+      <div style="background:#f5eef8;border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;color:#6c3483;line-height:1.6;">
+        直前2ヶ月の実績から行先パターンと医院の必要人数を分析し、シフト案を自動生成します。事前入力済みの有休・休みは保持されます。
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:11px;font-weight:700;color:var(--ink3);display:block;margin-bottom:6px;">生成する月</label>
+        <div style="display:flex;gap:8px;">
+          <select id="aiYear2" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
+            <option value="2026">2026年</option><option value="2027">2027年</option>
+          </select>
+          <select id="aiMonth2" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
+            <option value="0">1月</option><option value="1">2月</option><option value="2">3月</option>
+            <option value="3">4月</option><option value="4">5月</option><option value="5">6月</option>
+            <option value="6">7月</option><option value="7">8月</option><option value="8">9月</option>
+            <option value="9">10月</option><option value="10">11月</option><option value="11">12月</option>
+          </select>
+        </div>
+      </div>
+      <button id="aiGenerateBtn2" style="width:100%;padding:13px;background:#7b2d8b;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">✨ シフトを生成</button>
+      <div id="aiProgress2" style="display:none;text-align:center;padding:20px;color:var(--ink3);font-size:13px;">分析・生成中...</div>
+      <div id="aiResult2" style="display:none;">
+        <div style="background:#e8f5e9;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#2e7d32;" id="aiSummary2"></div>
+        <button id="aiApplyBtn2" style="width:100%;padding:13px;background:#2e7d32;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">✅ このシフトを適用する</button>
+        <p style="font-size:11px;color:var(--ink3);text-align:center;margin-top:8px;">適用後は通常通り手で修正できます</p>
+      </div>
+    </div>
+
+    <!-- 休み希望パネル -->
+    <div id="shiftSubPanel1" style="display:none;">
+      <p style="font-size:12px;color:var(--ink2);margin-bottom:8px;">LINEなどからコピーしたテキストを貼り付けてください。</p>
+      <div style="background:#f5f4f0;border-radius:10px;padding:10px;margin-bottom:10px;font-size:11px;color:var(--ink3);line-height:1.8;">
+        <strong style="color:var(--ink2);">対応フォーマット例：</strong><br>
+        武内 6/3.7.15.16<br>
+        向田 6月3日〜5日<br>
+        山田先生 月曜日と木曜日（自然文はAI解析）
+      </div>
+      <textarea id="kyumiText2" placeholder="ここにテキストを貼り付け..." style="width:100%;height:140px;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg);resize:vertical;line-height:1.7;margin-bottom:10px;"></textarea>
+      <div style="display:flex;gap:8px;margin-bottom:6px;">
+        <select id="kyumiYear2" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
+          <option value="2026">2026年</option><option value="2027">2027年</option>
+        </select>
+        <select id="kyumiMonth2" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
+          <option value="4">5月</option><option value="5">6月</option><option value="6">7月</option>
+          <option value="7">8月</option><option value="8">9月</option><option value="9">10月</option>
+          <option value="10">11月</option><option value="11">12月</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button id="kyumiAiParseBtn" style="flex:1;padding:12px;border:none;border-radius:10px;background:#7b2d8b;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">🤖 AI解析</button>
+        <button id="kyumiParseBtn2" style="flex:1;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:inherit;font-size:13px;cursor:pointer;color:var(--ink2);">通常解析</button>
+      </div>
+      <div id="kyumiAiStatus" style="display:none;text-align:center;padding:10px;font-size:12px;color:#7b2d8b;">🤖 AI解析中...</div>
+      <div id="kyumiPreview2" style="display:none;background:#e8f5e9;border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;max-height:180px;overflow-y:auto;"></div>
+      <button id="kyumiApplyBtn2" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2e7d32;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:none;">✅ 休み希望を反映</button>
+    </div>
+
+    <!-- シフト作成パネル -->
+    <div id="shiftSubPanel2" style="display:none;">
+      <div style="background:#e8f4fd;border-radius:12px;padding:14px;margin-bottom:14px;font-size:12px;color:#1a5276;line-height:1.7;">
+        <strong>「人」タブと同じ操作でシフトを作成できます。</strong><br>
+        ① ドクターを選択<br>
+        ② 医院を選択<br>
+        ③ カレンダーの日付をタップ（またはドラッグで一括入力）
+      </div>
+      <button id="goToPersonTabBtn" style="width:100%;padding:13px;background:#1a1a18;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">👤 人タブで作成する →</button>
+    </div>
+
+  </div>
+</div>
+
+
+
+<!-- 休み希望入力モーダル（個人カレンダーから） -->
+<div class="overlay" id="kyumiDocOv" style="align-items:center;padding:16px;">
+  <div class="sheet" style="max-height:92vh;width:100%;max-width:500px;border-radius:18px;background:#fafaf8;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:800;" id="kyumiDocTitle">📝 休み希望</div>
+      <button id="kyumiDocCloseBtn" style="border:none;background:var(--bg);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:var(--ink2);">閉じる</button>
+    </div>
+    <div id="kyumiDocGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px;"></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button class="kyumi-type-btn on" data-type="yasumi" style="flex:1;padding:9px;border:2px solid #999;border-radius:10px;background:#f2f2f0;color:#666;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">休み</button>
+      <button class="kyumi-type-btn" data-type="yukyu" style="flex:1;padding:9px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">有休</button>
+      <button class="kyumi-type-btn" data-type="kyushutsu" style="flex:1;padding:9px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">休日出勤</button>
+    </div>
+    <p style="font-size:11px;color:var(--ink3);margin-bottom:10px;">日付をタップして入力。もう一度タップで解除。</p>
+    <button id="kyumiDocSaveBtn" style="width:100%;padding:13px;background:#2e7d32;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">✅ 保存する</button>
+  </div>
+</div>
+
+<!-- VIEW G: 休み希望 -->
+<div id="vG" style="display:none;">
+  <div style="max-width:560px;margin:0 auto;padding:12px 16px;">
+
+    <!-- STEP1: 名前と種類を選ぶ -->
+    <div id="kyumiStep1" style="margin-bottom:10px;position:sticky;top:0;z-index:5;background:var(--bg);padding-bottom:8px;border-bottom:1px solid var(--border);">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px;">名前と種類を選んでください <span style="font-weight:400;">（希望者のみ）</span></div>
+      <!-- 名前ボタン一覧 -->
+      <div id="kyumiDocBtns" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+      <!-- 種類ボタン -->
+      <div style="display:flex;gap:8px;">
+        <button class="kyumi-type-g on" data-type="yasumi" style="flex:1;padding:10px;border:2px solid #555;border-radius:10px;background:#555;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">休み</button>
+        <button class="kyumi-type-g" data-type="yukyu" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">有休</button>
+        <button class="kyumi-type-g" data-type="kyushutsu" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">休日出勤</button>
+      </div>
+    </div>
+
+    <input type="hidden" id="kyumiDocSelG" value="">
+    <!-- STEP2: カレンダーで日付を選ぶ -->
+    <div id="kyumiStep2">
+      <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:8px;">日付をタップ（複数OK・もう一度で解除）</div>
+      <!-- 月ナビ -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:10px;">
+        <button id="kyumiCalPrev" style="width:36px;height:34px;border:1.5px solid var(--border);background:var(--bg);border-radius:10px 0 0 10px;font-size:20px;cursor:pointer;color:var(--ink);border-right:none;">‹</button>
+        <div id="kyumiCalLabel" style="padding:0 14px;height:34px;display:flex;align-items:center;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:700;"></div>
+        <button id="kyumiCalNext" style="width:36px;height:34px;border:1.5px solid var(--border);background:var(--bg);border-radius:0 10px 10px 0;font-size:20px;cursor:pointer;color:var(--ink);border-left:none;">›</button>
+      </div>
+      <!-- カレンダーグリッド -->
+      <div id="kyumiCalGrid" style="margin-bottom:12px;"></div>
+      <!-- 選択中の日付表示 -->
+      <div id="kyumiSelectedDates" style="display:none;background:#e8f5e9;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#2e7d32;">
+        <span style="font-weight:700;">選択中：</span><span id="kyumiSelDateList"></span>
+      </div>
+      <button id="kyumiSendBtn" style="width:100%;padding:13px;border:none;border-radius:12px;background:#2e7d32;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:none;">✅ 送信する</button>
+    </div>
+
+    <!-- ログ一覧 -->
+    <div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border);">
+      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px;">休み希望ログ</div>
+      <div id="kyumiLogListG"></div>
     </div>
   </div>
 </div>
@@ -490,7 +675,7 @@ const SB_URL = 'https://trsugjpvhlkwjvtloype.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc3VnanB2aGxrd2p2dGxveXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc4ODQsImV4cCI6MjA5MDQzMzg4NH0.GASbFeN_dLduCw81DQen8e4Hwc0TkHrcZWbB8dgNsec';
 const SB_H = {apikey:SB_KEY, Authorization:'Bearer '+SB_KEY, 'Content-Type':'application/json'};
 
-let CLINICS = [
+var CLINICS = [
   {id:'esca',n:'ｴｽｶ',cc:'cc-esca'},{id:'r',n:'ｱｰﾙ',cc:'cc-r'},
   {id:'wiz',n:'ｳｨｽﾞ',cc:'cc-wiz'},{id:'luminas',n:'ﾙﾐﾅｽ',cc:'cc-luminas'},
   {id:'chaya',n:'茶屋',cc:'cc-chaya'},{id:'asano',n:'ｱｻﾉ',cc:'cc-asano'},
@@ -499,11 +684,12 @@ let CLINICS = [
   {id:'kyoto',n:'京都',cc:'cc-kyoto'},{id:'ginza',n:'銀座',cc:'cc-ginza'},
   {id:'houmon',n:'訪問',cc:'cc-houmon'},
 ];
-let STATUSES = [
+var STATUSES = [
   {id:'yasumi',n:'休み',cc:'cc-yasumi'},{id:'yukyu',n:'有給',cc:'cc-yukyu'},
   {id:'daikyu',n:'代休',cc:'cc-daikyu'},{id:'daishutsu',n:'代出',cc:'cc-daishutsu'},
+  {id:'kyushutsu',n:'休日出勤',cc:'cc-kyushutsu'},
 ];
-const ALL = [...CLINICS,...STATUSES];
+var ALL = CLINICS.concat(STATUSES);
 
 let doctors = [
   {id:'d1',n:'小池',r:'A',memo:''},{id:'d2',n:'越知',r:'A',memo:''},{id:'d3',n:'荒木',r:'A',memo:''},
@@ -527,7 +713,7 @@ const HOL = new Set(['2026-01-01','2026-01-12','2026-02-11','2026-02-23','2026-0
   '2026-10-12','2026-11-03','2026-11-23','2026-12-23']);
 
 let shifts = {}, curY=2026, curM=3, curTab=0;
-let isAdmin=false, selDocId=null, selClinicId=null, qpopDate=null, showAllClinics=false;
+let isAdmin=false, selDocId=null, selClinicId=null, qpopDate=null, viewSelDocId=null, showAllClinics=false;
 let multiSelDates=new Set(), isDragging=false;
 let balSelClinicId=null, balDragging=false, balMultiSel=new Set(), balMouseMoved=false;
 let balSelDocId=null, balSelDates=new Set(), balIsDragging=false;
@@ -566,55 +752,17 @@ function isClosed(dateStr,cid){
 }
 
 /* ---- SUPABASE ---- */
-async function sbReq(path,opts){
+function sbReq(path,opts){
   opts=opts||{};opts.headers=Object.assign({},SB_H,opts.headers||{});
-  var r=await fetch(SB_URL+path,opts);
-  if(!r.ok)throw new Error(await r.text());
-  return r.status===204?null:r.json();
+  return fetch(SB_URL+path,opts).then(function(r){
+    if(!r.ok)return r.text().then(function(t){throw new Error(t);});
+    return r.status===204?null:r.json();
+  });
 }
-async function loadDB(){
+function loadDB(){
   showSb('読み込み中...');
-  try{
-    var rows=await sbReq('/rest/v1/shifts?select=*&limit=5000');
-    /* 印刷ボタン */
-  document.getElementById('printBtn').addEventListener('click',function(){
-    document.getElementById('printOv').classList.add('on');
-  });
-  document.getElementById('printCancelBtn').addEventListener('click',function(){
-    document.getElementById('printOv').classList.remove('on');
-  });
-  document.getElementById('printOv').addEventListener('click',function(e){
-    if(e.target===this)this.classList.remove('on');
-  });
-  document.querySelectorAll('.print-sel-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      document.getElementById('printOv').classList.remove('on');
-      var type=btn.dataset.print;
-      executePrint(type);
-    });
-  });
-
-  /* 全体バランストグル */
-  var bRightTitle=document.getElementById('bRightTitle');
-  if(bRightTitle){
-    bRightTitle.addEventListener('click',function(){
-      var wrap=document.getElementById('allViewWrap');
-      var tog=document.getElementById('bRightToggle');
-      var panel=document.getElementById('bRightPanel');
-      if(wrap.style.display==='none'){
-        wrap.style.display='';
-        tog.textContent='▼ 表示';
-        panel.style.minWidth='';
-      } else {
-        wrap.style.display='none';
-        tog.textContent='▶ 非表示';
-        panel.style.minWidth='0';
-        panel.style.flex='0 0 auto';
-      }
-    });
-  }
-
-  shifts={};Object.assign(shifts,EXCEL_DATA);
+  return sbReq('/rest/v1/shifts?select=*&limit=5000').then(function(rows){
+    shifts={};Object.assign(shifts,EXCEL_DATA);
     rows.forEach(function(row){
       if(!shifts[row.date_str])shifts[row.date_str]=[];
       var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
@@ -622,33 +770,33 @@ async function loadDB(){
       if(idx>=0)shifts[row.date_str][idx]=e;else shifts[row.date_str].push(e);
     });
     showSb('');
-  }catch(e){Object.assign(shifts,EXCEL_DATA);showSb('オフライン','w');}
+  }).catch(function(){Object.assign(shifts,EXCEL_DATA);showSb('オフライン','w');});
 }
-async function dbSave(dateStr,docId,cid,memo){
-  try{
-    await sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
-      body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})});
-    showSb('保存','ok');
-  }catch(e){showSb('保存失敗','w');}
+function dbSave(dateStr,docId,cid,memo){
+  return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
+    body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+  }).then(function(){}).catch(function(e){console.warn('DB保存失敗:',e);});
 }
-async function dbDel(dateStr,docId){
-  try{
-    await sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'});
-    showSb('削除','ok');
-  }catch(e){showSb('削除失敗','w');}
+function dbDel(dateStr,docId){
+  return sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'}
+  ).then(function(){showSb('削除','ok');}).catch(function(){showSb('削除失敗','w');});
 }
-async function doUpload(){
+function doUpload(){
   if(!confirm('ExcelデータをDBにアップロードします'))return;
   showSb('アップロード中...');
   var rows=[];
   Object.keys(EXCEL_DATA).forEach(function(dateStr){
     EXCEL_DATA[dateStr].forEach(function(s){rows.push({date_str:dateStr,doc_id:s.docId,clinic_id:s.clinicId,memo:''});});
   });
-  try{
-    for(var i=0;i<rows.length;i+=200)
-      await sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(rows.slice(i,i+200))});
-    showSb('完了','ok');await loadDB();renderAll();
-  }catch(e){showSb('エラー','e');}
+  var chunks=[];
+  for(var i=0;i<rows.length;i+=200)chunks.push(rows.slice(i,i+200));
+  var p=Promise.resolve();
+  chunks.forEach(function(chunk){
+    p=p.then(function(){
+      return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(chunk)});
+    });
+  });
+  p.then(function(){showSb('完了','ok');return loadDB();}).then(function(){renderAll();}).catch(function(){showSb('エラー','e');});
 }
 function showSb(msg,type){
   var el=document.getElementById('sb');
@@ -689,6 +837,10 @@ function setAdmin(v){
   if(badge)badge.style.display=v?'':'none';
   var aiBtn=document.getElementById('aiShiftBtn');
   if(aiBtn)aiBtn.style.display=v?'':'none';
+  /* シフト作成タブは管理者のみ */
+  var t4=document.getElementById('htab4');if(t4)t4.style.display=v?'':'none';
+  var ghBtn=document.getElementById('ghUploadBtn');if(ghBtn)ghBtn.style.display=v?'':'none';
+  if(!v&&(curTab===4||curTab===5)){curTab=0;}
   renderAll();
 }
 
@@ -701,20 +853,30 @@ function chgMonth(d){
 /* ---- TABS ---- */
 function setTab(n){
   curTab=n;
-  [0,1,2,3].forEach(function(i){
-    var tb=document.getElementById('tab'+i);
-    if(tb&&tb.style.display!=='none')tb.classList.toggle('on',i===n);
+  var viewIds=['vA','vB','vC','vD','vE','vF','vG'];
+  [0,1,2,3,4,5,6].forEach(function(i){
     var htb=document.getElementById('htab'+i);
     if(htb&&htb.style.display!=='none')htb.classList.toggle('on',i===n);
-    var vw=document.getElementById(['vA','vB','vC','vD'][i]);
+    var vw=document.getElementById(viewIds[i]);
     if(vw)vw.style.display=i===n?'':'none';
   });
+  if(n===6){
+    kyumiSelDates={};
+    kyumiSelType='yasumi';
+    kyumiCalY=curY; kyumiCalM=curM;
+    initKyumiViewG();
+  }
   renderAll();
 }
 
 /* ---- LEGEND ---- */
 function renderLegend(){
-  document.getElementById('legend').innerHTML=CLINICS.map(function(c){
+  var el=document.getElementById('legend');
+  if(!el)return;
+  /* 休み希望タブでは凡例を非表示 */
+  if(curTab===6){el.style.display='none';return;}
+  el.style.display='';
+  el.innerHTML=CLINICS.map(function(c){
     return '<div class="leg"><div class="leg-dot" style="background:'+getCC(c.id).c+'"></div>'+c.n+'</div>';
   }).join('');
 }
@@ -849,8 +1011,8 @@ function renderAllView(targetId){
         var editStyle=';cursor:pointer;'+(isBalSel?'outline:2px solid #e67e22;outline-offset:-1px;background:#fff3e0;':'');
         h+='<td data-bal-doc="'+doc.id+'" data-bal-date="'+dateStr+'" style="text-align:center;padding:1px;background:'+cellBg+';width:36px;max-width:36px;overflow:hidden;vertical-align:middle;border:0.5px solid #ddd'+editStyle+'">'+inner+(!sh?'<span style="color:#e0ddd8;font-size:10px;">＋</span>':'')+'</td>';
       } else {
-        var eAttr=isAdmin?' data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'"':'';
-      h+='<td'+eAttr+' style="text-align:center;padding:1px;background:'+cellBg+';width:36px;max-width:36px;overflow:hidden;vertical-align:middle;border:0.5px solid #ddd'+(isAdmin?';cursor:pointer':'')+'">'+inner+(isAdmin&&!sh?'<span style="color:#ddd;font-size:11px;">＋</span>':'')+'</td>';
+        var eAttr2=isAdmin?' data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'"':'';var colHL=viewSelDocId&&doc.id===viewSelDocId?';outline:2px solid #1a1a18;outline-offset:-2px;':'';
+h+='<td'+eAttr2+' style="text-align:center;padding:1px;background:'+cellBg+';width:36px;max-width:36px;overflow:hidden;vertical-align:middle;border:0.5px solid #ddd'+(isAdmin?';cursor:pointer':'')+'">'+inner+(isAdmin&&!sh?'<span style="color:#ddd;font-size:10px;">＋</span>':'')+'</td>';
       }
     });
     h+=dateCell2+'</tr>';
@@ -990,7 +1152,7 @@ el.innerHTML=guideBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
 }
 
 function updateBalSelBar(el){}
-function balDeleteCell(docId, dateStr){
+function balDeleteCell(docId,dateStr){
   if(shifts[dateStr]){
     shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
     if(!shifts[dateStr].length)delete shifts[dateStr];
@@ -1005,6 +1167,8 @@ function renderP(){
     document.getElementById('vB-admin').style.display='none';
     document.getElementById('vB-view').style.display='';
     renderAllView('allViewWrapView');
+    initKyumiInputBar();
+    renderKyumiLog();
     return;
   }
   document.getElementById('vB-admin').style.display='';
@@ -1016,6 +1180,70 @@ function renderP(){
   renderClinicPickBar();
   renderCalGrid();
   renderAllView('allViewWrap');
+}
+
+/* ---- 一括入力 ---- */
+function bulkInput(mode){
+  if(!selDocId||!selClinicId)return;
+  var days=new Date(curY,curM+1,0).getDate();
+  var saved=0;
+  for(var d=1;d<=days;d++){
+    var dateStr=curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var w=new Date(curY,curM,d).getDay(); /* 0=日...6=土 */
+    var skip=false;
+    if(mode==='weekday' && (w===0||w===6)) skip=true;
+    if(mode==='weekend' && w!==0 && w!==6) skip=true;
+    /* 既存の休み・有給は上書きしない */
+    var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===selDocId;});
+    var restIds=['yasumi','yukyu','daikyu'];
+    if(existing && restIds.indexOf(existing.clinicId)>=0) skip=true;
+    if(skip) continue;
+    if(!shifts[dateStr])shifts[dateStr]=[];
+    var idx=shifts[dateStr].findIndex(function(s){return s.docId===selDocId;});
+    var entry={docId:selDocId,clinicId:selClinicId,memo:''};
+    if(idx>=0) shifts[dateStr][idx]=entry; else shifts[dateStr].push(entry);
+    dbSave(dateStr,selDocId,selClinicId,'');
+    saved++;
+  }
+  renderCalGrid();renderAllView('allViewWrap');renderA();renderC();
+  showSb(saved+'日を一括入力しました','ok');
+}
+
+function bulkInputDow(dow){
+  if(!selDocId||!selClinicId)return;
+  var days=new Date(curY,curM+1,0).getDate();
+  var saved=0;
+  for(var d=1;d<=days;d++){
+    var dateStr=curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var w=new Date(curY,curM,d).getDay();
+    if(w!==dow) continue;
+    var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===selDocId;});
+    var restIds=['yasumi','yukyu','daikyu'];
+    if(existing && restIds.indexOf(existing.clinicId)>=0) continue;
+    if(!shifts[dateStr])shifts[dateStr]=[];
+    var idx=shifts[dateStr].findIndex(function(s){return s.docId===selDocId;});
+    var entry={docId:selDocId,clinicId:selClinicId,memo:''};
+    if(idx>=0) shifts[dateStr][idx]=entry; else shifts[dateStr].push(entry);
+    dbSave(dateStr,selDocId,selClinicId,'');
+    saved++;
+  }
+  renderCalGrid();renderAllView('allViewWrap');renderA();renderC();
+  showSb(saved+'日を一括入力しました','ok');
+}
+
+function bulkClear(){
+  if(!selDocId)return;
+  var days=new Date(curY,curM+1,0).getDate();
+  for(var d=1;d<=days;d++){
+    var dateStr=curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    if(shifts[dateStr]){
+      shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==selDocId;});
+      if(!shifts[dateStr].length) delete shifts[dateStr];
+    }
+    dbDel(dateStr,selDocId);
+  }
+  renderCalGrid();renderAllView('allViewWrap');renderA();renderC();
+  showSb('この月のシフトをクリアしました','ok');
 }
 
 /* ---- 管理モード: 医院選択バー・カレンダー ---- */
@@ -1117,6 +1345,9 @@ function renderCalGrid(){
     h+='</div>';
   }
   document.getElementById('calGrid').innerHTML=h;
+  /* bulkBarの表示切り替え */
+  var bb=document.getElementById('bulkBar');
+  if(bb) bb.style.display=(selClinicId&&selDocId)?'block':'none';
 }
 
 /* ---- QPOP ---- */
@@ -1212,6 +1443,9 @@ function openDocCal(docId){
   docCalY=curY; docCalM=curM;
   updateDocCalTitle();
   renderDocCal();
+  /* 休み希望ボタンは常に表示 */
+  var kb=document.getElementById('docCalKyumiBtn');
+  if(kb)kb.style.display='';
   document.getElementById('docCalOv').classList.add('on');
 }
 function updateDocCalTitle(){
@@ -1327,7 +1561,7 @@ function openQpop(dateStr){
   document.getElementById('qpopOv').classList.add('on');
 }
 function closeQpop(){document.getElementById('qpopOv').classList.remove('on');qpopDate=null;}
-async function quickSave(dateStrArg, docIdArg, cid){
+function quickSave(dateStrArg, docIdArg, cid){
   var targetDate=dateStrArg||qpopDate;
   var targetDoc=docIdArg||selDocId;
   if(!targetDate||!targetDoc||!cid)return;
@@ -1339,16 +1573,16 @@ async function quickSave(dateStrArg, docIdArg, cid){
   if(idx>=0)shifts[targetDate][idx]=e;else shifts[targetDate].push(e);
   if(qpopDate)closeQpop();
   renderP();renderA();renderC();
-  await dbSave(targetDate,targetDoc,cid,memo);
+  dbSave(targetDate,targetDoc,cid,memo);
 }
-async function quickDel(){
+function quickDel(){
   if(!qpopDate||!selDocId)return;
   if(shifts[qpopDate]){
     shifts[qpopDate]=shifts[qpopDate].filter(function(s){return s.docId!==selDocId;});
     if(!shifts[qpopDate].length)delete shifts[qpopDate];
   }
-  closeQpop();renderB();renderA();renderC();
-  await dbDel(qpopDate,selDocId);
+  dbDel(qpopDate,selDocId);
+  closeQpop();renderP();renderA();renderC();
 }
 
 /* ---- VIEW B: 閲覧モード全員表 ---- */
@@ -1390,6 +1624,58 @@ function renderBViewAll(){
 function renderD(){
   var el=document.getElementById('vD');
   if(!el)return;
+  /* 休み希望ログ（管理者向け全員表示） */
+  var kyumiLog=loadKyumiLog();
+  var kyumiHtml='<div style="padding:12px;border-bottom:2px solid var(--border);margin-bottom:4px;">';
+  kyumiHtml+='<div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px;">休み希望ログ（全員）</div>';
+  if(!kyumiLog.length){
+    kyumiHtml+='<div style="font-size:12px;color:var(--ink3);">まだ休み希望はありません</div>';
+  } else {
+    /* 日付でグループ化 */
+    var allDates=[];
+    var byDate2={};
+    kyumiLog.forEach(function(e){
+      if(!byDate2[e.dateStr]){byDate2[e.dateStr]=[];allDates.push(e.dateStr);}
+      byDate2[e.dateStr].push(e);
+    });
+    allDates.sort();
+    var DOW3=['日','月','火','水','木','金','土'];
+    allDates.forEach(function(dateStr){
+      var dt=new Date(dateStr);
+      var dateLabel=(dt.getMonth()+1)+'月'+dt.getDate()+'日('+DOW3[dt.getDay()]+')';
+      var entries=byDate2[dateStr];
+      kyumiHtml+='<div style="margin-bottom:10px;">';
+      kyumiHtml+='<div style="font-size:11px;font-weight:700;color:var(--ink2);padding:3px 6px;background:#f0efed;border-radius:4px;margin-bottom:4px;display:inline-block;">'+dateLabel+'</div>';
+      entries.forEach(function(e){
+        var cancelled=e.status==='cancelled';
+        var ts=new Date(e.timestamp);
+        var tsLabel=(ts.getMonth()+1)+'/'+ts.getDate()+' '+String(ts.getHours()).padStart(2,'0')+':'+String(ts.getMinutes()).padStart(2,'0');
+        var typeColor=e.type==='yukyu'?'#c0392b':e.type==='kyushutsu'?'#e67e22':'#666';
+        kyumiHtml+='<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:'+(cancelled?'transparent':'#fff')+';border-radius:8px;margin-bottom:3px;border:1px solid '+(cancelled?'transparent':'var(--border)')+';'+(cancelled?'opacity:0.45':'')+';">';
+        kyumiHtml+='<span style="font-weight:700;font-size:12px;'+(cancelled?'text-decoration:line-through':'')+'">'+e.docName+'</span>';
+        kyumiHtml+='<span style="font-size:11px;font-weight:700;color:'+typeColor+';'+(cancelled?'text-decoration:line-through':'')+'">'+e.typeLabel+'</span>';
+        if(cancelled)kyumiHtml+='<span style="font-size:10px;color:#b83030;font-weight:700;">→ 取消済</span>';
+        kyumiHtml+='<span style="font-size:9px;color:var(--ink3);margin-left:auto;">'+tsLabel+'</span>';
+        if(!cancelled){
+          /* シフトに反映済みかチェック */
+          var isReflected=e.docId&&shifts[e.dateStr]&&shifts[e.dateStr].find(function(s){
+            return s.docId===e.docId&&(s.clinicId===e.type||s.clinicId==='yukyu'&&e.type==='yukyu');
+          });
+          if(e.docId&&!isReflected){
+            kyumiHtml+='<span style="font-size:9px;color:#e67e22;font-weight:700;">未反映</span>';
+          }
+          kyumiHtml+='<button data-admin-cancel="'+e.id+'" style="font-size:9px;padding:2px 6px;border:1px solid #b83030;border-radius:4px;color:#b83030;background:none;cursor:pointer;">取消</button>';
+          /* シフト反映ボタン */
+          if(e.docId&&!isReflected){
+            kyumiHtml+='<button data-admin-reflect="'+e.id+'" data-did="'+e.docId+'" data-ds="'+e.dateStr+'" data-type="'+e.type+'" style="font-size:9px;padding:2px 6px;border:1px solid #2e7d32;border-radius:4px;color:#2e7d32;background:none;cursor:pointer;">反映</button>';
+          }
+        }
+        kyumiHtml+='</div>';
+      });
+      kyumiHtml+='</div>';
+    });
+  }
+  kyumiHtml+='</div>';
   var days=dim(curY,curM);
   
   // 当月の集計
@@ -1463,6 +1749,27 @@ function renderD(){
   el.innerHTML=h;
 
   // 保存ボタン
+  /* 管理者の取消ボタン */
+  el.querySelectorAll('[data-admin-cancel]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      cancelKyumiRequest(parseInt(btn.dataset.adminCancel));
+      renderD();
+    });
+  });
+  el.querySelectorAll('[data-admin-reflect]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var did=btn.dataset.did, ds=btn.dataset.ds, type=btn.dataset.type;
+      if(!shifts[ds])shifts[ds]=[];
+      var idx=shifts[ds].findIndex(function(s){return s.docId===did;});
+      var clinicId=type==='kyushutsu'?'kyushutsu':type;
+      if(idx>=0)shifts[ds][idx]={docId:did,clinicId:clinicId,memo:''};
+      else shifts[ds].push({docId:did,clinicId:clinicId,memo:''});
+      dbSave(ds,did,clinicId,'');
+      renderAll();renderD();
+      showSb('シフトに反映しました','ok');
+    });
+  });
+
   document.getElementById('saveYukyuBtn').addEventListener('click',function(){
     doctors.forEach(function(doc){
       var inp=el.querySelector('.remaining-input[data-doc-id="'+doc.id+'"]');
@@ -1917,6 +2224,44 @@ function generateAiShift(targetY, targetM){
 }
 
 
+/* ---- GitHub自動アップロード ---- */
+function getGhToken(){return localStorage.getItem('gh_token')||'';}
+function saveGhToken(t){localStorage.setItem('gh_token',t);}
+
+function uploadToGitHub(){
+  var token=getGhToken();
+  if(!token){
+    token=prompt('GitHub Personal Access Token を入力してください');
+    if(!token)return;
+    saveGhToken(token);
+  }
+  showSb('GitHubに保存中...','');
+  /* 現在のファイル内容を取得 */
+  var content=document.documentElement.outerHTML;
+  /* 現在のSHAを取得してからPUT */
+  fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE,{
+    headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+  }).then(function(r){return r.json();}).then(function(data){
+    var sha=data.sha;
+    var b64=btoa(unescape(encodeURIComponent(content)));
+    return fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE,{
+      method:'PUT',
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:'Update shift app '+new Date().toLocaleDateString('ja'),content:b64,sha:sha,branch:GH_BRANCH})
+    });
+  }).then(function(r){
+    if(r.ok){showSb('GitHubに保存しました！30秒後に反映されます','ok');}
+    else{return r.json().then(function(d){throw new Error(d.message);});}
+  }).catch(function(e){
+    if(e.message&&e.message.indexOf('Bad credentials')>=0){
+      localStorage.removeItem('gh_token');
+      showSb('Tokenが無効です。再度入力してください','w');
+    } else {
+      showSb('GitHubエラー: '+e.message,'w');
+    }
+  });
+}
+
 /* ---- バックアップ機能 ---- */
 function saveBackup(){
   try{
@@ -2012,7 +2357,7 @@ function openSettings(){
   sSwitchTab(0);document.getElementById('setOv').classList.add('on');
 }
 function sSwitchTab(n){
-  [0,1,2,3,4,5].forEach(function(i){
+  [0,1,2,3,4,5,6].forEach(function(i){
     var c=document.getElementById('sc'+i),b=document.getElementById('st'+i);
     if(c)c.style.display=i===n?'':'none';if(b)b.classList.toggle('on',i===n);
   });
@@ -2021,6 +2366,7 @@ function sSwitchTab(n){
   if(n===2)renderClinicEdit();
   if(n===3)renderClosedGrid();
   if(n===5)renderBackupList();
+  if(n===6){var ky=document.getElementById('kyumiYear');var km=document.getElementById('kyumiMonth');if(ky)ky.value=String(curY);if(km)km.value=String(curM);}
 }
 function renderRankList(){
   document.getElementById('sc0').innerHTML=sDoctors.map(function(d,i){
@@ -2069,6 +2415,711 @@ function renderClinicEdit(){
     '<button id="addClinicBtn" style="width:100%;padding:11px;border:1px dashed var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;cursor:pointer;margin-top:4px;">＋ 医院を追加</button>';
 }
 
+function aiParseKyumi(){
+  var text=document.getElementById('kyumiText2').value.trim();
+  var year=parseInt(document.getElementById('kyumiYear2').value);
+  var month=parseInt(document.getElementById('kyumiMonth2').value)+1;
+  if(!text){showSb('テキストを入力してください','w');return;}
+
+  var statusEl=document.getElementById('kyumiAiStatus');
+  var previewEl=document.getElementById('kyumiPreview2');
+  var applyBtn=document.getElementById('kyumiApplyBtn2');
+  statusEl.style.display='block';
+  previewEl.style.display='none';
+  applyBtn.style.display='none';
+
+  /* ドクター名一覧を作成 */
+  var docNames=doctors.map(function(d){return d.n;}).join('、');
+
+  var prompt='以下のテキストから休み希望を抽出してください。\n\n' +
+    'ドクター一覧: '+docNames+'\n' +
+    '対象年: '+year+'年\n' +
+    '対象月のデフォルト: '+month+'月\n\n' +
+    '入力テキスト:\n' + text + '\n\n' +
+    '抽出ルール:\n' +
+    '- ドクター名はドクター一覧から最も近いものを使用\n' +
+    '- 「隔週日曜日」は対象月の隔週日曜を列挙\n' +
+    '- 「月曜日」は対象月の全月曜を列挙\n' +
+    '- 「木曜日」は対象月の全木曜を列挙\n' +
+    '- 「有給」はtype:yukyu、「休日出勤」はtype:kyushutsu、それ以外はtype:yasumi\n' +
+    '- 「連休を作る」は前後の土日と合わせて判断（有給1日を特定）\n\n' +
+    '以下のJSON形式のみで回答（説明不要）:\n' +
+    '{"requests":[{"doc":"ドクター名","year":2026,"month":6,"day":3,"type":"yasumi"},...]}';
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      messages:[{role:'user',content:prompt}]
+    })
+  }).then(function(r){return r.json();}).then(function(data){
+    statusEl.style.display='none';
+    var text2=data.content&&data.content[0]?data.content[0].text:'';
+    /* JSONを抽出してパース */
+    var jsonMatch=text2.match(/\{[\s\S]*\}/);
+    if(!jsonMatch){previewEl.style.background='#fdf0ee';previewEl.style.display='block';previewEl.innerHTML='<span style="color:#b83030;">⚠️ AI解析に失敗しました。通常解析をお試しください。</span>';return;}
+    var parsed=JSON.parse(jsonMatch[0]);
+    var requests=parsed.requests||[];
+    if(!requests.length){previewEl.style.background='#fdf0ee';previewEl.style.display='block';previewEl.innerHTML='<span style="color:#b83030;">休み希望が見つかりませんでした。</span>';return;}
+    /* プレビュー表示 */
+    var byDoc={};
+    requests.forEach(function(r){
+      var key=r.doc+(r.type==='yukyu'?' (有休)':r.type==='kyushutsu'?' (休出)':'');
+      if(!byDoc[key])byDoc[key]=[];
+      byDoc[key].push(r.month+'月'+r.day+'日');
+    });
+    previewEl.style.background='#e8f5e9';
+    previewEl.innerHTML='<div style="font-weight:700;margin-bottom:6px;color:#2e7d32;">✅ AI解析完了：'+requests.length+'件</div>'+
+      Object.keys(byDoc).map(function(name){return '<div><span style="font-weight:600;">'+name+'</span>：'+byDoc[name].join('、')+'</div>';}).join('');
+    previewEl.style.display='block';
+    applyBtn.style.display='block';
+    /* 結果を一時保存 */
+    applyBtn.dataset.aiRequests=JSON.stringify(requests);
+  }).catch(function(e){
+    statusEl.style.display='none';
+    previewEl.style.background='#fdf0ee';
+    previewEl.style.display='block';
+    previewEl.innerHTML='<span style="color:#b83030;">⚠️ エラー: '+e.message+'</span>';
+  });
+}
+
+function applyAiKyumi(requests){
+  var applied=0;
+  requests.forEach(function(r){
+    /* ドクター名からIDを探す */
+    var doc=doctors.find(function(d){return d.n===r.doc||r.doc.indexOf(d.n)>=0;});
+    if(!doc)return;
+    var dateStr=r.year+'-'+String(r.month).padStart(2,'0')+'-'+String(r.day).padStart(2,'0');
+    var clinicId=r.type||'yasumi';
+    if(!shifts[dateStr])shifts[dateStr]=[];
+    var idx=shifts[dateStr].findIndex(function(s){return s.docId===doc.id;});
+    if(idx>=0){var ex=shifts[dateStr][idx];if(ex.clinicId==='yukyu'||ex.clinicId==='daikyu')return;shifts[dateStr][idx]={docId:doc.id,clinicId:clinicId,memo:''};}
+    else shifts[dateStr].push({docId:doc.id,clinicId:clinicId,memo:''});
+    dbSave(dateStr,doc.id,clinicId,'');
+    applied++;
+  });
+  return applied;
+}
+
+function parseKyumiTextFrom(textId, yearId, monthId){
+  var text=document.getElementById(textId).value;
+  var year=parseInt(document.getElementById(yearId).value);
+  var defMonth=parseInt(document.getElementById(monthId).value); /* 0-indexed */
+  if(!text.trim())return [];
+  var results=[];
+  var lines=text.split('\n');
+
+  var currentDoc=null; /* 名前だけの行の後、次の行で使用 */
+
+  lines.forEach(function(line){
+    line=line.trim();
+    if(!line)return;
+
+    /* ドクター名を探す */
+    var foundDoc=null;
+    doctors.forEach(function(doc){
+      if(line.indexOf(doc.n)>=0) foundDoc=doc;
+    });
+
+    /* 名前だけの行（日付なし）→ 次の行のために保持 */
+    if(foundDoc && !/\d/.test(line)){
+      currentDoc=foundDoc;
+      return;
+    }
+
+    /* 名前+日付の行 or 日付だけの行 */
+    var targetDoc=foundDoc||currentDoc;
+    if(!targetDoc)return;
+    if(foundDoc) currentDoc=foundDoc; /* 名前付きなら更新 */
+
+    /* パターン1: 月/日.日.日 or 月/日・日・日 */
+    var dotPattern=line.match(/^(\d+)[\/月](.+)/);
+    if(dotPattern){
+      var m=parseInt(dotPattern[1])-1; /* 0-indexed */
+      var daysPart=dotPattern[2];
+      /* .や・や空白や、で区切られた日付を全部取得 */
+      var dayNums=daysPart.match(/\d+/g)||[];
+      dayNums.forEach(function(d){
+        results.push({doc:targetDoc,year:year,month:m,day:parseInt(d)});
+      });
+      return;
+    }
+
+    /* パターン2: 6月3日〜5日（範囲） */
+    var rngPattern=line.match(/(\d+)[\u6708](\d+)[\u65e5]?\s*[\u301c~\uff5e\-]\s*(\d+)[\u65e5]?/);
+    if(rngPattern){
+      var rm=parseInt(rngPattern[1])-1;
+      var rd1=parseInt(rngPattern[2]),rd2=parseInt(rngPattern[3]);
+      for(var rd=rd1;rd<=rd2;rd++) results.push({doc:targetDoc,year:year,month:rm,day:rd});
+      return;
+    }
+
+    /* パターン3: 6月3日、6/3（単日・複数） */
+    var re=/(\d+)[\u6708\/](\d+)/g,sm;
+    var found=false;
+    while((sm=re.exec(line))!==null){
+      results.push({doc:targetDoc,year:year,month:parseInt(sm[1])-1,day:parseInt(sm[2])});
+      found=true;
+    }
+
+    /* パターン4: 3日・3のみ（月省略） */
+    if(!found){
+      var dayNums2=line.match(/\d+/g)||[];
+      dayNums2.forEach(function(d){
+        if(parseInt(d)>=1&&parseInt(d)<=31)
+          results.push({doc:targetDoc,year:year,month:defMonth,day:parseInt(d)});
+      });
+    }
+  });
+
+  return results;
+}
+function parseKyumiText(){return parseKyumiTextFrom('kyumiText','kyumiYear','kyumiMonth');}
+// old parse removed
+function _dummy_(){
+  var text=document.getElementById('kyumiText').value;
+  var year=parseInt(document.getElementById('kyumiYear').value);
+  var month=parseInt(document.getElementById('kyumiMonth').value);
+  if(!text.trim())return [];
+  var results=[];
+  var lines=text.split('\n');
+  lines.forEach(function(line){
+    line=line.trim();
+    if(!line)return;
+    var foundDoc=null;
+    doctors.forEach(function(doc){if(line.indexOf(doc.n)>=0)foundDoc=doc;});
+    if(!foundDoc)return;
+    /* 範囲パターン: 6月3日〜5日 */
+    var rng=line.match(/(\d+)[\u6708\/](\d+)\u65e5?\s*[\u301c~\uff5e\u002d]\s*(\d+)\u65e5?/);
+    if(rng){
+      var rm=parseInt(rng[1])-1;
+      var rd1=parseInt(rng[2]),rd2=parseInt(rng[3]);
+      for(var rd=rd1;rd<=rd2;rd++)results.push({doc:foundDoc,year:year,month:rm,day:rd});
+      return;
+    }
+    /* 単日パターン: 6月3日 / 6/3 */
+    var re=/(\d+)[\u6708\/](\d+)/g, sm;
+    var found=false;
+    while((sm=re.exec(line))!==null){
+      results.push({doc:foundDoc,year:year,month:parseInt(sm[1])-1,day:parseInt(sm[2])});
+      found=true;
+    }
+    /* 日だけ: 3日 */
+    if(!found){
+      var dm=line.match(/(\d+)\u65e5/);
+      if(dm)results.push({doc:foundDoc,year:year,month:month,day:parseInt(dm[1])});
+    }
+  });
+  return results;
+}
+
+function showKyumiPreview(){
+  var results=parseKyumiText();
+  var el=document.getElementById('kyumiPreview');
+  el.style.display='block';
+  if(!results.length){el.style.background='#fdf0ee';el.innerHTML='<span style="color:#b83030;">認識できた休み希望がありません。名前の書き方を確認してください。</span>';return;}
+  el.style.background='#e8f5e9';
+  var byDoc={};
+  results.forEach(function(r){if(!byDoc[r.doc.n])byDoc[r.doc.n]=[];byDoc[r.doc.n].push((r.month+1)+'月'+r.day+'日');});
+  el.innerHTML='<div style="font-weight:700;margin-bottom:6px;color:#2e7d32;">✅ '+results.length+'件を認識</div>'+
+    Object.keys(byDoc).map(function(name){return '<div><span style="font-weight:600;">'+name+'</span>：'+byDoc[name].join('、')+'</div>';}).join('');
+}
+
+function applyKyumiText(){
+  var results=parseKyumiText();
+  if(!results.length){showSb('認識できた休み希望がありません','w');return;}
+  var applied=0;
+  results.forEach(function(r){
+    var dateStr=r.year+'-'+String(r.month+1).padStart(2,'0')+'-'+String(r.day).padStart(2,'0');
+    if(!shifts[dateStr])shifts[dateStr]=[];
+    var idx=shifts[dateStr].findIndex(function(s){return s.docId===r.doc.id;});
+    if(idx>=0){
+      var ex=shifts[dateStr][idx];
+      if(ex.clinicId==='yukyu'||ex.clinicId==='daikyu')return;
+      shifts[dateStr][idx]={docId:r.doc.id,clinicId:'yasumi',memo:''};
+    } else {
+      shifts[dateStr].push({docId:r.doc.id,clinicId:'yasumi',memo:''});
+    }
+    dbSave(dateStr,r.doc.id,'yasumi','');
+    applied++;
+  });
+  document.getElementById('setOv').classList.remove('on');
+  renderAll();
+  showSb(applied+'件の休み希望を反映しました','ok');
+}
+
+/* ---- 個人休み希望入力 ---- */
+var kyumiDocSelType='yasumi';
+var kyumiDocPending={}; /* dateStr → clinicId */
+
+function openKyumiDoc(){
+  if(!docCalDocId)return;
+  var doc=doctors.find(function(d){return d.id===docCalDocId;});
+  document.getElementById('kyumiDocTitle').textContent='📝 '+(doc?doc.n:'')+'の休み希望 '+docCalY+'年'+(docCalM+1)+'月';
+  kyumiDocPending={};
+  kyumiDocSelType='yasumi';
+  /* ボタンの状態リセット */
+  document.querySelectorAll('.kyumi-type-btn').forEach(function(b){
+    var on=b.dataset.type==='yasumi';
+    b.classList.toggle('on',on);
+    b.style.borderColor=on?'#999':'var(--border)';
+    b.style.background=on?'#f2f2f0':'var(--bg)';
+    b.style.color=on?'#666':'var(--ink2)';
+  });
+  renderKyumiDocGrid();
+  document.getElementById('kyumiDocOv').classList.add('on');
+}
+
+function renderKyumiDocGrid(){
+  var days=new Date(docCalY,docCalM+1,0).getDate();
+  var firstDow=new Date(docCalY,docCalM,1).getDay();
+  var DOWS=['日','月','火','水','木','金','土'];
+  var DOWCOL=['#e05252','#444','#444','#444','#444','#444','#4a7fd4'];
+  var cells='';
+  DOWS.forEach(function(d,i){
+    cells+='<div style="text-align:center;font-size:10px;font-weight:700;color:'+DOWCOL[i]+';padding:3px 0;border-bottom:1px solid var(--border);">'+d+'</div>';
+  });
+  for(var i=0;i<firstDow;i++) cells+='<div></div>';
+  for(var d=1;d<=days;d++){
+    var dateStr=docCalY+'-'+String(docCalM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var w=new Date(docCalY,docCalM,d).getDay();
+    var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===docCalDocId;});
+    var pending=kyumiDocPending[dateStr];
+    var clinicId=pending||( existing?existing.clinicId:null);
+    var isSun=w===0,isSat=w===6;
+    var bg='#fff';
+    var label='';
+    var labelColor='#ccc';
+    if(clinicId==='yasumi'){bg='#f2f2f0';label='休み';labelColor='#888';}
+    else if(clinicId==='yukyu'){bg='#fdf0ee';label='有休';labelColor='#c0392b';}
+    else if(clinicId==='kyushutsu'){bg='#fff3e0';label='休出';labelColor='#e67e22';}
+    else if(clinicId&&clinicId!=='daikyu'&&clinicId!=='daishutsu'){
+      var c2=getCC(clinicId);bg=c2.b;label=cname(clinicId);labelColor=c2.c;
+    }
+    var border=isSun?'1px solid #fcc':isSat?'1px solid #ccf':'1px solid #eee';
+    var numCol=isSun?'#e05252':isSat?'#4a7fd4':'var(--ink3)';
+    var isPending=!!pending;
+    cells+='<div data-kyumi-date="'+dateStr+'" style="background:'+bg+';border:'+border+(isPending?';outline:2px solid #2e7d32;outline-offset:-1px;':'')+';border-radius:6px;padding:3px 2px;min-height:52px;display:flex;flex-direction:column;align-items:center;cursor:pointer;">';
+    cells+='<div style="font-size:11px;font-weight:700;color:'+numCol+';">'+d+'</div>';
+    if(label) cells+='<div style="font-size:9px;font-weight:700;color:'+labelColor+';margin-top:2px;">'+label+'</div>';
+    cells+='</div>';
+  }
+  document.getElementById('kyumiDocGrid').innerHTML=
+    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">'+cells+'</div>';
+  /* イベント設定 */
+  document.querySelectorAll('[data-kyumi-date]').forEach(function(el){
+    el.addEventListener('click',function(){
+      var dateStr=el.dataset.kyumiDate;
+      if(kyumiDocPending[dateStr]){
+        /* 同じ種類なら解除、違う種類なら変更 */
+        if(kyumiDocPending[dateStr]===kyumiDocSelType) delete kyumiDocPending[dateStr];
+        else kyumiDocPending[dateStr]=kyumiDocSelType;
+      } else {
+        kyumiDocPending[dateStr]=kyumiDocSelType;
+      }
+      renderKyumiDocGrid();
+    });
+  });
+}
+
+function saveKyumiDoc(){
+  var count=0;
+  Object.keys(kyumiDocPending).forEach(function(dateStr){
+    var clinicId=kyumiDocPending[dateStr];
+    if(!shifts[dateStr])shifts[dateStr]=[];
+    var idx=shifts[dateStr].findIndex(function(s){return s.docId===docCalDocId;});
+    var entry={docId:docCalDocId,clinicId:clinicId,memo:''};
+    if(idx>=0) shifts[dateStr][idx]=entry;
+    else shifts[dateStr].push(entry);
+    dbSave(dateStr,docCalDocId,clinicId,'');
+    count++;
+  });
+  kyumiDocPending={};
+  document.getElementById('kyumiDocOv').classList.remove('on');
+  renderDocCal();
+  renderAll();
+  showSb(count+'件の休み希望を保存しました','ok');
+}
+
+/* ---- 休み希望ログ管理 ---- */
+var _kyumiLogCache=null;
+function loadKyumiLog(){
+  if(_kyumiLogCache)return _kyumiLogCache;
+  try{
+    var s=localStorage.getItem('seishokai_kyumi_log');
+    _kyumiLogCache=s?JSON.parse(s):[];
+  }catch(e){_kyumiLogCache=[];}
+  return _kyumiLogCache;
+}
+function saveKyumiLog(log){
+  _kyumiLogCache=log;
+  try{localStorage.setItem('seishokai_kyumi_log',JSON.stringify(log));}catch(e){}
+}
+
+function addKyumiRequest(docId,year,month,day,type){
+  var log=loadKyumiLog();
+  var dateStr=year+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+  /* 同じドクター・同じ日の既存エントリをキャンセル */
+  log.forEach(function(e){
+    if(e.docId===docId&&e.dateStr===dateStr&&e.status==='active') e.status='cancelled';
+  });
+  /* 新しいエントリを追加 */
+  var doc=doctors.find(function(d){return d.id===docId;});
+  var typeLabel=type==='yukyu'?'有休':type==='kyushutsu'?'休日出勤':'休み';
+  log.push({
+    id:Date.now(),docId:docId,docName:doc?doc.n:'',
+    dateStr:dateStr,year:year,month:month,day:day,
+    type:type,typeLabel:typeLabel,
+    timestamp:new Date().toISOString(),status:'active'
+  });
+  saveKyumiLog(log);
+  return log;
+}
+
+function cancelKyumiRequest(id){
+  var log=loadKyumiLog();
+  log.forEach(function(e){if(e.id===id)e.status='cancelled';});
+  saveKyumiLog(log);
+  renderKyumiLog();
+}
+
+function renderKyumiLog(){
+  var log=loadKyumiLog();
+  var el=document.getElementById('kyumiLogList');
+  if(!el)return;
+  if(!log.length){el.innerHTML='<div style="font-size:11px;color:var(--ink3);padding:4px 0;">まだ休み希望はありません</div>';return;}
+
+  /* 日付降順でソート */
+  var sorted=log.slice().sort(function(a,b){return b.id-a.id;});
+
+  var byDate={};
+  sorted.forEach(function(e){
+    if(!byDate[e.dateStr])byDate[e.dateStr]=[];
+    byDate[e.dateStr].push(e);
+  });
+
+  var html2='';
+  Object.keys(byDate).sort().reverse().forEach(function(dateStr){
+    var entries=byDate[dateStr];
+    var dt=new Date(dateStr);
+    var DOW2=['日','月','火','水','木','金','土'];
+    var dateLabel=(dt.getMonth()+1)+'月'+dt.getDate()+'日('+DOW2[dt.getDay()]+')';
+    html2+='<div style="margin-bottom:8px;">';
+    html2+='<div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:3px;">'+dateLabel+'</div>';
+    entries.forEach(function(e){
+      var cancelled=e.status==='cancelled';
+      var ts=new Date(e.timestamp);
+      var tsLabel=(ts.getMonth()+1)+'/'+ts.getDate()+' '+String(ts.getHours()).padStart(2,'0')+':'+String(ts.getMinutes()).padStart(2,'0');
+      var typeColor=e.type==='yukyu'?'#c0392b':e.type==='kyushutsu'?'#e67e22':'#666';
+      html2+='<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;background:'+(cancelled?'transparent':'#fff')+';border-radius:6px;margin-bottom:2px;'+(cancelled?'opacity:0.5':'')+';">';
+      html2+='<span style="font-size:12px;font-weight:700;color:var(--ink);'+(cancelled?'text-decoration:line-through':'')+'">'+e.docName+'</span>';
+      html2+='<span style="font-size:11px;font-weight:700;color:'+typeColor+';'+(cancelled?'text-decoration:line-through':'')+'">'+e.typeLabel+'</span>';
+      html2+='<span style="font-size:9px;color:var(--ink3);margin-left:auto;">'+tsLabel+'</span>';
+      if(!cancelled)html2+='<button data-kyumi-cancel="'+e.id+'" style="font-size:9px;color:#b83030;background:none;border:none;cursor:pointer;padding:0 4px;">取消</button>';
+      else html2+='<span style="font-size:9px;color:#b83030;">取消済</span>';
+      html2+='</div>';
+    });
+    html2+='</div>';
+  });
+  el.innerHTML=html2;
+
+  /* 取消ボタン */
+  el.querySelectorAll('[data-kyumi-cancel]').forEach(function(btn){
+    btn.addEventListener('click',function(){cancelKyumiRequest(parseInt(btn.dataset.kyumiCancel));});
+  });
+}
+
+function initKyumiInputBar(){
+  /* ドクター選択肢を設定 */
+  var sel=document.getElementById('kyumiDocSel');
+  if(!sel)return;
+  sel.innerHTML='<option value="">名前</option>'+
+    doctors.map(function(d){return '<option value="'+d.id+'">'+d.n+'</option>';}).join('');
+
+  /* 月選択（現在月から6ヶ月） */
+  var mSel=document.getElementById('kyumiMonthSel');
+  if(mSel){
+    var opts='';
+    for(var i=0;i<7;i++){
+      var m=(curM+i)%12;
+      opts+='<option value="'+(m+1)+'">'+(m+1)+'月</option>';
+    }
+    mSel.innerHTML=opts;
+    updateKyumiDays();
+  }
+}
+
+function updateKyumiDays(){
+  var ySel=document.getElementById('kyumiYearSel');
+  var mSel=document.getElementById('kyumiMonthSel');
+  var dSel=document.getElementById('kyumiDaySel');
+  if(!ySel||!mSel||!dSel)return;
+  var y=parseInt(ySel.value),m=parseInt(mSel.value);
+  var days=new Date(y,m,0).getDate();
+  var opts='';
+  for(var d=1;d<=days;d++) opts+='<option value="'+d+'">'+d+'日</option>';
+  dSel.innerHTML=opts;
+}
+
+function submitKyumiRequest(){
+  var docId=document.getElementById('kyumiDocSel').value;
+  var year=parseInt(document.getElementById('kyumiYearSel').value);
+  var month=parseInt(document.getElementById('kyumiMonthSel').value);
+  var day=parseInt(document.getElementById('kyumiDaySel').value);
+  var type=document.getElementById('kyumiTypeSel').value;
+  if(!docId){showSb('名前を選んでください','w');return;}
+  addKyumiRequest(docId,year,month,day,type);
+  showSb('休み希望を送信しました！','ok');
+  renderKyumiLog();
+  /* ログバーを表示 */
+  document.getElementById('kyumiLogBar').style.display='';
+  /* シフトにも反映 */
+  var dateStr=year+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+  if(!shifts[dateStr])shifts[dateStr]=[];
+  var idx=shifts[dateStr].findIndex(function(s){return s.docId===docId;});
+  var clinicId=type==='kyushutsu'?'kyushutsu':type;
+  if(idx>=0)shifts[dateStr][idx]={docId:docId,clinicId:clinicId,memo:''};
+  else shifts[dateStr].push({docId:docId,clinicId:clinicId,memo:''});
+  dbSave(dateStr,docId,clinicId,'');
+  renderAll();
+}
+
+var _kyumiInited=false;
+function initKyumiViewG(){
+  _kyumiInited=true;
+  /* ドクターボタン生成 */
+  var btnWrap=document.getElementById('kyumiDocBtns');
+  var hiddenSel=document.getElementById('kyumiDocSelG');
+  if(btnWrap){
+    var groups={A:[],B:[],C:[]};
+    doctors.forEach(function(d){
+      var r=d.r||'C';
+      if(groups[r])groups[r].push(d);else groups.C.push(d);
+    });
+    var btnsHtml='';
+    ['A','B','C'].forEach(function(rank){
+      if(!groups[rank].length)return;
+      btnsHtml+='<div style="font-size:10px;font-weight:700;color:var(--ink3);margin:6px 0 3px;">ランク'+rank+'</div>';
+      btnsHtml+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px;">';
+      groups[rank].forEach(function(d){
+        btnsHtml+='<button class="kyumi-doc-btn" data-did="'+d.id+'" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--card);color:var(--ink2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">'+d.n+'</button>';
+      });
+      btnsHtml+='</div>';
+    });
+    btnWrap.innerHTML=btnsHtml;
+    btnWrap.querySelectorAll('.kyumi-doc-btn').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var did=btn.dataset.did;
+        var curVal=hiddenSel?hiddenSel.value:'';
+        if(curVal===did){
+          if(hiddenSel)hiddenSel.value='';
+          btnWrap.querySelectorAll('.kyumi-doc-btn').forEach(function(b){
+            b.style.background='var(--card)';b.style.color='var(--ink2)';b.style.borderColor='var(--border)';
+          });
+        } else {
+          btnWrap.querySelectorAll('.kyumi-doc-btn').forEach(function(b){
+            b.style.background='var(--card)';b.style.color='var(--ink2)';b.style.borderColor='var(--border)';
+          });
+          if(hiddenSel)hiddenSel.value=did;
+          btn.style.background='#1a1a18';btn.style.color='#fff';btn.style.borderColor='#1a1a18';
+        }
+        kyumiSelDates={};
+        var sd=document.getElementById('kyumiSelectedDates');if(sd)sd.style.display='none';
+        var sb2=document.getElementById('kyumiSendBtn');if(sb2)sb2.style.display='none';
+        renderKyumiCal();
+      });
+    });
+  }
+  kyumiSelType='yasumi';
+  kyumiSelDates={};
+  kyumiCalY=curY; kyumiCalM=curM;
+  updateKyumiCalLabel();
+  renderKyumiCal();
+  renderKyumiLogG();
+}
+
+
+function submitKyumiG(){
+  var keys=Object.keys(kyumiSelDates);
+  if(!keys.length){showSb('日付を選んでください','w');return;}
+  var hiddenSel=document.getElementById('kyumiDocSelG');
+  var docId=hiddenSel?hiddenSel.value:'';
+  var doc=docId?doctors.find(function(d){return d.id===docId;}):null;
+  var log=loadKyumiLog();
+  var cnt=0;
+  keys.forEach(function(dateStr){
+    var type=kyumiSelDates[dateStr]||'yasumi';
+    var typeLabel=type==='yukyu'?'有休':type==='kyushutsu'?'休日出勤':'休み';
+    var parts=dateStr.split('-');
+    if(docId){
+      log.forEach(function(e){
+        if(e.docId===docId&&e.dateStr===dateStr&&e.status==='active')e.status='cancelled';
+      });
+    }
+    log.push({
+      id:Date.now()+Math.random(),
+      docId:docId,docName:doc?doc.n:'未定',
+      dateStr:dateStr,
+      year:parseInt(parts[0]),month:parseInt(parts[1]),day:parseInt(parts[2]),
+      type:type,typeLabel:typeLabel,memo:'',
+      timestamp:new Date().toISOString(),status:'active'
+    });
+    if(docId){
+      if(!shifts[dateStr])shifts[dateStr]=[];
+      var idx2=shifts[dateStr].findIndex(function(s){return s.docId===docId;});
+      var clinicId=type==='kyushutsu'?'kyushutsu':type;
+      var entry={docId:docId,clinicId:clinicId,memo:''};
+      if(idx2>=0)shifts[dateStr][idx2]=entry;
+      else shifts[dateStr].push(entry);
+      dbSave(dateStr,docId,clinicId,'');
+    }
+    cnt++;
+  });
+  saveKyumiLog(log);
+  kyumiSelDates={};
+  var sb2=document.getElementById('kyumiSendBtn');if(sb2)sb2.style.display='none';
+  var sd=document.getElementById('kyumiSelectedDates');if(sd)sd.style.display='none';
+  var slEl=document.getElementById('kyumiSelDateList');if(slEl)slEl.textContent='';
+  renderKyumiCal();
+  renderKyumiLogG();
+  if(docId)renderAll();
+  showSb((doc?doc.n+'の':'')+'休み希望 '+cnt+'件を送信しました！','ok');
+  /* ログ欄へスクロール */
+  setTimeout(function(){
+    var logEl=document.getElementById('kyumiLogListG');
+    if(logEl)logEl.scrollIntoView({behavior:'smooth',block:'start'});
+  },300);
+}
+
+function renderKyumiLogG(){
+  var el=document.getElementById('kyumiLogListG');
+  if(!el)return;
+  var log=loadKyumiLog();
+  if(!log.length){
+    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:13px;">まだ休み希望はありません</div>';
+    return;
+  }
+  /* 日付でグループ化・日付昇順 */
+  var byDate={};
+  log.forEach(function(e){
+    if(!byDate[e.dateStr])byDate[e.dateStr]=[];
+    byDate[e.dateStr].push(e);
+  });
+  var DOW=['日','月','火','水','木','金','土'];
+  var html2='';
+  Object.keys(byDate).sort().forEach(function(dateStr){
+    var dt=new Date(dateStr);
+    var dateLabel=(dt.getMonth()+1)+'月'+dt.getDate()+'日（'+DOW[dt.getDay()]+'）';
+    var entries=byDate[dateStr];
+    html2+='<div style="background:var(--card);border-radius:12px;padding:10px 12px;border:1px solid var(--border);">';
+    html2+='<div style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:8px;">'+dateLabel+'</div>';
+    entries.forEach(function(e,idx2){
+      var cancelled=e.status==='cancelled';
+      var ts=new Date(e.timestamp);
+      var tsLabel=(ts.getMonth()+1)+'/'+ts.getDate()+' '+String(ts.getHours()).padStart(2,'0')+':'+String(ts.getMinutes()).padStart(2,'0');
+      var typeColor=e.type==='yukyu'?'#c0392b':e.type==='kyushutsu'?'#e67e22':'#555';
+
+      /* 取消済みは打消し線+薄く */
+      html2+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;'+(idx2>0?'border-top:1px solid var(--border);':'')+';opacity:'+(cancelled?'0.45':'1')+';">';
+      html2+='<span style="font-size:13px;font-weight:700;'+(cancelled?'text-decoration:line-through;color:var(--ink3)':'color:var(--ink)')+'">'+e.docName+'</span>';
+      html2+='<span style="font-size:12px;font-weight:700;color:'+typeColor+';'+(cancelled?'text-decoration:line-through;':'')+'">'+e.typeLabel+'</span>';
+      if(e.memo) html2+='<span style="font-size:11px;color:var(--ink3);">'+e.memo+'</span>';
+      if(cancelled) html2+='<span style="font-size:10px;color:#b83030;font-weight:700;margin-left:auto;">取消済</span>';
+      else html2+='<span style="font-size:9px;color:var(--ink3);margin-left:auto;">'+tsLabel+'</span>';
+      if(!cancelled) html2+='<button data-kyumi-cancel-g="'+e.id+'" style="padding:6px 12px;border:1px solid #b83030;border-radius:8px;color:#b83030;background:none;font-family:inherit;font-size:12px;cursor:pointer;white-space:nowrap;font-weight:600;">取消</button>';
+      html2+='</div>';
+    });
+    html2+='</div>';
+  });
+  el.innerHTML=html2;
+  /* 取消ボタン */
+  el.querySelectorAll('[data-kyumi-cancel-g]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      cancelKyumiRequest(parseInt(btn.dataset.kyumiCancelG));
+      renderKyumiLogG();
+      renderAll();
+    });
+  });
+}
+
+/* カレンダー関連 */
+var kyumiCalY=2026, kyumiCalM=0, kyumiSelDates={}, kyumiSelType='yasumi';
+
+function updateKyumiCalLabel(){
+  var el=document.getElementById('kyumiCalLabel');
+  if(el)el.textContent=kyumiCalY+'年'+(kyumiCalM+1)+'月';
+}
+
+function renderKyumiCal(){
+  var el=document.getElementById('kyumiCalGrid');
+  if(!el)return;
+  var days=new Date(kyumiCalY,kyumiCalM+1,0).getDate();
+  var firstDow=new Date(kyumiCalY,kyumiCalM,1).getDay();
+  var DOWS=['日','月','火','水','木','金','土'];
+  var DOWCOL=['#e05252','#444','#444','#444','#444','#444','#4a7fd4'];
+  var cells='';
+  DOWS.forEach(function(d,i){
+    cells+='<div style="text-align:center;font-size:10px;font-weight:700;color:'+DOWCOL[i]+';padding:4px 0;border-bottom:1px solid var(--border);">'+d+'</div>';
+  });
+  for(var i=0;i<firstDow;i++) cells+='<div></div>';
+  for(var d=1;d<=days;d++){
+    var dateStr=kyumiCalY+'-'+String(kyumiCalM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var w=new Date(kyumiCalY,kyumiCalM,d).getDay();
+    var isSun=w===0,isSat=w===6;
+    var isSel=!!kyumiSelDates[dateStr];
+    /* 既存のシフト確認 */
+    var docId=document.getElementById('kyumiDocSelG')?document.getElementById('kyumiDocSelG').value:'';
+    var existing=docId&&shifts[dateStr]&&shifts[dateStr].find(function(s){return s.docId===docId;});
+    var existClinic=existing?existing.clinicId:null;
+    var restList=['yasumi','yukyu','daikyu','kyushutsu'];
+    var hasRest=existClinic&&restList.indexOf(existClinic)>=0;
+    var selTypeForBg=kyumiSelDates[dateStr]||'yasumi';
+    var selBg=selTypeForBg==='yukyu'?'#c0392b':selTypeForBg==='kyushutsu'?'#e67e22':'#555';
+    var bg=isSel?selBg:hasRest?'#f0efed':isSun?'#fff5f5':isSat?'#f0f5ff':'#fff';
+    var numCol=isSel?'#fff':isSun?'#e05252':isSat?'#4a7fd4':'var(--ink3)';
+    var border=isSel?'2px solid '+selBg:'1px solid #eee';
+    cells+='<div data-kyumi-cal="'+dateStr+'" style="background:'+bg+';border:'+border+';border-radius:8px;padding:4px 2px;min-height:52px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:.1s;">';
+    cells+='<div style="font-size:12px;font-weight:700;color:'+numCol+';">'+d+'</div>';
+    if(isSel){
+      var selTypeForDay=kyumiSelDates[dateStr]||kyumiSelType;
+      var typeLabel2=selTypeForDay==='yukyu'?'有休':selTypeForDay==='kyushutsu'?'休出':'休み';
+      cells+='<div style="font-size:9px;color:#fff;font-weight:700;margin-top:2px;">'+typeLabel2+'</div>';
+    } else if(hasRest){
+      var restLabel=existClinic==='yukyu'?'有休':existClinic==='kyushutsu'?'休出':'休み';
+      cells+='<div style="font-size:9px;color:#888;margin-top:2px;">'+restLabel+'</div>';
+    }
+    cells+='</div>';
+  }
+  el.innerHTML='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">'+cells+'</div>';
+  /* タップイベント */
+  el.querySelectorAll('[data-kyumi-cal]').forEach(function(cell){
+    cell.addEventListener('click',function(){
+      var ds2=cell.dataset.kyumiCal;
+      if(kyumiSelDates[ds2]) delete kyumiSelDates[ds2];
+      else kyumiSelDates[ds2]=kyumiSelType;
+      /* 選択日リスト更新 */
+      var sdEl=document.getElementById('kyumiSelectedDates');
+      var slEl=document.getElementById('kyumiSelDateList');
+      var sbEl=document.getElementById('kyumiSendBtn');
+      if(Object.keys(kyumiSelDates).length>0){
+        var DOW2=['日','月','火','水','木','金','土'];
+        var labels=Object.keys(kyumiSelDates).sort().map(function(d){
+          var dt=new Date(d);return (dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW2[dt.getDay()]+')';
+        }).join('、');
+        if(slEl)slEl.textContent=labels;
+        if(sdEl)sdEl.style.display='block';
+        if(sbEl)sbEl.style.display='block';
+      } else {
+        if(sdEl)sdEl.style.display='none';
+        if(sbEl)sbEl.style.display='none';
+      }
+      renderKyumiCal();
+    });
+  });
+}
+
 function saveSettings(){
   doctors=sDoctors.map(function(d){return Object.assign({},d);});
   CLINICS=sClinics.map(function(c){return Object.assign({},c);});
@@ -2083,11 +3134,15 @@ function renderAll(){
   ['mLbl','mLblB','mLblC','mLblD','mLblAdmin'].forEach(function(id){
     var el=document.getElementById(id);if(el)el.textContent=lbl;
   });
+  /* 月ナビバーをvGでは非表示 */
+  var mnb=document.querySelector('.month-nav-bar');
+  if(mnb)mnb.style.display=curTab===6?'none':'';
   renderLegend();
   if(curTab===0)renderP();
   else if(curTab===1)renderA();
   else if(curTab===2)renderC();
   else if(curTab===3)renderD();
+  /* vGはinitKyumiViewGで管理 */
 
 }
 
@@ -2106,10 +3161,11 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('nextBtn').addEventListener('click',function(){chgMonth(1);});
   document.getElementById('authBtn').addEventListener('click',doAuthToggle);
   document.getElementById('setBtn').addEventListener('click',openSettings);
-  [0,1,2,3].forEach(function(i){
-    var t=document.getElementById('tab'+i);if(t)t.addEventListener('click',function(){setTab(i);});
+  /* htab5（休み希望）はsetTab(6)を呼ぶ */
+  [0,1,2,3,4].forEach(function(i){
     var ht=document.getElementById('htab'+i);if(ht)ht.addEventListener('click',function(){setTab(i);});
   });
+  var ht5=document.getElementById('htab5');if(ht5)ht5.addEventListener('click',function(){setTab(6);});
   document.getElementById('loginBtn').addEventListener('click',doLogin);
   document.getElementById('authCancelBtn').addEventListener('click',function(){document.getElementById('authOv').classList.remove('on');});
   document.getElementById('authOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
@@ -2118,9 +3174,38 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('setOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
   document.getElementById('setConfirmBtn').addEventListener('click',saveSettings);
   var uploadBtn=document.getElementById('uploadBtn');if(uploadBtn)uploadBtn.addEventListener('click',doUpload);
-  [0,1,2,3,4,5].forEach(function(i){var btn=document.getElementById('st'+i);if(btn)btn.addEventListener('click',function(){sSwitchTab(i);});});
+  [0,1,2,3,4,5,6,7].forEach(function(i){var btn=document.getElementById('st'+i);if(btn)btn.addEventListener('click',function(){sSwitchTab(i);});});
   /* 解除ボタン */
   /* 医院選択バーのクリック（clinicPickRowに直接設定） */
+  /* 一括入力バー：bulkBtn/dowBulkBtnイベント */
+  document.addEventListener('click',function(e){
+    var bBtn=e.target.closest('.bulk-btn');
+    if(bBtn&&selDocId){
+      var mode=bBtn.dataset.mode;
+      if(mode==='clear'){
+        /* 2段階確認 */
+        var step2=document.getElementById('clearBtnStep2');
+        var step1=document.getElementById('clearBtnStep1');
+        if(step2){step2.style.display='';step1.style.display='none';}
+        setTimeout(function(){if(step2){step2.style.display='none';if(step1)step1.style.display='';}},3000);
+        return;
+      }
+      if(mode==='clear-confirm'){bulkClear();
+        var step2=document.getElementById('clearBtnStep2');
+        var step1=document.getElementById('clearBtnStep1');
+        if(step2)step2.style.display='none';if(step1)step1.style.display='';
+        return;
+      }
+      if(selClinicId) bulkInput(mode==='all'?'all':mode);
+      return;
+    }
+    var dBtn=e.target.closest('.dow-bulk-btn');
+    if(dBtn&&selDocId&&selClinicId){
+      bulkInputDow(parseInt(dBtn.dataset.dow));
+      return;
+    }
+  });
+
   document.getElementById('clinicPickRow').addEventListener('click',function(e){
     /* buttonまたはその子要素がクリックされた場合に対応 */
     var btn=e.target;
@@ -2193,6 +3278,14 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   setupBalEvents('allViewWrap');
   setupBalEvents('allViewWrapView');
+  /* 閲覧モード：ドクター名タップで自分の列ハイライト */
+  document.addEventListener('click',function(e){
+    var vdoc=e.target.closest('[data-view-doc]');
+    if(vdoc&&!isAdmin){
+      viewSelDocId=viewSelDocId===vdoc.dataset.viewDoc?null:vdoc.dataset.viewDoc;
+      renderAllView('allViewWrapView');
+    }
+  });
 
   document.getElementById('multiSelClear').addEventListener('click',function(){
     multiSelDates.clear();isDragging=false;updateMultiSelBar();renderCalGrid();
@@ -2258,29 +3351,74 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   },{passive:true});
 
+  /* シフト作成サブタブ */
+  document.querySelectorAll('.shift-sub-tab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var sub=parseInt(btn.dataset.sub);
+      document.querySelectorAll('.shift-sub-tab').forEach(function(b){
+        var on=b===btn;
+        b.style.background=on?'#7b2d8b':'var(--bg)';
+        b.style.color=on?'#fff':'var(--ink2)';
+        b.style.border=on?'none':'1.5px solid var(--border)';
+      });
+      [0,1,2].forEach(function(i){
+        var p=document.getElementById('shiftSubPanel'+i);
+        if(p)p.style.display=i===sub?'':'none';
+      });
+    });
+  });
+  /* 人タブへ移動ボタン */
+  var goBtn=document.getElementById('goToPersonTabBtn');
+  if(goBtn)goBtn.addEventListener('click',function(){setTab(0);});
+
   /* 全体バランス表ドラッグ削除 */
-  var bDrag=false,bDone=new Set();
+  var bDrag=false, bDone=new Set();
+  document.addEventListener('mousedown',function(ev){
+    if(ev.target.closest('[data-edit-doc]')&&isAdmin) bDrag=false;
+  });
+  var bStartX=0,bStartY=0;
+  document.addEventListener('mousedown',function(ev){bStartX=ev.clientX;bStartY=ev.clientY;});
   document.addEventListener('mousemove',function(ev){
     if(!(ev.buttons&1)||!isAdmin)return;
+    /* 5px以上動いたらドラッグとみなす */
+    var dx=ev.clientX-bStartX,dy=ev.clientY-bStartY;
+    if(Math.sqrt(dx*dx+dy*dy)<5)return;
     var td=ev.target.closest('[data-edit-doc]');
     if(!td)return;
     var k=td.dataset.editDate+'_'+td.dataset.editDoc;
-    if(bDone.has(k))return;bDone.add(k);bDrag=true;
-    var eDoc=td.dataset.editDoc,eDt=td.dataset.editDate;
+    if(bDone.has(k))return;
+    bDone.add(k); bDrag=true;
+    var eDoc=td.dataset.editDoc, eDt=td.dataset.editDate;
     var hasSh=shifts[eDt]&&shifts[eDt].find(function(s){return s.docId===eDoc;});
-    if(hasSh){shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});if(!shifts[eDt].length)delete shifts[eDt];dbDel(eDt,eDoc);renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();}
+    if(hasSh){
+      shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});
+      if(!shifts[eDt].length)delete shifts[eDt];
+      dbDel(eDt,eDoc);
+      renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+    }
   });
-  document.addEventListener('mouseup',function(){bDrag=false;bDone.clear();});
+  document.addEventListener('mouseup',function(){
+    /* ドラッグ終了後、次のclickイベントで誤判定しないよう少し遅らせてリセット */
+    setTimeout(function(){bDrag=false;bDone.clear();},50);
+  });
+  /* スマホタッチドラッグ */
   document.addEventListener('touchmove',function(ev){
     if(!isAdmin)return;
-    var t=ev.touches[0];var el3=document.elementFromPoint(t.clientX,t.clientY);
-    var td=el3&&el3.closest&&el3.closest('[data-edit-doc]');
+    var t=ev.touches[0];
+    var el2=document.elementFromPoint(t.clientX,t.clientY);
+    var td=el2&&el2.closest&&el2.closest('[data-edit-doc]');
     if(!td)return;
     var k=td.dataset.editDate+'_'+td.dataset.editDoc;
-    if(bDone.has(k))return;bDone.add(k);
-    var eDoc=td.dataset.editDoc,eDt=td.dataset.editDate;
+    if(bDone.has(k))return;
+    bDone.add(k);
+    var eDoc=td.dataset.editDoc, eDt=td.dataset.editDate;
     var hasSh=shifts[eDt]&&shifts[eDt].find(function(s){return s.docId===eDoc;});
-    if(hasSh){shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});if(!shifts[eDt].length)delete shifts[eDt];dbDel(eDt,eDoc);renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();}
+    if(hasSh){
+      shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});
+      if(!shifts[eDt].length)delete shifts[eDt];
+      dbDel(eDt,eDoc);
+      renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+    }
   },{passive:true});
   document.addEventListener('touchend',function(){bDone.clear();},{passive:true});
 
@@ -2290,6 +3428,75 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('clinicCalPrev').addEventListener('click',function(){chgClinicCalMonth(-1);});
   document.getElementById('clinicCalNext').addEventListener('click',function(){chgClinicCalMonth(1);});
   document.getElementById('histCloseBtn').addEventListener('click',function(){document.getElementById('histOv').classList.remove('on');});
+  /* 休み希望タブ（vG） */
+  /* 休み希望カレンダー（vG） */
+  var kgSubmit=document.getElementById('kyumiSendBtn');
+  if(kgSubmit)kgSubmit.addEventListener('click',submitKyumiG);
+  var kgPrev=document.getElementById('kyumiCalPrev');
+  if(kgPrev)kgPrev.addEventListener('click',function(){
+    kyumiCalM--;if(kyumiCalM<0){kyumiCalM=11;kyumiCalY--;}
+    updateKyumiCalLabel();renderKyumiCal();
+  });
+  var kgNext=document.getElementById('kyumiCalNext');
+  if(kgNext)kgNext.addEventListener('click',function(){
+    kyumiCalM++;if(kyumiCalM>11){kyumiCalM=0;kyumiCalY++;}
+    updateKyumiCalLabel();renderKyumiCal();
+  });
+  /* 種類ボタン */
+  document.querySelectorAll('.kyumi-type-g').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      kyumiSelType=btn.dataset.type;
+      document.querySelectorAll('.kyumi-type-g').forEach(function(b){
+        var on=b===btn;
+        var colors={yasumi:['#555','#555','#fff'],yukyu:['#c0392b','#c0392b','#fff'],kyushutsu:['#e67e22','#e67e22','#fff']};
+        var c=colors[b.dataset.type]||colors.yasumi;
+        b.style.borderColor=on?c[0]:'var(--border)';
+        b.style.background=on?c[1]:'var(--bg)';
+        b.style.color=on?c[2]:'var(--ink2)';
+      });
+      renderKyumiCal();
+    });
+  });
+
+
+  /* 休み希望入力バー */
+  var kyumiMonthSel2=document.getElementById('kyumiMonthSel');
+  var kyumiYearSel2=document.getElementById('kyumiYearSel');
+  if(kyumiMonthSel2)kyumiMonthSel2.addEventListener('change',updateKyumiDays);
+  if(kyumiYearSel2)kyumiYearSel2.addEventListener('change',updateKyumiDays);
+  var kyumiSubmitBtn=document.getElementById('kyumiSubmitBtn');
+  if(kyumiSubmitBtn)kyumiSubmitBtn.addEventListener('click',submitKyumiRequest);
+  var showLogBtn=document.getElementById('showKyumiLogBtn');
+  if(showLogBtn)showLogBtn.addEventListener('click',function(){
+    var bar=document.getElementById('kyumiLogBar');
+    bar.style.display=bar.style.display==='none'?'':'none';
+    if(bar.style.display!=='none')renderKyumiLog();
+  });
+  var logToggle=document.getElementById('kyumiLogToggle');
+  if(logToggle)logToggle.addEventListener('click',function(){
+    document.getElementById('kyumiLogBar').style.display='none';
+  });
+  /* 休み希望入力モーダル */
+  document.getElementById('kyumiDocCloseBtn').addEventListener('click',function(){document.getElementById('kyumiDocOv').classList.remove('on');});
+  document.getElementById('kyumiDocOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
+  document.getElementById('kyumiDocSaveBtn').addEventListener('click',saveKyumiDoc);
+  document.querySelectorAll('.kyumi-type-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      kyumiDocSelType=btn.dataset.type;
+      document.querySelectorAll('.kyumi-type-btn').forEach(function(b){
+        var on=b===btn;
+        b.classList.toggle('on',on);
+        b.style.borderColor=on?(b.dataset.type==='yasumi'?'#999':b.dataset.type==='yukyu'?'#c0392b':'#e67e22'):'var(--border)';
+        b.style.background=on?(b.dataset.type==='yasumi'?'#f2f2f0':b.dataset.type==='yukyu'?'#fdf0ee':'#fff3e0'):'var(--bg)';
+        b.style.color=on?(b.dataset.type==='yasumi'?'#666':b.dataset.type==='yukyu'?'#c0392b':'#e67e22'):'var(--ink2)';
+      });
+    });
+  });
+  /* 個人カレンダーの休み希望ボタン */
+  document.getElementById('docCalKyumiBtn').addEventListener('click',function(){
+    document.getElementById('docCalOv').classList.remove('on');
+    openKyumiDoc();
+  });
   document.getElementById('histOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
   document.getElementById('clinicCalCloseBtn').addEventListener('click',function(){document.getElementById('clinicCalOv').classList.remove('on');});
   document.getElementById('clinicCalOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
@@ -2305,6 +3512,35 @@ document.addEventListener('DOMContentLoaded',function(){
 
   /* EVENT DELEGATION */
   document.addEventListener('click',function(e){
+    /* 全体バランス表セルタップ → 追加/削除 */
+    var eTd=e.target.closest('[data-edit-doc]');
+    if(eTd&&isAdmin&&!e.target.dataset.delDate&&!e.target.dataset.openDoc&&!bDrag){
+      var eDoc=eTd.dataset.editDoc, eDt=eTd.dataset.editDate;
+      if(!eDoc||!eDt){}
+      else if(e.ctrlKey||e.metaKey){
+        /* Ctrl+クリック → 即削除 */
+        if(shifts[eDt]){shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});if(!shifts[eDt].length)delete shifts[eDt];}
+        dbDel(eDt,eDoc);
+        renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+        return;
+      } else {
+        var hasSh=shifts[eDt]&&shifts[eDt].find(function(s){return s.docId===eDoc;});
+        if(hasSh){
+          /* あれば削除 */
+          shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});
+          if(!shifts[eDt].length)delete shifts[eDt];
+          dbDel(eDt,eDoc);
+          renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+        } else {
+          /* なければ qpop で追加 */
+          selDocId=eDoc;
+          /* よく行く医院をそのドクターに設定 */
+          openQpop(eDt);
+        }
+        return;
+      }
+    }
+
     /* ドクター選択 */
     var chipEl=e.target.closest('.doc-sel-chip');
     if(chipEl&&chipEl.dataset.did){
@@ -2317,20 +3553,30 @@ document.addEventListener('DOMContentLoaded',function(){
       /* freqBarのpillをタップ→選択中の日がなければ何もしない（カレンダーからのみ） */
       return;
     }
-    /* 全体バランス表セルタップ→追加/削除 */
-    var eTd=e.target.closest('[data-edit-doc]');
-    if(eTd&&eTd.dataset.editDoc&&isAdmin&&!e.target.dataset.delDate){
-      var eDoc=eTd.dataset.editDoc,eDt=eTd.dataset.editDate;
+    /* 全体バランス表のセルクリック */
+    var balTd=e.target.closest('[data-bal-doc]');
+    if(balTd&&isAdmin){
+      var bdoc=balTd.dataset.balDoc, bdate=balTd.dataset.balDate;
       if(e.ctrlKey||e.metaKey){
-        if(shifts[eDt]){shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});if(!shifts[eDt].length)delete shifts[eDt];}
-        dbDel(eDt,eDoc);renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();return;
+        /* Ctrl：選択トグル */
+        if(balSelClinicId){
+          balSaveToCell(bdoc,bdate);
+          setTimeout(function(){balMultiSel.clear();renderAllView('allViewWrap');renderAllView('allViewWrapView');},100);
+        }
+      } else if(balDragging){
+        /* ドラッグ中はスキップ */
+      } else if(balSelClinicId){
+        /* 医院選択中：即保存 */
+        balSaveToCell(bdoc,bdate);
+        setTimeout(function(){balMultiSel.clear();renderAllView('allViewWrap');renderAllView('allViewWrapView');},100);
+      } else {
+        /* 医院未選択：シフト削除 */
+        var existing=(shifts[bdate]||[]).find(function(s){return s.docId===bdoc;});
+        if(existing){
+          balDeleteCell(bdoc,bdate);
+          showSb('削除しました','ok');
+        }
       }
-      var hasSh=shifts[eDt]&&shifts[eDt].find(function(s){return s.docId===eDoc;});
-      if(hasSh){
-        shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});
-        if(!shifts[eDt].length)delete shifts[eDt];
-        dbDel(eDt,eDoc);renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
-      } else {selDocId=eDoc;openQpop(eDt);}
       return;
     }
     /* カレンダーのシフトバッジをタップ→削除 */
@@ -2431,6 +3677,127 @@ document.addEventListener('DOMContentLoaded',function(){
   /* バックアップボタン */
   var bsBtn=document.getElementById('backupSaveBtn');
   if(bsBtn)bsBtn.addEventListener('click',saveBackup);
+  /* GitHub設定 */
+  var ghTokenInput=document.getElementById('ghTokenInput');
+  if(ghTokenInput){
+    ghTokenInput.value=getGhToken()||'';
+    document.getElementById('ghTokenSaveBtn').addEventListener('click',function(){
+      saveGhToken(ghTokenInput.value.trim());
+      showSb('Tokenを保存しました','ok');
+    });
+    document.getElementById('ghTokenClearBtn').addEventListener('click',function(){
+      localStorage.removeItem('gh_token');
+      ghTokenInput.value='';
+      showSb('Tokenを削除しました','ok');
+    });
+    document.getElementById('ghUploadBtn2').addEventListener('click',uploadToGitHub);
+  }
+
+  /* シフト作成タブ */
+  var ag2=document.getElementById('aiGenerateBtn2');
+  if(ag2)ag2.addEventListener('click',function(){
+    var y=parseInt(document.getElementById('aiYear2').value);
+    var m=parseInt(document.getElementById('aiMonth2').value);
+    document.getElementById('aiProgress2').style.display='block';
+    document.getElementById('aiResult2').style.display='none';
+    ag2.disabled=true;
+    setTimeout(function(){
+      try{
+        var patterns=analyzePatterns(y,m);
+        aiGeneratedShifts=generateAiShift(y,m);
+        var totalDays=Object.keys(aiGeneratedShifts).length;
+        var totalEntries=Object.values(aiGeneratedShifts).reduce(function(a,b){return a+b.length;},0);
+        var refInfo=patterns.refMonths.map(function(ym){return ym.replace('-','年')+'月';}).join('・');
+        document.getElementById('aiSummary2').innerHTML='✅ 生成完了！<br>'+y+'年'+(m+1)+'月 <strong>'+totalDays+'日分・'+totalEntries+'件</strong>を作成<br><span style="font-size:10px;">参照：'+refInfo+'</span>';
+        document.getElementById('aiResult2').style.display='block';
+      }catch(e2){document.getElementById('aiSummary2').innerHTML='⚠️ 失敗: '+e2.message;document.getElementById('aiResult2').style.display='block';}
+      document.getElementById('aiProgress2').style.display='none';
+      ag2.disabled=false;
+    },800);
+  });
+  var aa2=document.getElementById('aiApplyBtn2');
+  if(aa2)aa2.addEventListener('click',function(){
+    if(!aiGeneratedShifts)return;
+    var y=parseInt(document.getElementById('aiYear2').value);
+    var m=parseInt(document.getElementById('aiMonth2').value);
+    /* 既存データとマージ（休み希望は保持） */
+    Object.keys(aiGeneratedShifts).forEach(function(dateStr){
+      var existing=shifts[dateStr]||[];
+      var restEntries=existing.filter(function(s){return ['yasumi','yukyu','daikyu','kyushutsu'].indexOf(s.clinicId)>=0;});
+      var newEntries=aiGeneratedShifts[dateStr].filter(function(s){
+        return !restEntries.find(function(r){return r.docId===s.docId;});
+      });
+      shifts[dateStr]=restEntries.concat(newEntries);
+    });
+    aiGeneratedShifts=null;
+    curY=y;curM=m;
+    setTab(0);
+    renderAll();
+    showSb('AIシフトを適用しました！休み希望は保持されています。','ok');
+    var targetYM=y+'-'+String(m+1).padStart(2,'0');
+    Object.keys(shifts).forEach(function(dateStr){
+      if(dateStr.slice(0,7)===targetYM)shifts[dateStr].forEach(function(s){dbSave(dateStr,s.docId,s.clinicId,s.memo||'');});
+    });
+  });
+
+  /* 休み希望タブ */
+  /* AI解析ボタン */
+  var kaiBtn=document.getElementById('kyumiAiParseBtn');
+  if(kaiBtn)kaiBtn.addEventListener('click',aiParseKyumi);
+
+  /* 通常解析ボタン */
+  var kp2=document.getElementById('kyumiParseBtn2');
+  if(kp2)kp2.addEventListener('click',function(){
+    var results=parseKyumiTextFrom('kyumiText2','kyumiYear2','kyumiMonth2');
+    var el=document.getElementById('kyumiPreview2');
+    var applyBtn=document.getElementById('kyumiApplyBtn2');
+    el.style.display='block';
+    if(!results.length){
+      el.style.background='#fdf0ee';
+      el.innerHTML='<span style="color:#b83030;">認識できた休み希望がありません</span>';
+      applyBtn.style.display='none';
+      return;
+    }
+    el.style.background='#e8f5e9';
+    var byDoc={};
+    results.forEach(function(r){if(!byDoc[r.doc.n])byDoc[r.doc.n]=[];byDoc[r.doc.n].push((r.month+1)+'月'+r.day+'日');});
+    el.innerHTML='<div style="font-weight:700;margin-bottom:6px;color:#2e7d32;">✅ '+results.length+'件を認識</div>'+
+      Object.keys(byDoc).map(function(n){return '<div><span style="font-weight:600;">'+n+'</span>：'+byDoc[n].join('、')+'</div>';}).join('');
+    applyBtn.style.display='block';
+    applyBtn.dataset.aiRequests='';
+  });
+
+  /* 反映ボタン */
+  var ka2=document.getElementById('kyumiApplyBtn2');
+  if(ka2)ka2.addEventListener('click',function(){
+    var applied=0;
+    /* AI解析結果がある場合 */
+    if(ka2.dataset.aiRequests){
+      var aiReqs=JSON.parse(ka2.dataset.aiRequests);
+      applied=applyAiKyumi(aiReqs);
+    } else {
+      /* 通常解析結果を反映 */
+      var results=parseKyumiTextFrom('kyumiText2','kyumiYear2','kyumiMonth2');
+      if(!results.length){showSb('認識できた休み希望がありません','w');return;}
+      results.forEach(function(r){
+        var dateStr=r.year+'-'+String(r.month+1).padStart(2,'0')+'-'+String(r.day).padStart(2,'0');
+        if(!shifts[dateStr])shifts[dateStr]=[];
+        var idx=shifts[dateStr].findIndex(function(s){return s.docId===r.doc.id;});
+        if(idx>=0){var ex=shifts[dateStr][idx];if(ex.clinicId==='yukyu'||ex.clinicId==='daikyu')return;shifts[dateStr][idx]={docId:r.doc.id,clinicId:'yasumi',memo:''};}
+        else shifts[dateStr].push({docId:r.doc.id,clinicId:'yasumi',memo:''});
+        dbSave(dateStr,r.doc.id,'yasumi','');applied++;
+      });
+    }
+    document.getElementById('kyumiText2').value='';
+    document.getElementById('kyumiPreview2').style.display='none';
+    ka2.style.display='none';
+    renderAll();
+    showSb(applied+'件の休み希望を反映しました','ok');
+  });
+  var kpBtn=document.getElementById('kyumiParseBtn');
+  if(kpBtn)kpBtn.addEventListener('click',showKyumiPreview);
+  var kaBtn=document.getElementById('kyumiApplyBtn');
+  if(kaBtn)kaBtn.addEventListener('click',applyKyumiText);
 
   /* AIシフト */
   document.getElementById('aiShiftBtn').addEventListener('click',function(){
@@ -2505,6 +3872,8 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 
   /* 印刷ボタン */
+  var ghBtn2=document.getElementById('ghUploadBtn');
+  if(ghBtn2)ghBtn2.addEventListener('click',uploadToGitHub);
   document.getElementById('printBtn').addEventListener('click',function(){
     document.getElementById('printOv').classList.add('on');
   });
@@ -2546,6 +3915,8 @@ document.addEventListener('DOMContentLoaded',function(){
   /* htab初期化 */
   var htab0=document.getElementById('htab0');
   if(htab0)htab0.classList.add('on');
+  /* vE,vG は初期非表示 */
+  ['vE','vG'].forEach(function(id){var v=document.getElementById(id);if(v)v.style.display='none';});
   renderAll();
   loadDB().then(function(){renderAll();scheduleAutoBackup();});
 });
