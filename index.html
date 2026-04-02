@@ -1051,15 +1051,15 @@ function renderAllView(targetId){
           var bg=sh.clinicId==='yukyu'?'#e53935':sh.clinicId==='yasumi'?'#78909c':sh.clinicId==='daikyu'?'#546e7a':c.c;
           cellBg=bg;
           inner='<span style="color:#fff;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center;line-height:1.3;padding:2px 0;">'+cname(sh.clinicId)+'</span>';
-          if(isKyu)inner+='<span style="font-size:6px;color:#e67e22;font-weight:700;display:block;text-align:center;">休出</span>';
-          if(sh.memo==='代出')inner+='<span style="font-size:6px;color:#999;display:block;text-align:center;">代出</span>';
+          if(isKyu)inner+='<span style="font-size:8px;color:#ffe0b2;font-weight:700;vertical-align:super;">↑</span>';
+          if(sh.memo==='代出')inner+='<span style="font-size:8px;color:#ddd;font-weight:700;vertical-align:super;">代</span>';
         }
       }
       if(isAdmin){
         var selKey=doc.id+'|'+dateStr;
         var isBalSel=balMultiSel.has(selKey);
         var editStyle=';cursor:pointer;'+(isBalSel?'outline:2px solid #e67e22;outline-offset:-1px;background:#fff3e0;':'');
-        h+='<td data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'" data-bal-doc="'+doc.id+'" data-bal-date="'+dateStr+'" style="text-align:center;background:'+cellBg+';width:42px;max-width:42px;overflow:hidden;vertical-align:middle;border:'+(sh?'none':'0.5px solid #e8e5e0')+';padding:'+(sh?'0':'2px')+';'+editStyle+'">'+inner+(!sh?'<span style="color:#e0ddd8;font-size:10px;">＋</span>':'')+'</td>';
+        h+='<td data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'" data-bal-doc="'+doc.id+'" data-bal-date="'+dateStr+'" style="text-align:center;background:'+cellBg+';width:42px;max-width:42px;height:32px;overflow:hidden;vertical-align:middle;border:'+(sh?'none':'0.5px solid #e8e5e0')+';padding:'+(sh?'0':'2px')+';'+editStyle+'">'+inner+(!sh?'<span style="color:#e0ddd8;font-size:10px;">＋</span>':'')+'</td>';
       } else {
         var eAttr2=isAdmin?' data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'"':'';var colHL=viewSelDocId&&doc.id===viewSelDocId?';outline:2px solid #1a1a18;outline-offset:-2px;':'';
 h+='<td'+eAttr2+' style="text-align:center;background:'+cellBg+';width:36px;max-width:36px;overflow:hidden;vertical-align:middle;border:0.5px solid #ddd'+(isAdmin?';cursor:pointer':'')+'">'+inner+(isAdmin&&!sh?'<span style="color:#ddd;font-size:10px;">＋</span>':'')+'</td>';
