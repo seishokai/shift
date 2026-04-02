@@ -2457,11 +2457,13 @@ function renderC(){
       var dayS=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;});
       var cls=w===0?'sun':w===6?'sat':'';
       var closed=isClosed(dateStr,cl.id)&&!isToday(d);
-      if(closed)h+='<td class="'+cls+'" style="background:#f0efed;color:var(--ink3);text-align:center;font-size:10px;">—</td>';
-      else if(!dayS.length)h+='<td class="'+cls+'"></td>';
-      else{
+      if(dayS.length){
         var names=dayS.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});return doc?doc.n:'';}).join(' ');
         h+='<td class="'+cls+'"><span class="cnum" style="color:'+col+'">'+dayS.length+'</span><span class="cnames">'+names+'</span></td>';
+      } else if(closed){
+        h+='<td class="'+cls+'" style="background:#f0efed;color:#aaa;text-align:center;font-size:9px;font-weight:600;">休診</td>';
+      } else {
+        h+='<td class="'+cls+'"></td>';
       }
     }
     h+='</tr>';
