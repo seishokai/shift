@@ -952,7 +952,9 @@ function renderA(){
       if(isToday(d))rowBg='#fffbf0';
       if(isClosed(dateStr,cl.id)&&!isToday(d))rowBg='#f0efed';
       var dayS=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;});
+      var isClosedDay=isClosed(dateStr,cl.id)&&!isToday(d);
       h+='<td style="min-width:38px;max-width:38px;vertical-align:middle;padding:1px;background:'+rowBg+';border:0.5px solid var(--border);overflow:hidden;text-align:center;">';
+      if(isClosedDay&&!dayS.length){h+='<span style="font-size:8px;color:#aaa;font-weight:600;">休診</span>';}
       if(dayS.length){
         h+='<div style="display:flex;flex-direction:column;gap:1px;">';
         dayS.forEach(function(s){
@@ -1947,7 +1949,7 @@ function executePrint(type){
         var ds3=ds(d3),w3=dow(d3);
         var dayS=(shifts[ds3]||[]).filter(function(s){return s.clinicId===cl.id;});
         var cls3=w3===0?'sun':w3===6?'sat':'';
-        if(isClosed(ds3,cl.id))body+='<td class="'+cls3+' hol"></td>';
+        if(isClosed(ds3,cl.id))body+='<td class="'+cls3+' hol" style="font-size:8px;color:#aaa;font-weight:600;">休診</td>';
         else if(dayS.length){
           var names=dayS.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});return doc?doc.n:'';}).join(' ');
           body+='<td class="'+cls3+'" style="font-size:5pt;">'+names+'</td>';
@@ -1972,7 +1974,7 @@ function executePrint(type){
         var ds5=ds(d5),w5=dow(d5);
         var dayS2=(shifts[ds5]||[]).filter(function(s){return s.clinicId===cl.id;});
         var cls5=w5===0?'sun':w5===6?'sat':'';
-        if(isClosed(ds5,cl.id))body+='<td class="'+cls5+' hol">—</td>';
+        if(isClosed(ds5,cl.id))body+='<td class="'+cls5+' hol" style="font-size:8px;color:#aaa;font-weight:600;">休診</td>';
         else body+='<td class="'+cls5+'" style="font-weight:700;color:'+col2+';">'+( dayS2.length||'')+'</td>';
       }
       body+='</tr>';
