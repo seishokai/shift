@@ -65,10 +65,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .leg{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--ink2);background:var(--bg);padding:2px 7px;border-radius:10px;}
 .leg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 /* ===== VIEW B: 人タブ ===== */
-.doc-sel-bar{padding:10px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;gap:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:10;flex-shrink:0;}
-.doc-sel-chip{padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:11px;cursor:pointer;white-space:nowrap;background:var(--card);color:var(--ink2);font-family:inherit;font-weight:600;transition:.15s;}
+.doc-sel-bar{background:var(--card);overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:0;flex-shrink:0;border-bottom:none;border-right:1px solid var(--border);}
+.doc-sel-chip{padding:11px 14px;border-radius:0;border:none;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;background:var(--card);color:var(--ink);font-family:inherit;font-weight:600;transition:.1s;white-space:nowrap;}
 .doc-sel-chip:active{transform:scale(.95);}
-.doc-sel-chip.on{background:#1a1a18;color:#fff;border-color:#1a1a18;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.doc-sel-chip.on{background:#e8f5e9;color:#2e7d32;border-left:3px solid #2e7d32;}
 /* カレンダー */
 .cal-wrap{padding:12px;}
 .cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
@@ -1202,9 +1202,18 @@ function renderP(){
   document.getElementById('vB-admin').style.display='';
   document.getElementById('vB-view').style.display='none';
   /* ドクター選択バー */
-  document.getElementById('docSelBar').innerHTML=doctors.map(function(d){
-    return '<button class="doc-sel-chip'+(selDocId===d.id?' on':'')+'" data-did="'+d.id+'">'+d.n+(d.memo?'<span style="display:block;font-size:8px;font-weight:400;opacity:.7">'+d.memo+'</span>':'')+' </button>';
-  }).join('');
+  document.getElementById('docSelBar').innerHTML=(function(){
+    if(selDocId){
+      var sd=doctors.find(function(d){return d.id===selDocId;});
+      return '<button onclick="selDocId=null;renderP();" style="display:flex;align-items:center;gap:6px;padding:10px 14px;border:none;border-bottom:1px solid var(--border);background:var(--bg);font-family:inherit;font-size:12px;color:var(--ink3);cursor:pointer;width:100%;">← 一覧に戻る</button>'+
+        '<div style="padding:12px 14px;background:#1a1a18;color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;">'+( sd?sd.n:'')+(sd&&sd.memo?'<span style="font-size:11px;font-weight:400;opacity:.7;margin-left:4px;">'+sd.memo+'</span>':'')+'</div>';
+    }
+    return doctors.map(function(d){
+      return '<button class="doc-sel-chip" data-did="'+d.id+'" style="display:flex;align-items:center;justify-content:space-between;">'+
+        '<span>'+d.n+(d.memo?'<span style="font-size:10px;font-weight:400;opacity:.6;margin-left:6px;">'+d.memo+'</span>':'')+'</span>'+
+        '<span style="color:var(--ink3);font-size:16px;font-weight:300;">›</span></button>';
+    }).join('');
+  })();
   renderClinicPickBar();
   renderCalGrid();
   renderAllView('allViewWrap');
