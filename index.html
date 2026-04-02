@@ -633,6 +633,7 @@ thead .date-th{top:0;}
       <button class="kyumi-type-btn on" data-type="yasumi" style="flex:1;padding:9px;border:2px solid #999;border-radius:10px;background:#f2f2f0;color:#666;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">休み</button>
       <button class="kyumi-type-btn" data-type="yukyu" style="flex:1;padding:9px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">有休</button>
       <button class="kyumi-type-btn" data-type="kyushutsu" style="flex:1;padding:9px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">休日出勤</button>
+      <button class="kyumi-type-btn" data-type="shutskin" style="flex:1;padding:9px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">🏥 出勤</button>
     </div>
     <p style="font-size:11px;color:var(--ink3);margin-bottom:10px;">日付をタップして入力。もう一度タップで解除。</p>
     <button id="kyumiDocSaveBtn" style="width:100%;padding:13px;background:#2e7d32;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">✅ 保存する</button>
@@ -653,6 +654,7 @@ thead .date-th{top:0;}
         <button class="kyumi-type-g on" data-type="yasumi" style="flex:1;padding:10px;border:2px solid #555;border-radius:10px;background:#555;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">休み</button>
         <button class="kyumi-type-g" data-type="yukyu" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">有休</button>
         <button class="kyumi-type-g" data-type="kyushutsu" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">休日出勤</button>
+        <button class="kyumi-type-g" data-type="shutskin" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">🏥 出勤希望</button>
       </div>
     </div>
 
@@ -707,6 +709,7 @@ var STATUSES = [
   {id:'yasumi',n:'休み',cc:'cc-yasumi'},{id:'yukyu',n:'有給',cc:'cc-yukyu'},
   {id:'daikyu',n:'代休',cc:'cc-daikyu'},{id:'daishutsu',n:'代出',cc:'cc-daishutsu'},
   {id:'kyushutsu',n:'休日出勤',cc:'cc-kyushutsu'},
+  {id:'shutskin',n:'出勤希望',cc:'cc-kyushutsu'},
 ];
 var ALL = CLINICS.concat(STATUSES);
 
@@ -3575,6 +3578,22 @@ document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('.kyumi-type-g').forEach(function(btn){
     btn.addEventListener('click',function(){
       kyumiSelType=btn.dataset.type;
+      var clinicWrap=document.getElementById('shutskinClinicWrap');
+      if(clinicWrap){
+        if(kyumiSelType==='shutskin'){
+          clinicWrap.style.display='';
+          var clinicBtnsEl=document.getElementById('shutskinClinicBtns');
+          if(clinicBtnsEl)clinicBtnsEl.innerHTML=CLINICS.map(function(c){var cc=getCC(c.id);return '<button class="shutskin-clinic-btn" data-cid="'+c.id+'" style="padding:6px 12px;border-radius:16px;border:1.5px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;">'+c.n+'</button>';}).join('');
+          document.querySelectorAll('.shutskin-clinic-btn').forEach(function(cb){
+            cb.addEventListener('click',function(){
+              document.querySelectorAll('.shutskin-clinic-btn').forEach(function(x){x.style.background='var(--card)';x.style.color='var(--ink2)';x.style.borderColor='var(--border)';});
+              var cc=getCC(cb.dataset.cid);
+              cb.style.background=cc.b;cb.style.color=cc.c;cb.style.borderColor=cc.c;
+              window._shutskinClinicId=cb.dataset.cid;
+            });
+          });
+        } else { clinicWrap.style.display='none'; window._shutskinClinicId=null; }
+      }
       document.querySelectorAll('.kyumi-type-g').forEach(function(b){
         var on=b===btn;
         var colors={yasumi:['#555','#555','#fff'],yukyu:['#c0392b','#c0392b','#fff'],kyushutsu:['#e67e22','#e67e22','#fff']};
