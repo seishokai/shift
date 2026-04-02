@@ -2574,75 +2574,36 @@ function renderClinicEdit(){
 }
 
 function aiParseKyumi(){
-  var text=document.getElementById('kyumiText2').value.trim();
-  var year=parseInt(document.getElementById('kyumiYear2').value);
-  var month=parseInt(document.getElementById('kyumiMonth2').value)+1;
-  if(!text){showSb('テキストを入力してください','w');return;}
-
+  /* ルールベース解析（CORS回避のためAPI不使用） */
   var statusEl=document.getElementById('kyumiAiStatus');
   var previewEl=document.getElementById('kyumiPreview2');
   var applyBtn=document.getElementById('kyumiApplyBtn2');
-  statusEl.style.display='block';
-  previewEl.style.display='none';
-  applyBtn.style.display='none';
-
-  /* ドクター名一覧を作成 */
-  var docNames=doctors.map(function(d){return d.n;}).join('、');
-
-  var prompt='以下のテキストからシフト希望を抽出してください。\n\n' +
-    'ドクター一覧: '+docNames+'\n' +
-    '対象年: '+year+'年\n' +
-    '対象月のデフォルト: '+month+'月\n\n' +
-    '入力テキスト:\n' + text + '\n\n' +
-    '抽出ルール:\n' +
-    '- ドクター名はドクター一覧から最も近いものを使用\n' +
-    '- 「隔週日曜日」は対象月の隔週日曜を列挙\n' +
-    '- 「月曜日」は対象月の全月曜を列挙\n' +
-    '- 「木曜日」は対象月の全木曜を列挙\n' +
-    '- 「有給」はtype:yukyu、「休日出勤」はtype:kyushutsu、それ以外はtype:yasumi\n' +
-    '- 「連休を作る」は前後の土日と合わせて判断（有給1日を特定）\n\n' +
-    '以下のJSON形式のみで回答（説明不要）:\n' +
-    '{"requests":[{"doc":"ドクター名","year":2026,"month":6,"day":3,"type":"yasumi"},...]}';
-
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1000,
-      messages:[{role:'user',content:prompt}]
-    })
-  }).then(function(r){return r.json();}).then(function(data){
-    statusEl.style.display='none';
-    var text2=data.content&&data.content[0]?data.content[0].text:'';
-    /* JSONを抽出してパース */
-    var jsonMatch=text2.match(/\{[\s\S]*\}/);
-    if(!jsonMatch){previewEl.style.background='#fdf0ee';previewEl.style.display='block';previewEl.innerHTML='<span style="color:#b83030;">⚠️ AI解析に失敗しました。通常解析をお試しください。</span>';return;}
-    var parsed=JSON.parse(jsonMatch[0]);
-    var requests=parsed.requests||[];
-    if(!requests.length){previewEl.style.background='#fdf0ee';previewEl.style.display='block';previewEl.innerHTML='<span style="color:#b83030;">シフト希望が見つかりませんでした。</span>';return;}
-    /* プレビュー表示 */
-    var byDoc={};
-    requests.forEach(function(r){
-      var key=r.doc+(r.type==='yukyu'?' (有休)':r.type==='kyushutsu'?' (休出)':'');
-      if(!byDoc[key])byDoc[key]=[];
-      byDoc[key].push(r.month+'月'+r.day+'日');
-    });
-    previewEl.style.background='#e8f5e9';
-    previewEl.innerHTML='<div style="font-weight:700;margin-bottom:6px;color:#2e7d32;">✅ AI解析完了：'+requests.length+'件</div>'+
-      Object.keys(byDoc).map(function(name){return '<div><span style="font-weight:600;">'+name+'</span>：'+byDoc[name].join('、')+'</div>';}).join('');
-    previewEl.style.display='block';
-    applyBtn.style.display='block';
-    /* 結果を一時保存 */
-    applyBtn.dataset.aiRequests=JSON.stringify(requests);
-  }).catch(function(e){
-    statusEl.style.display='none';
-    previewEl.style.background='#fdf0ee';
-    previewEl.style.display='block';
-    previewEl.innerHTML='<span style="color:#b83030;">⚠️ エラー: '+e.message+'</span>';
+  if(statusEl)statusEl.style.display='none';
+  var results=parseKyumiTextFrom('kyumiText2','kyumiYear2','kyumiMonth2');
+  if(!results.length){
+    if(previewEl){previewEl.style.background='#fdf0ee';previewEl.style.display='block';
+    previewEl.innerHTML='<span style="color:#b83030;">認識できたシフト希望がありません。形式を確認してください。</span>';}
+    if(applyBtn)applyBtn.style.display='none';
+    return;
+  }
+  var byDoc={};
+  results.forEach(function(r){
+    var doc=doctors.find(function(d){return d.id===r.docId;});
+    var key=(doc?doc.n:'?')+(r.type==='yukyu'?' (有休)':r.type==='kyushutsu'?' (休出)':'');
+    if(!byDoc[key])byDoc[key]=[];
+    byDoc[key].push(r.month+'月'+r.day+'日');
   });
+  if(previewEl){
+    previewEl.style.background='#e8f5e9';
+    previewEl.innerHTML='<div style="font-weight:700;margin-bottom:6px;color:#2e7d32;">✅ 解析完了：'+results.length+'件</div>'+
+      Object.keys(byDoc).map(function(name){
+        return '<div><span style="font-weight:600;">'+name+'</span>：'+byDoc[name].join('、')+'</div>';
+      }).join('');
+    previewEl.style.display='block';
+  }
+  if(applyBtn)applyBtn.style.display='block';
+  window._aiParsedResultsKyumi=results;
 }
-
 function applyAiKyumi(requests){
   var applied=0;
   requests.forEach(function(r){
