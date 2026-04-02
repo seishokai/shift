@@ -2893,7 +2893,7 @@ function saveKyumiLog(log){
   try{localStorage.setItem('seishokai_kyumi_log',JSON.stringify(log));}catch(e){}
 }
 
-function addKyumiRequest(docId,year,month,day,type){
+function addKyumiRequest(docId,year,month,day,type,clinicIdOpt){
   var log=loadKyumiLog();
   var dateStr=year+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0');
   /* 同じドクター・同じ日の既存エントリをキャンセル */
@@ -2902,11 +2902,12 @@ function addKyumiRequest(docId,year,month,day,type){
   });
   /* 新しいエントリを追加 */
   var doc=doctors.find(function(d){return d.id===docId;});
-  var typeLabel=type==='yukyu'?'有休':type==='kyushutsu'?'休日出勤':'休み';
+  var hcName=type==='shutskin'&&clinicIdOpt?(CLINICS.find(function(c){return c.id===clinicIdOpt;})||{n:''}).n:'';
+  var typeLabel=type==='yukyu'?'有休':type==='kyushutsu'?'休日出勤':type==='shutskin'?('希望出勤('+hcName+')'):'休み';
   log.push({
     id:Date.now(),docId:docId,docName:doc?doc.n:'',
     dateStr:dateStr,year:year,month:month,day:day,
-    type:type,typeLabel:typeLabel,
+    type:type,typeLabel:typeLabel,clinicId:clinicIdOpt||null,
     timestamp:new Date().toISOString(),status:'active'
   });
   saveKyumiLog(log);
@@ -3005,7 +3006,9 @@ function submitKyumiRequest(){
   var day=parseInt(document.getElementById('kyumiDaySel').value);
   var type=document.getElementById('kyumiTypeSel').value;
   if(!docId){showSb('名前を選んでください','w');return;}
-  addKyumiRequest(docId,year,month,day,type);
+  var clinicOpt=type==='shutskin'?window._kyuHopeClinicId:null;
+  if(type==='shutskin'&&!clinicOpt){showSb('医院を選んでください','w');return;}
+  addKyumiRequest(docId,year,month,day,type,clinicOpt);
   showSb('シフト希望を送信しました！','ok');
   renderKyumiLog();
   /* ログバーを表示 */
