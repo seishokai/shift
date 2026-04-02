@@ -918,7 +918,7 @@ function chgMonth(d){
 /* ---- TABS ---- */
 function setTab(n){
   curTab=n;
-  var viewIds=['vA','vB','vC','vD','vE','vF','vG','vH_dummy','vH_dummy2','vH'];
+  var viewIds=['vA','vB','vC','vD','vE','vF','vG'];
   [0,1,2,3,4,5,6].forEach(function(i){
     var htb=document.getElementById('htab'+i);
     if(htb&&htb.style.display!=='none')htb.classList.toggle('on',i===n);
