@@ -322,8 +322,8 @@ thead .date-th{top:0;}
 <div style="overflow:auto;height:calc(100vh - 112px);-webkit-overflow-scrolling:touch;"><table class="stbl" id="tA" style="border-collapse:collapse;white-space:nowrap;"></table></div></div>
 
 <div id="vH" style="display:none;padding:12px 12px 80px;overflow-y:auto;height:calc(100vh - 112px);">
-  <div id="kyuHLegend" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;padding:8px;background:var(--card);border-radius:10px;border:1px solid var(--border);"></div>
-  <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:10px;">    <button id="kyuHPrev" style="width:32px;height:30px;border:1.5px solid var(--border);background:var(--bg);font-size:20px;font-weight:600;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;border-radius:12px 0 0 12px;border-right:none;">&#8249;</button>    <span style="font-size:13px;font-weight:700;padding:0 14px;height:30px;display:flex;align-items:center;border:1.5px solid var(--border);background:var(--card);" id="kyuHLbl"></span>    <button id="kyuHNext" style="width:32px;height:30px;border:1.5px solid var(--border);background:var(--bg);font-size:20px;font-weight:600;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;border-radius:0 12px 12px 0;border-left:none;">&#8250;</button>  </div>
+  <div id="kyuHLegend" style="display:none;"></div>
+  <div style="display:none;">    <button id="kyuHPrev" style="width:32px;height:30px;border:1.5px solid var(--border);background:var(--bg);font-size:20px;font-weight:600;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;border-radius:12px 0 0 12px;border-right:none;">&#8249;</button>    <span style="font-size:13px;font-weight:700;padding:0 14px;height:30px;display:flex;align-items:center;border:1.5px solid var(--border);background:var(--card);" id="kyuHLbl"></span>    <button id="kyuHNext" style="width:32px;height:30px;border:1.5px solid var(--border);background:var(--bg);font-size:20px;font-weight:600;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;border-radius:0 12px 12px 0;border-left:none;">&#8250;</button>  </div>
   <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;" id="kyuHDow"></div>
   <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px;" id="kyuHCal"></div>
   <div style="margin-bottom:10px;">
@@ -2313,13 +2313,9 @@ function initKyuH(){
   renderKyuH();
 }
 function renderKyuHLegend(){
-  var el=document.getElementById("kyuHLegend");
-  if(!el)return;
-  el.innerHTML=CLINICS.map(function(c){
-    var cc=getCC(c.id);
-    return "<span style=\"display:flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:3px 7px;border-radius:10px;background:"+cc.b+";color:"+cc.c+";\"><span style=\"width:8px;height:8px;border-radius:50%;background:"+cc.c+";display:inline-block;\"></span>"+c.n+"</span>";
-  }).join("");
+  /* vH内非表示のため、上部legendは既にrenderLegendで管理 */
 }
+
 function renderKyuH(){
   var DOW2=["日","月","火","水","木","金","土"];
   var y=window._kyuHY,m=window._kyuHM;
