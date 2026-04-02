@@ -1066,15 +1066,23 @@ el.innerHTML=guideBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
   el.querySelectorAll('[data-open-doc]').forEach(function(th){
     th.addEventListener('click',function(){
       if(isAdmin){
-        /* 管理モード：ドクター選択 */
+        /* 管理モード：ドクター選択 → selDocIdをセットして全体バランスでも入力可能に */
         var did=th.dataset.openDoc;
-        balSelDocId=(balSelDocId===did)?null:did;
+        var isSame=(balSelDocId===did);
+        balSelDocId=isSame?null:did;
+        selDocId=isSame?null:did;
         balSelDates.clear();
         /* ドクター名ヘッダーをハイライト */
         el.querySelectorAll('[data-open-doc]').forEach(function(t){
           t.style.background=(t.dataset.openDoc===balSelDocId)?'#1a1a18':'';
           t.style.color=(t.dataset.openDoc===balSelDocId)?'#fff':'';
         });
+        /* 選択中のドクター名を左上に表示 */
+        var selDoc=doctors.find(function(d){return d.id===balSelDocId;});
+        var bar=el.querySelector('#balSelDocBar');
+        if(!bar){bar=document.createElement('div');bar.id='balSelDocBar';bar.style.cssText='position:sticky;top:0;left:0;z-index:20;padding:6px 12px;background:#1a1a18;color:#fff;font-size:12px;font-weight:700;';el.insertBefore(bar,el.firstChild);}
+        bar.style.display=balSelDocId?'':'none';
+        if(selDoc)bar.textContent='選択中: '+selDoc.n+' ← 日付セルをタップして医院選択';
         updateBalSelBar(el);
       } else {
         openDocCal(th.dataset.openDoc);
