@@ -484,6 +484,7 @@ thead .date-th{top:0;}
       <button class="stab" id="st4">初回DB登録</button>
       <button class="stab" id="st5">バックアップ</button>
       <button class="stab" id="st7">シフト削除</button>
+      <button class="stab" id="st8">休診日</button>
       <button class="stab" id="st6">休み希望</button>
     </div>
     <div id="sc0" style="max-height:50vh;overflow-y:auto;"></div>
@@ -2273,6 +2274,82 @@ function delShiftMonth(){
       renderAll();
     }).catch(function(){showSb('削除失敗','e');});
 }
+
+function initKyuClosedTab(){
+  var clinicBtns = document.getElementById('kyuClosedClinicBtns');
+  if(!clinicBtns) return;
+  var clinics = CLINICS.filter(function(c){ return c.id !== 'hachiji'; });
+  var selClinic = clinics[0] ? clinics[0].id : null;
+  window._kyuSelClinic = selClinic;
+
+  function renderClinicBtns(){
+    clinicBtns.innerHTML = clinics.map(function(c){
+      var cc = getCC(c.id);
+      var on = c.id === window._kyuSelClinic;
+      return '<button onclick="window._kyuSelClinic=\''+c.id+'\';initKyuClosedTab();" style="padding:6px 12px;border-radius:16px;border:2px solid '+(on?cc.c:'var(--border)')+';background:'+(on?cc.b:'var(--card)')+';color:'+(on?cc.c:'var(--ink2)')+';font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">'+c.n+'</button>';
+    }).join('');
+  }
+  renderClinicBtns();
+
+  function renderCal(){
+    var cal = document.getElementById('kyuClosedCal');
+    if(!cal) return;
+    var y = parseInt(document.getElementById('kyuClosedYear').value);
+    var m = parseInt(document.getElementById('kyuClosedMonth').value);
+    var days = new Date(y, m, 0).getDate();
+    var firstDow = new Date(y, m-1, 1).getDay();
+    var DOW2 = ['日','月','火','水','木','金','土'];
+    var html2 = DOW2.map(function(d,i){ return '<div style="text-align:center;font-size:9px;color:'+(i===0?'#c0392b':i===6?'#1a5276':'var(--ink3)')+';padding:2px;">'+d+'</div>'; }).join('');
+    for(var i=0;i<firstDow;i++) html2+='<div></div>';
+    var cid = window._kyuSelClinic;
+    var dates = (CLOSED_DATES[cid]||[]).slice();
+    window._kyuTempDates = dates;
+    for(var d=1;d<=days;d++){
+      var ds2 = y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var w = new Date(y,m-1,d).getDay();
+      var isClosed2 = dates.indexOf(ds2)>=0;
+      var isSun = w===0;
+      var bg = isClosed2?'#b83030':isSun?'#fff5f5':'var(--card)';
+      var color = isClosed2?'#fff':isSun?'#c0392b':'var(--ink)';
+      html2+='<div onclick="toggleKyuClosed(\''+ds2+'\')" style="text-align:center;padding:4px 2px;border-radius:6px;border:1px solid var(--border);background:'+bg+';color:'+color+';font-size:11px;cursor:pointer;font-weight:'+(isClosed2?'700':'400')+'">'+d+'</div>';
+    }
+    cal.innerHTML = html2;
+  }
+  renderCal();
+  document.getElementById('kyuClosedYear').onchange = renderCal;
+  document.getElementById('kyuClosedMonth').onchange = renderCal;
+}
+
+function toggleKyuClosed(ds){
+  var cid = window._kyuSelClinic;
+  if(!CLOSED_DATES[cid]) CLOSED_DATES[cid]=[];
+  var idx = CLOSED_DATES[cid].indexOf(ds);
+  if(idx>=0) CLOSED_DATES[cid].splice(idx,1);
+  else CLOSED_DATES[cid].push(ds);
+  initKyuClosedTab();
+}
+
+function saveKyuClosed(){
+  showSb('GitHubに保存中...','');
+  var token = getGhToken();
+  if(!token){showSb('Tokenがありません','w');return;}
+  var content = document.documentElement.outerHTML;
+  content=content.replace(/class="hdr[^"]*admin-mode[^"]*"/g,'class="hdr"');
+  content=content.replace(/(<button[^>]*id="authBtn"[^>]*>)ログアウト(<\/button>)/,'$1ログイン$2');
+  var b64 = btoa(unescape(encodeURIComponent(content)));
+  fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE,{
+    headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+  }).then(function(r){return r.json();}).then(function(data){
+    return fetch('https://api.github.com/repos/'+GH_REPO+'/contents/'+GH_FILE,{
+      method:'PUT',
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({message:'休診日更新',content:b64,sha:data.sha,branch:GH_BRANCH})
+    });
+  }).then(function(r){
+    if(r.ok) showSb('✅ 保存しました！30秒後に反映','ok');
+    else showSb('❌ 保存失敗','e');
+  });
+}
 function uploadToGitHub(){
   var token=getGhToken();
   if(!token){
@@ -3222,7 +3299,11 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('setOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
   document.getElementById('setConfirmBtn').addEventListener('click',saveSettings);
   var uploadBtn=document.getElementById('uploadBtn');if(uploadBtn)uploadBtn.addEventListener('click',doUpload);
-  [0,1,2,3,4,5,6,7].forEach(function(i){var btn=document.getElementById('st'+i);if(btn)btn.addEventListener('click',function(){sSwitchTab(i);});});
+  [0,1,2,3,4,5,6,7,8].forEach(function(i){var btn=document.getElementById('st'+i);if(btn)btn.addEventListener('click',function(){
+      sSwitchTab(i);
+      if(i===8)initKyuClosedTab();
+    });});
+  var kyuSaveBtn=document.getElementById('kyuClosedSaveBtn');if(kyuSaveBtn)kyuSaveBtn.addEventListener('click',saveKyuClosed);
   /* 解除ボタン */
   /* 医院選択バーのクリック（clinicPickRowに直接設定） */
   /* 一括入力バー：bulkBtn/dowBulkBtnイベント */
