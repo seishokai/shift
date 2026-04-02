@@ -648,6 +648,11 @@ thead .date-th{top:0;}
         <button class="kyumi-type-g on" data-type="yasumi" style="flex:1;padding:10px;border:2px solid #555;border-radius:10px;background:#555;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">休み</button>
         <button class="kyumi-type-g" data-type="yukyu" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">有休</button>
         <button class="kyumi-type-g" data-type="kyushutsu" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">休日出勤</button>
+        <button class="kyumi-type-g" data-type="shutskin" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">🏥 希望出勤</button>
+      </div>
+      <div id="kyuHopeClinicsWrap" style="display:none;margin-top:10px;margin-bottom:4px;">
+        <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:6px;">📍 出勤希望の医院を選択</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;" id="kyuHopeClinics"></div>
       </div>
     </div>
 
@@ -3579,12 +3584,27 @@ document.addEventListener('DOMContentLoaded',function(){
       kyumiSelType=btn.dataset.type;
       document.querySelectorAll('.kyumi-type-g').forEach(function(b){
         var on=b===btn;
-        var colors={yasumi:['#555','#555','#fff'],yukyu:['#c0392b','#c0392b','#fff'],kyushutsu:['#e67e22','#e67e22','#fff']};
+        var colors={yasumi:['#555','#555','#fff'],yukyu:['#c0392b','#c0392b','#fff'],kyushutsu:['#e67e22','#e67e22','#fff'],shutskin:['#2e7d32','#2e7d32','#fff']};
         var c=colors[b.dataset.type]||colors.yasumi;
         b.style.borderColor=on?c[0]:'var(--border)';
         b.style.background=on?c[1]:'var(--bg)';
         b.style.color=on?c[2]:'var(--ink2)';
       });
+      var wrap=document.getElementById('kyuHopeClinicsWrap');
+      if(wrap){
+        if(kyumiSelType==='shutskin'){
+          wrap.style.display='';
+          var cBtns=document.getElementById('kyuHopeClinics');
+          window._kyuHopeClinicId=null;
+          if(cBtns)cBtns.innerHTML=CLINICS.map(function(cl){
+            var cc=getCC(cl.id);
+            return '<button onclick="window._kyuHopeClinicId=\''+cl.id+'\';Array.from(this.parentNode.children).forEach(function(x){x.style.background=\'var(--card)\';x.style.borderColor=\'var(--border)\';x.style.color=\'var(--ink2)\';});this.style.background=\''+cc.b+'\';this.style.borderColor=\''+cc.c+'\';this.style.color=\''+cc.c+'\'" style="padding:7px 14px;border-radius:16px;border:1.5px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;">'+cl.n+'</button>';
+          }).join('');
+        } else {
+          wrap.style.display='none';
+          window._kyuHopeClinicId=null;
+        }
+      }
       renderKyumiCal();
     });
   });
