@@ -229,7 +229,7 @@ thead .date-th{top:0;}
     <button class="hdr-tab" id="htab0">人</button>
     <button class="hdr-tab" id="htab1">医院</button>
     <button class="hdr-tab" id="htab2">人数</button>
-    <button class="hdr-tab" id="htab5">休み希望</button>
+    <button class="hdr-tab" id="htab5">シフト希望</button>
     <button class="hdr-tab" id="htab3" style="display:none;">集計</button>
     <button class="hdr-tab" id="htab9" style="display:none;">🏥 休診日</button>
   </div>
@@ -411,7 +411,7 @@ thead .date-th{top:0;}
         <button id="docCalNext" style="width:38px;height:38px;border:1.5px solid var(--border);background:var(--card);border-radius:0 10px 10px 0;font-size:20px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:600;border-left:none;">›</button>
       </div>
       <div style="display:flex;gap:6px;">
-        <button id="docCalKyumiBtn" style="display:none;border:none;background:#e8f5e9;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:#2e7d32;font-weight:700;">📝 休み希望</button>
+        <button id="docCalKyumiBtn" style="display:none;border:none;background:#e8f5e9;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:#2e7d32;font-weight:700;">📝 シフト希望</button>
         <button id="docCalCloseBtn" style="border:none;background:var(--bg);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:var(--ink2);">閉じる</button>
       </div>
     </div>
@@ -506,7 +506,7 @@ thead .date-th{top:0;}
       <button class="stab" id="st5">バックアップ</button>
       <button class="stab" id="st7">シフト削除</button>
       <button class="stab" id="st8">休診日</button>
-      <button class="stab" id="st6">休み希望</button>
+      <button class="stab" id="st6">シフト希望</button>
     </div>
     <div id="sc0" style="max-height:50vh;overflow-y:auto;"></div>
     <div id="sc1" style="display:none;max-height:50vh;overflow-y:auto;"></div>
@@ -548,7 +548,7 @@ thead .date-th{top:0;}
       <div id="kyumiPreview" style="display:none;background:#e8f5e9;border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;max-height:150px;overflow-y:auto;"></div>
       <div style="display:flex;gap:8px;">
         <button id="kyumiParseBtn" style="flex:1;padding:11px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:inherit;font-size:13px;cursor:pointer;color:var(--ink2);">内容を確認</button>
-        <button id="kyumiApplyBtn" style="flex:1;padding:11px;border:none;border-radius:10px;background:#2e7d32;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">休み希望を反映</button>
+        <button id="kyumiApplyBtn" style="flex:1;padding:11px;border:none;border-radius:10px;background:#2e7d32;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">シフト希望を反映</button>
       </div>
     </div>
     <div class="btns" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
@@ -565,7 +565,7 @@ thead .date-th{top:0;}
     <!-- サブタブ -->
     <div style="display:flex;gap:6px;margin-bottom:16px;">
       <button class="shift-sub-tab on" data-sub="0" style="flex:1;padding:10px;border:none;border-radius:10px;background:#7b2d8b;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">🤖 AI生成</button>
-      <button class="shift-sub-tab" data-sub="1" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">📝 休み希望</button>
+      <button class="shift-sub-tab" data-sub="1" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">📝 シフト希望</button>
       <button class="shift-sub-tab" data-sub="2" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">✏️ シフト作成</button>
     </div>
 
@@ -597,7 +597,7 @@ thead .date-th{top:0;}
       </div>
     </div>
 
-    <!-- 休み希望パネル -->
+    <!-- シフト希望パネル -->
     <div id="shiftSubPanel1" style="display:none;">
       <p style="font-size:12px;color:var(--ink2);margin-bottom:8px;">LINEなどからコピーしたテキストを貼り付けてください。</p>
       <div style="background:#f5f4f0;border-radius:10px;padding:10px;margin-bottom:10px;font-size:11px;color:var(--ink3);line-height:1.8;">
@@ -623,7 +623,7 @@ thead .date-th{top:0;}
       </div>
       <div id="kyumiAiStatus" style="display:none;text-align:center;padding:10px;font-size:12px;color:#7b2d8b;">🤖 AI解析中...</div>
       <div id="kyumiPreview2" style="display:none;background:#e8f5e9;border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;max-height:180px;overflow-y:auto;"></div>
-      <button id="kyumiApplyBtn2" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2e7d32;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:none;">✅ 休み希望を反映</button>
+      <button id="kyumiApplyBtn2" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2e7d32;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:none;">✅ シフト希望を反映</button>
     </div>
 
     <!-- シフト作成パネル -->
@@ -642,11 +642,11 @@ thead .date-th{top:0;}
 
 
 
-<!-- 休み希望入力モーダル（個人カレンダーから） -->
+<!-- シフト希望入力モーダル（個人カレンダーから） -->
 <div class="overlay" id="kyumiDocOv" style="align-items:center;padding:16px;">
   <div class="sheet" style="max-height:92vh;width:100%;max-width:500px;border-radius:18px;background:#fafaf8;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:800;" id="kyumiDocTitle">📝 休み希望</div>
+      <div style="font-size:16px;font-weight:800;" id="kyumiDocTitle">📝 シフト希望</div>
       <button id="kyumiDocCloseBtn" style="border:none;background:var(--bg);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;color:var(--ink2);">閉じる</button>
     </div>
     <div id="kyumiDocGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px;"></div>
@@ -661,7 +661,7 @@ thead .date-th{top:0;}
   </div>
 </div>
 
-<!-- VIEW G: 休み希望 -->
+<!-- VIEW G: シフト希望 -->
 <div id="vG" style="display:none;">
   <div style="max-width:560px;margin:0 auto;padding:12px 16px;">
 
@@ -700,7 +700,7 @@ thead .date-th{top:0;}
 
     <!-- ログ一覧 -->
     <div style="margin-top:20px;padding-top:16px;border-top:2px solid var(--border);">
-      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px;">休み希望ログ</div>
+      <div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px;">シフト希望ログ</div>
       <div id="kyumiLogListG"></div>
     </div>
   </div>
@@ -939,7 +939,7 @@ function setTab(n){
 function renderLegend(){
   var el=document.getElementById('legend');
   if(!el)return;
-  /* 休み希望タブでは凡例を非表示 */
+  /* シフト希望タブでは凡例を非表示 */
   if(curTab===6){el.style.display='none';return;}
   el.style.display='';
   el.innerHTML=CLINICS.map(function(c){
@@ -1499,7 +1499,7 @@ function openDocCal(docId){
   docCalY=curY; docCalM=curM;
   updateDocCalTitle();
   renderDocCal();
-  /* 休み希望ボタンは常に表示 */
+  /* シフト希望ボタンは常に表示 */
   var kb=document.getElementById('docCalKyumiBtn');
   if(kb)kb.style.display='';
   document.getElementById('docCalOv').classList.add('on');
@@ -1680,12 +1680,12 @@ function renderBViewAll(){
 function renderD(){
   var el=document.getElementById('vD');
   if(!el)return;
-  /* 休み希望ログ（管理者向け全員表示） */
+  /* シフト希望ログ（管理者向け全員表示） */
   var kyumiLog=loadKyumiLog();
   var kyumiHtml='<div style="padding:12px;border-bottom:2px solid var(--border);margin-bottom:4px;">';
-  kyumiHtml+='<div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px;">休み希望ログ（全員）</div>';
+  kyumiHtml+='<div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px;">シフト希望ログ（全員）</div>';
   if(!kyumiLog.length){
-    kyumiHtml+='<div style="font-size:12px;color:var(--ink3);">まだ休み希望はありません</div>';
+    kyumiHtml+='<div style="font-size:12px;color:var(--ink3);">まだシフト希望はありません</div>';
   } else {
     /* 日付でグループ化 */
     var allDates=[];
@@ -2657,7 +2657,7 @@ function aiParseKyumi(){
   /* ドクター名一覧を作成 */
   var docNames=doctors.map(function(d){return d.n;}).join('、');
 
-  var prompt='以下のテキストから休み希望を抽出してください。\n\n' +
+  var prompt='以下のテキストからシフト希望を抽出してください。\n\n' +
     'ドクター一覧: '+docNames+'\n' +
     '対象年: '+year+'年\n' +
     '対象月のデフォルト: '+month+'月\n\n' +
@@ -2688,7 +2688,7 @@ function aiParseKyumi(){
     if(!jsonMatch){previewEl.style.background='#fdf0ee';previewEl.style.display='block';previewEl.innerHTML='<span style="color:#b83030;">⚠️ AI解析に失敗しました。通常解析をお試しください。</span>';return;}
     var parsed=JSON.parse(jsonMatch[0]);
     var requests=parsed.requests||[];
-    if(!requests.length){previewEl.style.background='#fdf0ee';previewEl.style.display='block';previewEl.innerHTML='<span style="color:#b83030;">休み希望が見つかりませんでした。</span>';return;}
+    if(!requests.length){previewEl.style.background='#fdf0ee';previewEl.style.display='block';previewEl.innerHTML='<span style="color:#b83030;">シフト希望が見つかりませんでした。</span>';return;}
     /* プレビュー表示 */
     var byDoc={};
     requests.forEach(function(r){
@@ -2845,7 +2845,7 @@ function showKyumiPreview(){
   var results=parseKyumiText();
   var el=document.getElementById('kyumiPreview');
   el.style.display='block';
-  if(!results.length){el.style.background='#fdf0ee';el.innerHTML='<span style="color:#b83030;">認識できた休み希望がありません。名前の書き方を確認してください。</span>';return;}
+  if(!results.length){el.style.background='#fdf0ee';el.innerHTML='<span style="color:#b83030;">認識できたシフト希望がありません。名前の書き方を確認してください。</span>';return;}
   el.style.background='#e8f5e9';
   var byDoc={};
   results.forEach(function(r){if(!byDoc[r.doc.n])byDoc[r.doc.n]=[];byDoc[r.doc.n].push((r.month+1)+'月'+r.day+'日');});
@@ -2855,7 +2855,7 @@ function showKyumiPreview(){
 
 function applyKyumiText(){
   var results=parseKyumiText();
-  if(!results.length){showSb('認識できた休み希望がありません','w');return;}
+  if(!results.length){showSb('認識できたシフト希望がありません','w');return;}
   var applied=0;
   results.forEach(function(r){
     var dateStr=r.year+'-'+String(r.month+1).padStart(2,'0')+'-'+String(r.day).padStart(2,'0');
@@ -2873,17 +2873,17 @@ function applyKyumiText(){
   });
   document.getElementById('setOv').classList.remove('on');
   renderAll();
-  showSb(applied+'件の休み希望を反映しました','ok');
+  showSb(applied+'件のシフト希望を反映しました','ok');
 }
 
-/* ---- 個人休み希望入力 ---- */
+/* ---- 個人シフト希望入力 ---- */
 var kyumiDocSelType='yasumi';
 var kyumiDocPending={}; /* dateStr → clinicId */
 
 function openKyumiDoc(){
   if(!docCalDocId)return;
   var doc=doctors.find(function(d){return d.id===docCalDocId;});
-  document.getElementById('kyumiDocTitle').textContent='📝 '+(doc?doc.n:'')+'の休み希望 '+docCalY+'年'+(docCalM+1)+'月';
+  document.getElementById('kyumiDocTitle').textContent='📝 '+(doc?doc.n:'')+'のシフト希望 '+docCalY+'年'+(docCalM+1)+'月';
   kyumiDocPending={};
   kyumiDocSelType='yasumi';
   /* ボタンの状態リセット */
@@ -2966,10 +2966,10 @@ function saveKyumiDoc(){
   document.getElementById('kyumiDocOv').classList.remove('on');
   renderDocCal();
   renderAll();
-  showSb(count+'件の休み希望を保存しました','ok');
+  showSb(count+'件のシフト希望を保存しました','ok');
 }
 
-/* ---- 休み希望ログ管理 ---- */
+/* ---- シフト希望ログ管理 ---- */
 var _kyumiLogCache=null;
 function loadKyumiLog(){
   if(_kyumiLogCache)return _kyumiLogCache;
@@ -3015,7 +3015,7 @@ function renderKyumiLog(){
   var log=loadKyumiLog();
   var el=document.getElementById('kyumiLogList');
   if(!el)return;
-  if(!log.length){el.innerHTML='<div style="font-size:11px;color:var(--ink3);padding:4px 0;">まだ休み希望はありません</div>';return;}
+  if(!log.length){el.innerHTML='<div style="font-size:11px;color:var(--ink3);padding:4px 0;">まだシフト希望はありません</div>';return;}
 
   /* 日付降順でソート */
   var sorted=log.slice().sort(function(a,b){return b.id-a.id;});
@@ -3097,7 +3097,7 @@ function submitKyumiRequest(){
   var type=document.getElementById('kyumiTypeSel').value;
   if(!docId){showSb('名前を選んでください','w');return;}
   addKyumiRequest(docId,year,month,day,type);
-  showSb('休み希望を送信しました！','ok');
+  showSb('シフト希望を送信しました！','ok');
   renderKyumiLog();
   /* ログバーを表示 */
   document.getElementById('kyumiLogBar').style.display='';
@@ -3208,7 +3208,7 @@ function submitKyumiG(){
   renderKyumiCal();
   renderKyumiLogG();
   if(docId)renderAll();
-  showSb((doc?doc.n+'の':'')+'休み希望 '+cnt+'件を送信しました！','ok');
+  showSb((doc?doc.n+'の':'')+'シフト希望 '+cnt+'件を送信しました！','ok');
   /* ログ欄へスクロール */
   setTimeout(function(){
     var logEl=document.getElementById('kyumiLogListG');
@@ -3221,7 +3221,7 @@ function renderKyumiLogG(){
   if(!el)return;
   var log=loadKyumiLog();
   if(!log.length){
-    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:13px;">まだ休み希望はありません</div>';
+    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:13px;">まだシフト希望はありません</div>';
     return;
   }
   /* 日付でグループ化・日付昇順 */
@@ -3384,7 +3384,7 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('nextBtn').addEventListener('click',function(){chgMonth(1);});
   document.getElementById('authBtn').addEventListener('click',doAuthToggle);
   document.getElementById('setBtn').addEventListener('click',openSettings);
-  /* htab5（休み希望）はsetTab(6)を呼ぶ */
+  /* htab5（シフト希望）はsetTab(6)を呼ぶ */
   [0,1,2,3,4].forEach(function(i){
     var ht=document.getElementById('htab'+i);if(ht)ht.addEventListener('click',function(){setTab(i);});
   });
@@ -3659,8 +3659,8 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('clinicCalPrev').addEventListener('click',function(){chgClinicCalMonth(-1);});
   document.getElementById('clinicCalNext').addEventListener('click',function(){chgClinicCalMonth(1);});
   document.getElementById('histCloseBtn').addEventListener('click',function(){document.getElementById('histOv').classList.remove('on');});
-  /* 休み希望タブ（vG） */
-  /* 休み希望カレンダー（vG） */
+  /* シフト希望タブ（vG） */
+  /* シフト希望カレンダー（vG） */
   var kgSubmit=document.getElementById('kyumiSendBtn');
   if(kgSubmit)kgSubmit.addEventListener('click',submitKyumiG);
   var kgPrev=document.getElementById('kyumiCalPrev');
@@ -3706,7 +3706,7 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 
 
-  /* 休み希望入力バー */
+  /* シフト希望入力バー */
   var kyumiMonthSel2=document.getElementById('kyumiMonthSel');
   var kyumiYearSel2=document.getElementById('kyumiYearSel');
   if(kyumiMonthSel2)kyumiMonthSel2.addEventListener('change',updateKyumiDays);
@@ -3723,7 +3723,7 @@ document.addEventListener('DOMContentLoaded',function(){
   if(logToggle)logToggle.addEventListener('click',function(){
     document.getElementById('kyumiLogBar').style.display='none';
   });
-  /* 休み希望入力モーダル */
+  /* シフト希望入力モーダル */
   document.getElementById('kyumiDocCloseBtn').addEventListener('click',function(){document.getElementById('kyumiDocOv').classList.remove('on');});
   document.getElementById('kyumiDocOv').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
   document.getElementById('kyumiDocSaveBtn').addEventListener('click',saveKyumiDoc);
@@ -3739,7 +3739,7 @@ document.addEventListener('DOMContentLoaded',function(){
       });
     });
   });
-  /* 個人カレンダーの休み希望ボタン */
+  /* 個人カレンダーのシフト希望ボタン */
   document.getElementById('docCalKyumiBtn').addEventListener('click',function(){
     document.getElementById('docCalOv').classList.remove('on');
     openKyumiDoc();
@@ -3967,7 +3967,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!aiGeneratedShifts)return;
     var y=parseInt(document.getElementById('aiYear2').value);
     var m=parseInt(document.getElementById('aiMonth2').value);
-    /* 既存データとマージ（休み希望は保持） */
+    /* 既存データとマージ（シフト希望は保持） */
     Object.keys(aiGeneratedShifts).forEach(function(dateStr){
       var existing=shifts[dateStr]||[];
       var restEntries=existing.filter(function(s){return ['yasumi','yukyu','daikyu','kyushutsu'].indexOf(s.clinicId)>=0;});
@@ -3980,14 +3980,14 @@ document.addEventListener('DOMContentLoaded',function(){
     curY=y;curM=m;
     setTab(0);
     renderAll();
-    showSb('AIシフトを適用しました！休み希望は保持されています。','ok');
+    showSb('AIシフトを適用しました！シフト希望は保持されています。','ok');
     var targetYM=y+'-'+String(m+1).padStart(2,'0');
     Object.keys(shifts).forEach(function(dateStr){
       if(dateStr.slice(0,7)===targetYM)shifts[dateStr].forEach(function(s){dbSave(dateStr,s.docId,s.clinicId,s.memo||'');});
     });
   });
 
-  /* 休み希望タブ */
+  /* シフト希望タブ */
   /* AI解析ボタン */
   var kaiBtn=document.getElementById('kyumiAiParseBtn');
   if(kaiBtn)kaiBtn.addEventListener('click',aiParseKyumi);
@@ -4001,7 +4001,7 @@ document.addEventListener('DOMContentLoaded',function(){
     el.style.display='block';
     if(!results.length){
       el.style.background='#fdf0ee';
-      el.innerHTML='<span style="color:#b83030;">認識できた休み希望がありません</span>';
+      el.innerHTML='<span style="color:#b83030;">認識できたシフト希望がありません</span>';
       applyBtn.style.display='none';
       return;
     }
@@ -4025,7 +4025,7 @@ document.addEventListener('DOMContentLoaded',function(){
     } else {
       /* 通常解析結果を反映 */
       var results=parseKyumiTextFrom('kyumiText2','kyumiYear2','kyumiMonth2');
-      if(!results.length){showSb('認識できた休み希望がありません','w');return;}
+      if(!results.length){showSb('認識できたシフト希望がありません','w');return;}
       results.forEach(function(r){
         var dateStr=r.year+'-'+String(r.month+1).padStart(2,'0')+'-'+String(r.day).padStart(2,'0');
         if(!shifts[dateStr])shifts[dateStr]=[];
@@ -4039,7 +4039,7 @@ document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('kyumiPreview2').style.display='none';
     ka2.style.display='none';
     renderAll();
-    showSb(applied+'件の休み希望を反映しました','ok');
+    showSb(applied+'件のシフト希望を反映しました','ok');
   });
   var kpBtn=document.getElementById('kyumiParseBtn');
   if(kpBtn)kpBtn.addEventListener('click',showKyumiPreview);
