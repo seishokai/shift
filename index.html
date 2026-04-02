@@ -260,6 +260,8 @@ thead .date-th{top:0;}
         </div>
         <div class="no-doc-msg" id="noDocMsg">ドクターを選んでください</div>
         <div id="calMain" style="display:none;overflow-y:auto;flex:1;">
+          <!-- 月ナビ（インライン） -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:0;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;"><button id="calMainPrev" style="width:30px;height:28px;border:1.5px solid var(--border);background:var(--bg);font-size:18px;cursor:pointer;color:var(--ink);border-radius:8px 0 0 8px;border-right:none;display:flex;align-items:center;justify-content:center;">&#8249;</button><span id="calMainLbl" style="font-size:13px;font-weight:700;padding:0 12px;height:28px;display:flex;align-items:center;border:1.5px solid var(--border);background:var(--card);min-width:100px;justify-content:center;"></span><button id="calMainNext" style="width:30px;height:28px;border:1.5px solid var(--border);background:var(--bg);font-size:18px;cursor:pointer;color:var(--ink);border-radius:0 8px 8px 0;border-left:none;display:flex;align-items:center;justify-content:center;">&#8250;</button></div>
           <div id="multiSelBar" style="display:none;padding:7px 12px;background:#fff3e0;border-bottom:1px solid #f5d88a;align-items:center;gap:8px;font-size:11px;color:#b8691a;">
             <span id="multiSelCount" style="font-weight:700;flex:1;"></span>
             <button id="multiSelClear" style="padding:5px 12px;background:var(--bg);color:var(--ink2);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:11px;cursor:pointer;">解除</button>
@@ -1309,6 +1311,8 @@ function renderClinicPickBar(){
   }
   document.getElementById('noDocMsg').style.display='none';
   document.getElementById('calMain').style.display='';
+  var cml=document.getElementById('calMainLbl');
+  if(cml)cml.textContent=docCalY+'年'+(docCalM+1)+'月';
   document.getElementById('clinicPickBar').style.display='';
 
   var freq=FREQ_MAP[selDocId]||[];
@@ -1514,6 +1518,8 @@ function chgDocCalMonth(dir){
 }
 function renderDocCal(){
   if(!docCalDocId)return;
+  var cml2=document.getElementById('calMainLbl');
+  if(cml2)cml2.textContent=docCalY+'年'+(docCalM+1)+'月';
   var days=dim(docCalY,docCalM),firstDow=new Date(docCalY,docCalM,1).getDay();
   var restIds=new Set(['yasumi','yukyu','daikyu','daishutsu']);
   var DOWS=['日','月','火','水','木','金','土'];
@@ -2198,6 +2204,23 @@ function generateAiShift(targetY, targetM){
         }
       });
     }
+    /* シフト希望ログから希望出勤(shutskin)・希望休みを最優先で反映 */
+    var kyuLog=loadKyumiLog();
+    kyuLog.filter(function(e){
+      return e.dateStr===dateStr && e.status==='active';
+    }).forEach(function(e){
+      if(!presets[e.docId]){
+        if(e.type==='shutskin' && e.clinicId && !isClosed(dateStr,e.clinicId)){
+          /* 希望出勤：その医院に配置 */
+          presets[e.docId]=e.clinicId;
+          generated[dateStr].push({docId:e.docId,clinicId:e.clinicId,memo:'希望出勤'});
+        } else if(['yasumi','yukyu','kyushutsu'].indexOf(e.type)>=0){
+          /* 希望休み・有給 */
+          presets[e.docId]=e.type;
+          generated[dateStr].push({docId:e.docId,clinicId:e.type,memo:''});
+        }
+      }
+    });
 
     /* 医院の目標人数（曜日別平均） */
     var clinicTargets={};
@@ -3301,6 +3324,10 @@ document.addEventListener('DOMContentLoaded',function(){
     var ht=document.getElementById('htab'+i);if(ht)ht.addEventListener('click',function(){setTab(i);});
   });
   var ht5=document.getElementById('htab5');if(ht5)ht5.addEventListener('click',function(){setTab(6);});
+  var calMP=document.getElementById('calMainPrev');
+  if(calMP)calMP.addEventListener('click',function(){chgDocCalMonth(-1);var cml=document.getElementById('calMainLbl');if(cml)cml.textContent=docCalY+'年'+(docCalM+1)+'月';});
+  var calMN=document.getElementById('calMainNext');
+  if(calMN)calMN.addEventListener('click',function(){chgDocCalMonth(1);var cml=document.getElementById('calMainLbl');if(cml)cml.textContent=docCalY+'年'+(docCalM+1)+'月';});
   var ht9=document.getElementById('htab9');if(ht9)ht9.addEventListener('click',function(){setTab(9);});
   var kyuHSave=document.getElementById('kyuHSaveBtn');if(kyuHSave)kyuHSave.addEventListener('click',uploadToGitHub);
   var kyuHP=document.getElementById('kyuHPrev');if(kyuHP)kyuHP.addEventListener('click',function(){window._kyuHM--;if(window._kyuHM<1){window._kyuHM=12;window._kyuHY--;}renderKyuH();});
@@ -3877,7 +3904,7 @@ document.addEventListener('DOMContentLoaded',function(){
     /* 既存データとマージ（シフト希望は保持） */
     Object.keys(aiGeneratedShifts).forEach(function(dateStr){
       var existing=shifts[dateStr]||[];
-      var restEntries=existing.filter(function(s){return ['yasumi','yukyu','daikyu','kyushutsu'].indexOf(s.clinicId)>=0;});
+      var restEntries=existing.filter(function(s){return ['yasumi','yukyu','daikyu','kyushutsu','shutskin'].indexOf(s.clinicId)>=0 || s.memo==='希望出勤';});
       var newEntries=aiGeneratedShifts[dateStr].filter(function(s){
         return !restEntries.find(function(r){return r.docId===s.docId;});
       });
