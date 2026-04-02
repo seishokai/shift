@@ -483,6 +483,7 @@ thead .date-th{top:0;}
       <button class="stab" id="st3">休診日</button>
       <button class="stab" id="st4">初回DB登録</button>
       <button class="stab" id="st5">バックアップ</button>
+      <button class="stab" id="st7">シフト削除</button>
       <button class="stab" id="st6">休み希望</button>
     </div>
     <div id="sc0" style="max-height:50vh;overflow-y:auto;"></div>
@@ -498,7 +499,23 @@ thead .date-th{top:0;}
       <button class="btn btn-prim" id="backupSaveBtn" style="width:100%;margin-bottom:12px;">今すぐバックアップ保存</button>
       <div id="backupList"></div>
     </div>
-    <div id="sc6" style="display:none;">
+    <div id="sc7" style="display:none;">
+  <p style="font-size:12px;color:var(--ink2);margin-bottom:12px;">指定した月のシフトデータをSupabaseから完全に削除します。</p>
+  <div style="display:flex;gap:8px;margin-bottom:12px;">
+    <select id="delShiftYear" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
+      <option value="2026">2026年</option>
+      <option value="2027">2027年</option>
+    </select>
+    <select id="delShiftMonth" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
+      <option value="01">1月</option><option value="02">2月</option><option value="03">3月</option>
+      <option value="04">4月</option><option value="05">5月</option><option value="06">6月</option>
+      <option value="07">7月</option><option value="08">8月</option><option value="09">9月</option>
+      <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+    </select>
+  </div>
+  <button class="btn btn-del" id="delShiftBtn" style="width:100%;">🗑 この月のシフトを削除</button>
+</div>
+<div id="sc6" style="display:none;">
       <p style="font-size:12px;color:var(--ink2);margin-bottom:8px;">LINEなどからコピーしたテキストをそのまま貼り付けてください。<br><span style="color:var(--ink3);font-size:11px;">例：「向田 6月3日」「島田6/4」「荒木 6月3日〜5日」</span></p>
       <textarea id="kyumiText" placeholder="ここに貼り付け（例：向田 6月3日、荒木 6月3日〜5日）" style="width:100%;height:160px;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg);resize:vertical;line-height:1.7;"></textarea>
       <div style="margin:8px 0 4px;font-size:11px;color:var(--ink3);">対象月（月が書いていない場合に使用）</div>
@@ -2240,6 +2257,22 @@ function generateAiShift(targetY, targetM){
 function getGhToken(){return localStorage.getItem('gh_token')||'';}
 function saveGhToken(t){localStorage.setItem('gh_token',t);}
 
+function delShiftMonth(){
+  var y=document.getElementById('delShiftYear').value;
+  var m=document.getElementById('delShiftMonth').value;
+  var label=y+'年'+parseInt(m)+'月';
+  if(!confirm(label+'のシフトを全て削除します。\nこの操作は取り消せません。本当に削除しますか？'))return;
+  showSb('削除中...','');
+  var start=y+'-'+m+'-01';
+  var end=y+'-'+m+'-31';
+  sbReq('/rest/v1/shifts?date_str=gte.'+start+'&date_str=lte.'+end,{method:'DELETE'})
+    .then(function(){
+      // ローカルのshiftsからも削除
+      Object.keys(shifts).forEach(function(ds){if(ds.startsWith(y+'-'+m))delete shifts[ds];});
+      showSb(label+'のシフトを削除しました','ok');
+      renderAll();
+    }).catch(function(){showSb('削除失敗','e');});
+}
 function uploadToGitHub(){
   var token=getGhToken();
   if(!token){
