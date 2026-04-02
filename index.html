@@ -2306,10 +2306,10 @@ function renderKyuH(){
       return CLOSED_DATES[c.id]&&CLOSED_DATES[c.id].indexOf(ds2)>=0;
     }).map(function(c){
       var cc=getCC(c.id);
-      return "<span style=\"display:inline-block;padding:1px 4px;border-radius:3px;background:"+cc.b+";color:"+cc.c+";font-size:9px;font-weight:700;line-height:1.4;\">"+c.n+"</span>";
+      return "<span style=\"display:inline-block;padding:1px 4px;border-radius:3px;background:"+cc.b+";color:"+cc.c+";font-size:11px;font-weight:700;line-height:1.5;\">"+c.n+"</span>";
     }).join("");
-    h+="<div onclick=\"kyuHSelectDate('"+ds2+"')\" style=\"text-align:center;padding:4px 2px 2px;border-radius:8px;border:2px solid "+(isSelected?"#1a1a18":"var(--border)")+";background:"+bg+";color:"+col+";font-size:12px;cursor:pointer;min-height:54px;display:flex;flex-direction:column;align-items:center;gap:2px;\">"+
-      "<span style=\"font-weight:700;\">"+d+"</span>"+
+    h+="<div onclick=\"kyuHSelectDate('"+ds2+"')\" style=\"text-align:center;padding:4px 2px 2px;border-radius:8px;border:2px solid "+(isSelected?"#1a1a18":"var(--border)")+";background:"+bg+";color:"+col+";font-size:12px;cursor:pointer;min-height:62px;display:flex;flex-direction:column;align-items:center;gap:3px;\">"+
+      "<span style=\"font-weight:700;font-size:13px;\">"+d+"</span>"+
       "<span style=\"display:flex;flex-wrap:wrap;gap:2px;justify-content:center;max-width:100%\">"+dots+"</span>"+
     "</div>";
   }
