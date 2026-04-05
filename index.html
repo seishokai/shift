@@ -4261,6 +4261,131 @@ function applyAiActions(actions){
   return results;
 }
 
+/* ---- ローカルシフト自動配置 ---- */
+function localAutoAssign(text){
+  var DOW3=['日','月','火','水','木','金','土'];
+  var results=[];
+
+  /* 日付抽出 */
+  var targetDates=[];
+  var mDates=text.match(/(\d{1,2})[\/月](\d{1,2})/g);
+  if(mDates){
+    mDates.forEach(function(m){
+      var p=m.match(/(\d{1,2})[\/月](\d{1,2})/);
+      if(p)targetDates.push(curY+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0'));
+    });
+  }
+  /* 「今月全部」「全日」等 */
+  if(text.match(/今月|全部|全日|全体/)&&!targetDates.length){
+    var days2=new Date(curY,curM+1,0).getDate();
+    for(var d2=1;d2<=days2;d2++) targetDates.push(curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0'));
+  }
+  if(!targetDates.length) return null; /* 日付が取れなかったら処理不可 */
+
+  /* ドクター指定あるか */
+  var specDoc=null;
+  doctors.forEach(function(d){if(text.indexOf(d.n)>=0)specDoc=d;});
+
+  /* 医院指定あるか */
+  var specClinic=null;
+  ALL.forEach(function(c){if(text.indexOf(c.n)>=0)specClinic=c;});
+
+  /* 削除判定 */
+  if(text.match(/削除|取消|キャンセル|外す|はずす/)){
+    if(specDoc){
+      targetDates.forEach(function(dateStr){
+        if(shifts[dateStr]){
+          var before=shifts[dateStr].length;
+          shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==specDoc.id;});
+          if(!shifts[dateStr].length)delete shifts[dateStr];
+          if((shifts[dateStr]?shifts[dateStr].length:0)<before){
+            dbDel(dateStr,specDoc.id);
+            var dt=new Date(dateStr);
+            results.push(specDoc.n+' '+( dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[dt.getDay()]+') 削除');
+          }
+        }
+      });
+      renderAll();
+      return results.length?results.join('\n'):'該当するシフトが見つかりません。';
+    }
+    return 'どのドクターを削除するか指定してください。';
+  }
+
+  /* 単純追加（ドクター＋医院＋日付が全部指定） */
+  if(specDoc&&specClinic){
+    targetDates.forEach(function(dateStr){
+      if(!shifts[dateStr])shifts[dateStr]=[];
+      var idx=shifts[dateStr].findIndex(function(s){return s.docId===specDoc.id;});
+      var entry={docId:specDoc.id,clinicId:specClinic.id,memo:''};
+      if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
+      dbSave(dateStr,specDoc.id,specClinic.id,'');
+      var dt=new Date(dateStr);
+      results.push(specDoc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[dt.getDay()]+') '+specClinic.n);
+    });
+    renderAll();
+    return results.join('\n');
+  }
+
+  /* 自動配置モード: 「シフト組んで」「入れて」「埋めて」等 */
+  if(!text.match(/組んで|入れて|埋めて|配置|アサイン|割り当て|追加して|足りない|いない|空き/)) return null;
+
+  /* ドクター別よく行く医院を集計 */
+  var docFreq={};
+  Object.keys(shifts).forEach(function(ds2){
+    (shifts[ds2]||[]).forEach(function(s){
+      var rest=['yasumi','yukyu','daikyu','daishutsu'];
+      if(rest.indexOf(s.clinicId)>=0)return;
+      if(!docFreq[s.docId])docFreq[s.docId]={};
+      docFreq[s.docId][s.clinicId]=(docFreq[s.docId][s.clinicId]||0)+1;
+    });
+  });
+
+  targetDates.forEach(function(dateStr){
+    var dt=new Date(dateStr);
+    var w=dt.getDay();
+    if(w===0) return; /* 日曜スキップ */
+
+    var dayS=shifts[dateStr]||[];
+    var assignedIds=dayS.map(function(s){return s.docId;});
+
+    /* 営業中の医院を取得 */
+    var openClinics=CLINICS.filter(function(c){return !isClosed(dateStr,c.id);});
+    /* 各医院の現在人数 */
+    var clinicCount={};
+    openClinics.forEach(function(c){
+      clinicCount[c.id]=dayS.filter(function(s){return s.clinicId===c.id;}).length;
+    });
+
+    /* 人数が0の医院を優先的に埋める */
+    var emptyClinics=openClinics.filter(function(c){return clinicCount[c.id]===0;});
+
+    /* 空きドクター（この日にシフトがない人） */
+    var freeDocs=doctors.filter(function(d){return assignedIds.indexOf(d.id)<0;});
+
+    /* 特定ドクター指定時はその人だけ */
+    if(specDoc){
+      freeDocs=freeDocs.filter(function(d){return d.id===specDoc.id;});
+    }
+
+    emptyClinics.forEach(function(cl){
+      if(!freeDocs.length) return;
+      /* この医院によく行くドクターを優先 */
+      freeDocs.sort(function(a,b){
+        var fa=docFreq[a.id]&&docFreq[a.id][cl.id]?docFreq[a.id][cl.id]:0;
+        var fb=docFreq[b.id]&&docFreq[b.id][cl.id]?docFreq[b.id][cl.id]:0;
+        return fb-fa;
+      });
+      var doc=freeDocs.shift();
+      if(!shifts[dateStr])shifts[dateStr]=[];
+      shifts[dateStr].push({docId:doc.id,clinicId:cl.id,memo:''});
+      dbSave(dateStr,doc.id,cl.id,'');
+      results.push(doc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+') '+cl.n);
+    });
+  });
+  renderAll();
+  return results.length?results.join('\n'):'配置が必要な空き医院はありませんでした。';
+}
+
 function sendChat(){
   var inp=document.getElementById('chatMsg');
   var text=inp.value.trim();if(!text)return;
@@ -4268,7 +4393,19 @@ function sendChat(){
   addChatMsg(text,'user');
 
   if(!isAdmin){addChatMsg('管理者ログインが必要です。','sys');return;}
-  if(!ANTHROPIC_API_KEY){addChatMsg('APIキーが未設定です。HTML内のANTHROPIC_API_KEYを設定してください。','sys');return;}
+
+  /* APIキーがない場合: ローカル処理 */
+  if(!ANTHROPIC_API_KEY){
+    var localResult=localAutoAssign(text);
+    if(localResult){
+      addChatMsg(localResult,'bot');
+    } else {
+      addChatMsg('日付を含めて指示してください。\n例: 「6/1にシフト組んで」「浦野を6/3アサノで」「小池の6/5削除」','bot');
+    }
+    return;
+  }
+
+  /* APIキーがある場合: Claude API */
 
   /* 日付抽出してコンテキスト絞り込み */
   var targetDates=[];
