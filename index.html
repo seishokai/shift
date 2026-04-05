@@ -960,8 +960,8 @@ function renderAllView(targetId){
     return '<th style="min-width:28px;width:28px;text-align:center;position:sticky;bottom:0;'+pos+':0;background:#d0d0d0;z-index:15;padding:2px 2px;font-size:9px;font-weight:700;border:0.5px solid #bbb;'+border+'">日</th>';
   }
 
-  var headRow='<tr style="height:32px;max-height:32px;">'+dateTh('left')+doctors.map(docTh).join('')+dateTh('right')+'</tr>';
-  var footRow='<tr style="height:32px;max-height:32px;">'+dateThBot('left')+doctors.map(docThBot).join('')+dateThBot('right')+'</tr>';
+  var headRow='<tr style="height:28px;max-height:28px;">'+dateTh('left')+doctors.map(docTh).join('')+dateTh('right')+'</tr>';
+  var footRow='<tr style="height:28px;max-height:28px;">'+dateThBot('left')+doctors.map(docThBot).join('')+dateThBot('right')+'</tr>';
 
   var h='<table style="border-collapse:collapse;white-space:nowrap;font-size:9px;table-layout:fixed;">';
   h+='<thead>'+headRow+'</thead>';
@@ -985,7 +985,7 @@ function renderAllView(targetId){
     var dateCell='<td style="'+dateCellStyle+'left:0;z-index:6;border-right:2px solid #aaa;'+todayBorderL+'">'+dateLabel+'</td>';
     var dateCell2='<td style="'+dateCellStyle+'right:0;z-index:6;border-left:2px solid #aaa;'+todayBorderR+'">'+dateLabel+'</td>';
 
-    h+='<tr style="height:32px;max-height:32px;">'+dateCell;
+    h+='<tr style="height:28px;max-height:28px;">'+dateCell;
     doctors.forEach(function(doc){
       var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===doc.id;});
       var isKyu=sh&&sh.memo==='休出';
@@ -995,24 +995,26 @@ function renderAllView(targetId){
       if(sh){
         if(isDai){
           cellBg='#777';
-          inner='<span style="color:#fff;font-size:11px;font-weight:700;display:block;text-align:center;line-height:1.3;padding:3px 1px;">代出</span>';
+          inner='<span style="color:#fff;font-size:10px;font-weight:700;display:block;text-align:center;line-height:28px;">代出</span>';
         } else {
           var c=getCC(sh.clinicId);
           var bg=sh.clinicId==='yukyu'?'#e53935':sh.clinicId==='yasumi'?'#78909c':sh.clinicId==='daikyu'?'#546e7a':c.c;
           cellBg=bg;
-          inner='<span style="color:#fff;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center;line-height:1.3;padding:2px 0;">'+cname(sh.clinicId)+'</span>';
-          if(isKyu)inner+='<span style="font-size:8px;color:#ffe0b2;font-weight:700;vertical-align:super;">↑</span>';
-          if(sh.memo==='代出')inner+='<span style="font-size:8px;color:#ddd;font-weight:700;vertical-align:super;">代</span>';
+          inner='<span style="color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center;line-height:28px;">'+cname(sh.clinicId);
+          if(isKyu)inner+='<span style="font-size:7px;color:#ffe0b2;vertical-align:super;">↑</span>';
+          if(sh.memo==='代出')inner+='<span style="font-size:7px;color:#ddd;vertical-align:super;">代</span>';
+          inner+='</span>';
         }
       }
+      var tdH='height:28px;max-height:28px;overflow:hidden;vertical-align:middle;text-align:center;padding:0 1px;';
       if(isAdmin){
         var selKey=doc.id+'|'+dateStr;
         var isBalSel=balMultiSel.has(selKey);
-        var editStyle=';cursor:pointer;'+(isBalSel?'outline:2px solid #e67e22;outline-offset:-1px;background:#fff3e0;':'');
-        h+='<td data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'" data-bal-doc="'+doc.id+'" data-bal-date="'+dateStr+'" style="text-align:center;background:'+cellBg+';width:42px;max-width:42px;height:32px;overflow:hidden;vertical-align:middle;border:'+(sh?'none':'0.5px solid #e8e5e0')+';padding:'+(sh?'0':'2px')+';'+editStyle+'">'+inner+(!sh?'<span style="color:#e0ddd8;font-size:10px;">＋</span>':'')+'</td>';
+        var editStyle='cursor:pointer;'+(isBalSel?'outline:2px solid #e67e22;outline-offset:-1px;background:#fff3e0;':'');
+        h+='<td data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'" data-bal-doc="'+doc.id+'" data-bal-date="'+dateStr+'" style="'+tdH+'background:'+cellBg+';width:42px;max-width:42px;border:'+(sh?'none':'0.5px solid #e8e5e0')+';'+editStyle+'">'+inner+(!sh?'<span style="color:#e0ddd8;font-size:10px;">＋</span>':'')+'</td>';
       } else {
         var eAttr2=isAdmin?' data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'"':'';var colHL=viewSelDocId&&doc.id===viewSelDocId?';outline:2px solid #1a1a18;outline-offset:-2px;':'';
-h+='<td'+eAttr2+' style="text-align:center;background:'+cellBg+';width:36px;max-width:36px;overflow:hidden;vertical-align:middle;border:0.5px solid #ddd'+(isAdmin?';cursor:pointer':'')+'">'+inner+(isAdmin&&!sh?'<span style="color:#ddd;font-size:10px;">＋</span>':'')+'</td>';
+h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;border:0.5px solid #ddd'+(isAdmin?';cursor:pointer':'')+colHL+'">'+inner+(isAdmin&&!sh?'<span style="color:#ddd;font-size:10px;">＋</span>':'')+'</td>';
       }
     });
     h+=dateCell2+'</tr>';
