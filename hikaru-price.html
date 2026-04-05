@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ヒカルコラボ BLACKFILM 特別価格表</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&display=swap');
+
+:root {
+  --bg: #f8f6f3;
+  --card: #ffffff;
+  --gold: #c8a84e;
+  --gold-light: #f5efd6;
+  --dark: #1a1a1a;
+  --gray: #6b6b6b;
+  --light-gray: #e8e5e0;
+  --accent-red: #d94f4f;
+  --accent-blue: #2d6a9f;
+  --gradient-gold: linear-gradient(135deg, #c8a84e 0%, #e8d48b 50%, #c8a84e 100%);
+  --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== HERO ===== */
+.hero {
+  background: var(--gradient-dark);
+  color: #fff;
+  text-align: center;
+  padding: 60px 20px 50px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(200,168,78,0.15) 0%, transparent 50%),
+              radial-gradient(circle at 70% 50%, rgba(200,168,78,0.1) 0%, transparent 50%);
+  animation: shimmer 8s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%, 100% { transform: translateX(-5%); }
+  50% { transform: translateX(5%); }
+}
+.hero-badge {
+  display: inline-block;
+  background: var(--gradient-gold);
+  color: var(--dark);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 6px 20px;
+  border-radius: 30px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.hero h1 {
+  font-size: clamp(24px, 5vw, 38px);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+  position: relative;
+}
+.hero h1 span {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.1em;
+  position: relative;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ===== SECTION ===== */
+.section {
+  margin: 40px 0;
+}
+.section-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.section-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 4px 16px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 700;
+  color: var(--dark);
+}
+.section-title small {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--gray);
+  margin-top: 4px;
+}
+
+/* ===== PRICE CARD ===== */
+.price-card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.price-card-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--light-gray);
+}
+.price-card-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+}
+.discount-badge {
+  background: var(--accent-red);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ===== TABLE ===== */
+.price-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.price-table thead th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray);
+  text-align: center;
+  padding: 12px 8px 8px;
+  border-bottom: 2px solid var(--light-gray);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.price-table tbody tr {
+  transition: background 0.2s;
+}
+.price-table tbody tr:hover {
+  background: #faf9f7;
+}
+.price-table tbody td {
+  text-align: center;
+  padding: 14px 8px;
+  border-bottom: 1px solid #f0ede8;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.price-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* quantity */
+.qty {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--dark);
+}
+.qty small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--gray);
+}
+
+/* per unit price */
+.per-unit {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* total price */
+.total-price {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--dark);
+}
+
+/* savings */
+.savings {
+  color: var(--accent-red);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* discount rate */
+.rate {
+  display: inline-block;
+  background: #fef0f0;
+  color: var(--accent-red);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* popular badge */
+.popular-row td {
+  background: linear-gradient(90deg, #fffbeb 0%, #fff9e0 100%);
+}
+.popular-tag {
+  display: inline-block;
+  background: var(--gradient-gold);
+  color: var(--dark);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 4px;
+  vertical-align: middle;
+  letter-spacing: 0.05em;
+}
+
+/* ===== PLAN TABS ===== */
+.plan-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.plan-tab {
+  background: var(--card);
+  border: 2px solid var(--light-gray);
+  color: var(--gray);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.plan-tab:hover {
+  border-color: var(--gold);
+  color: var(--dark);
+}
+.plan-tab.active {
+  background: var(--gradient-dark);
+  color: #fff;
+  border-color: var(--dark);
+}
+
+/* ===== PLAN PANELS ===== */
+.plan-panel {
+  display: none;
+}
+.plan-panel.active {
+  display: block;
+}
+
+/* ===== INFO CARD ===== */
+.info-card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 28px 24px;
+  margin: 40px 0;
+}
+.info-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-card ul {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.info-card li {
+  font-size: 13px;
+  color: var(--gray);
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.7;
+}
+.info-card li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding: 40px 20px 30px;
+  color: var(--gray);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.footer-logo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .hero { padding: 40px 16px 36px; }
+  .price-table thead th { font-size: 10px; padding: 10px 4px 6px; }
+  .price-table tbody td { padding: 12px 4px; font-size: 12px; }
+  .qty { font-size: 16px; }
+  .total-price { font-size: 13px; }
+  .savings { font-size: 11px; }
+  .per-unit { font-size: 12px; }
+  .plan-tab { font-size: 11px; padding: 8px 16px; }
+  .info-card { padding: 20px 16px; }
+}
+
+/* ===== COMPARISON HIGHLIGHT ===== */
+.compare-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.compare-item {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.compare-item.highlight {
+  border: 2px solid var(--gold);
+  position: relative;
+}
+.compare-item .label {
+  font-size: 11px;
+  color: var(--gray);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.compare-item .price {
+  font-size: 22px;
+  font-weight: 900;
+}
+.compare-item .price small {
+  font-size: 12px;
+  font-weight: 400;
+}
+.compare-item.highlight .price {
+  color: var(--accent-red);
+}
+.strike { text-decoration: line-through; color: var(--gray); }
+
+/* Scroll hint for mobile */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">SPECIAL COLLABORATION</div>
+  <h1><span>ヒカル</span> × BLACKFILM</h1>
+  <p class="hero-sub">コラボレーション特別価格のご案内</p>
+</div>
+
+<div class="container">
+
+  <!-- COMPARISON HIGHLIGHT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-label">PRICE EXAMPLE</div>
+      <div class="section-title">通常価格との比較<small>1本あたりの単価（税抜）</small></div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-item">
+        <div class="label">通常価格</div>
+        <div class="price strike">¥250,000<small>/本</small></div>
+      </div>
+      <div class="compare-item highlight">
+        <div class="label">顔全体モニター価格</div>
+        <div class="price">¥150,000<small>/本〜</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAN TABS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-label">PRICE LIST</div>
+      <div class="section-title">料金プラン一覧<small>税込価格表示 ・ すべてヒカルコラボ特別価格</small></div>
+    </div>
+
+    <div class="plan-tabs">
+      <button class="plan-tab active" onclick="switchTab('set')">本数セット</button>
+      <button class="plan-tab" onclick="switchTab('nose')">鼻下モニター</button>
+      <button class="plan-tab" onclick="switchTab('face')">顔全体モニター</button>
+    </div>
+
+    <!-- ===== 本数セット価格 ===== -->
+    <div class="plan-panel active" id="panel-set">
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3>ヒカル本数セット価格</h3>
+          <span class="discount-badge">最大20%OFF</span>
+        </div>
+        <div class="table-wrap">
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th>本数</th>
+              <th>割引率</th>
+              <th>1本あたり</th>
+              <th>お得額</th>
+              <th>合計（税込）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="popular-row">
+              <td><span class="qty">20<small>本</small></span><span class="popular-tag">BEST</span></td>
+              <td><span class="rate">20%OFF</span></td>
+              <td class="per-unit">¥200,000</td>
+              <td class="savings">-¥1,000,000</td>
+              <td class="total-price">¥4,400,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">18<small>本</small></span></td>
+              <td><span class="rate">20%OFF</span></td>
+              <td class="per-unit">¥200,000</td>
+              <td class="savings">-¥900,000</td>
+              <td class="total-price">¥3,960,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">16<small>本</small></span></td>
+              <td><span class="rate">20%OFF</span></td>
+              <td class="per-unit">¥200,000</td>
+              <td class="savings">-¥800,000</td>
+              <td class="total-price">¥3,520,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">14<small>本</small></span></td>
+              <td><span class="rate">12%OFF</span></td>
+              <td class="per-unit">¥220,000</td>
+              <td class="savings">-¥420,000</td>
+              <td class="total-price">¥3,388,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">12<small>本</small></span></td>
+              <td><span class="rate">12%OFF</span></td>
+              <td class="per-unit">¥220,000</td>
+              <td class="savings">-¥360,000</td>
+              <td class="total-price">¥2,904,000</td>
+            </tr>
+            <tr class="popular-row">
+              <td><span class="qty">10<small>本</small></span><span class="popular-tag">人気</span></td>
+              <td><span class="rate">12%OFF</span></td>
+              <td class="per-unit">¥220,000</td>
+              <td class="savings">-¥300,000</td>
+              <td class="total-price">¥2,420,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">8<small>本</small></span></td>
+              <td><span class="rate">8%OFF</span></td>
+              <td class="per-unit">¥230,000</td>
+              <td class="savings">-¥160,000</td>
+              <td class="total-price">¥2,024,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">6<small>本</small></span></td>
+              <td><span class="rate">8%OFF</span></td>
+              <td class="per-unit">¥230,000</td>
+              <td class="savings">-¥120,000</td>
+              <td class="total-price">¥1,518,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">4<small>本</small></span></td>
+              <td><span class="rate">8%OFF</span></td>
+              <td class="per-unit">¥230,000</td>
+              <td class="savings">-¥80,000</td>
+              <td class="total-price">¥1,012,000</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 鼻下モニター価格 ===== -->
+    <div class="plan-panel" id="panel-nose">
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3>ヒカル鼻下モニター価格</h3>
+          <span class="discount-badge">最大34%OFF</span>
+        </div>
+        <div class="table-wrap">
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th>本数</th>
+              <th>割引率</th>
+              <th>1本あたり</th>
+              <th>お得額</th>
+              <th>合計（税込）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="popular-row">
+              <td><span class="qty">20<small>本</small></span><span class="popular-tag">BEST</span></td>
+              <td><span class="rate">34%OFF</span></td>
+              <td class="per-unit">¥165,000</td>
+              <td class="savings">-¥1,700,000</td>
+              <td class="total-price">¥3,630,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">18<small>本</small></span></td>
+              <td><span class="rate">34%OFF</span></td>
+              <td class="per-unit">¥165,000</td>
+              <td class="savings">-¥1,530,000</td>
+              <td class="total-price">¥3,267,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">16<small>本</small></span></td>
+              <td><span class="rate">34%OFF</span></td>
+              <td class="per-unit">¥165,000</td>
+              <td class="savings">-¥1,360,000</td>
+              <td class="total-price">¥2,904,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">14<small>本</small></span></td>
+              <td><span class="rate">34%OFF</span></td>
+              <td class="per-unit">¥165,000</td>
+              <td class="savings">-¥1,190,000</td>
+              <td class="total-price">¥2,541,000</td>
+            </tr>
+            <tr class="popular-row">
+              <td><span class="qty">12<small>本</small></span><span class="popular-tag">人気</span></td>
+              <td><span class="rate">30%OFF</span></td>
+              <td class="per-unit">¥175,000</td>
+              <td class="savings">-¥900,000</td>
+              <td class="total-price">¥2,310,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">10<small>本</small></span></td>
+              <td><span class="rate">30%OFF</span></td>
+              <td class="per-unit">¥175,000</td>
+              <td class="savings">-¥750,000</td>
+              <td class="total-price">¥1,925,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">8<small>本</small></span></td>
+              <td><span class="rate">30%OFF</span></td>
+              <td class="per-unit">¥175,000</td>
+              <td class="savings">-¥600,000</td>
+              <td class="total-price">¥1,540,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">6<small>本</small></span></td>
+              <td><span class="rate">26%OFF</span></td>
+              <td class="per-unit">¥185,000</td>
+              <td class="savings">-¥390,000</td>
+              <td class="total-price">¥1,221,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">4<small>本</small></span></td>
+              <td><span class="rate">26%OFF</span></td>
+              <td class="per-unit">¥185,000</td>
+              <td class="savings">-¥260,000</td>
+              <td class="total-price">¥814,000</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 顔全体モニター価格 ===== -->
+    <div class="plan-panel" id="panel-face">
+      <div class="price-card">
+        <div class="price-card-header">
+          <h3>ヒカル顔全体モニター価格</h3>
+          <span class="discount-badge">最大40%OFF</span>
+        </div>
+        <div class="table-wrap">
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th>本数</th>
+              <th>割引率</th>
+              <th>1本あたり</th>
+              <th>お得額</th>
+              <th>合計（税込）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="popular-row">
+              <td><span class="qty">20<small>本</small></span><span class="popular-tag">BEST</span></td>
+              <td><span class="rate">40%OFF</span></td>
+              <td class="per-unit">¥150,000</td>
+              <td class="savings">-¥2,000,000</td>
+              <td class="total-price">¥3,300,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">18<small>本</small></span></td>
+              <td><span class="rate">40%OFF</span></td>
+              <td class="per-unit">¥150,000</td>
+              <td class="savings">-¥1,800,000</td>
+              <td class="total-price">¥2,970,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">16<small>本</small></span></td>
+              <td><span class="rate">40%OFF</span></td>
+              <td class="per-unit">¥150,000</td>
+              <td class="savings">-¥1,600,000</td>
+              <td class="total-price">¥2,640,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">14<small>本</small></span></td>
+              <td><span class="rate">34%OFF</span></td>
+              <td class="per-unit">¥165,000</td>
+              <td class="savings">-¥1,190,000</td>
+              <td class="total-price">¥2,541,000</td>
+            </tr>
+            <tr class="popular-row">
+              <td><span class="qty">12<small>本</small></span><span class="popular-tag">人気</span></td>
+              <td><span class="rate">34%OFF</span></td>
+              <td class="per-unit">¥165,000</td>
+              <td class="savings">-¥1,020,000</td>
+              <td class="total-price">¥2,178,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">10<small>本</small></span></td>
+              <td><span class="rate">34%OFF</span></td>
+              <td class="per-unit">¥165,000</td>
+              <td class="savings">-¥850,000</td>
+              <td class="total-price">¥1,815,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">8<small>本</small></span></td>
+              <td><span class="rate">31%OFF</span></td>
+              <td class="per-unit">¥172,500</td>
+              <td class="savings">-¥620,000</td>
+              <td class="total-price">¥1,518,000</td>
+            </tr>
+            <tr>
+              <td><span class="qty">6<small>本</small></span></td>
+              <td><span class="rate">31%OFF</span></td>
+              <td class="per-unit">¥172,500</td>
+              <td class="savings">-¥465,000</td>
+              <td class="total-price">¥1,138,500</td>
+            </tr>
+            <tr>
+              <td><span class="qty">4<small>本</small></span></td>
+              <td><span class="rate">31%OFF</span></td>
+              <td class="per-unit">¥172,500</td>
+              <td class="savings">-¥310,000</td>
+              <td class="total-price">¥759,000</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="info-card">
+    <h3>ご案内</h3>
+    <ul>
+      <li>表示価格はすべて税込です（消費税10%）</li>
+      <li>通常価格は1本あたり ¥250,000（税抜）です</li>
+      <li>本数が多いほど1本あたりの単価がお得になります</li>
+      <li>モニター価格は施術部位の写真掲載にご協力いただける方が対象です</li>
+      <li>鼻下モニター・顔全体モニターはそれぞれ対象部位が異なります</li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-logo">BLACKFILM × ヒカル</div>
+  <p>お気軽にスタッフまでお問い合わせください</p>
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.plan-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+</script>
+</body>
+</html>
