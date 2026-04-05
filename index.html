@@ -4154,31 +4154,111 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 /* ---- チャット機能 ---- */
 var ANTHROPIC_API_KEY = ''; /* ここにAPIキーを設定 */
+var chatHistory = [];
 
 function addChatMsg(text,cls){
   var msgs=document.getElementById('chatMsgs');
-  var d=document.createElement('div');d.className='chat-msg '+cls;d.textContent=text;
+  var d=document.createElement('div');d.className='chat-msg '+cls;
+  d.innerHTML=text.replace(/\n/g,'<br>');
   msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
 }
 
-function parseShiftCommand(text){
-  /* 自然文からシフト操作を解析 */
-  var doc=null,clinicId=null,dateStr=null,action='add';
-  /* ドクター検索 */
-  doctors.forEach(function(d){if(text.indexOf(d.n)>=0)doc=d;});
-  /* 医院検索 */
-  ALL.forEach(function(c){if(text.indexOf(c.n)>=0)clinicId=c.id;});
-  /* 日付解析 (M/D or M月D日) */
-  var mDate=text.match(/(\d{1,2})[\/月](\d{1,2})/);
-  if(mDate){
-    var mm=parseInt(mDate[1]),dd=parseInt(mDate[2]);
-    dateStr=curY+'-'+String(mm).padStart(2,'0')+'-'+String(dd).padStart(2,'0');
+function buildShiftContext(targetDates){
+  /* 指定日付周辺のシフト状況をAIに渡すコンテキスト構築 */
+  var DOW3=['日','月','火','水','木','金','土'];
+  var ctx='## 現在の表示月: '+curY+'年'+(curM+1)+'月\n\n';
+  ctx+='## ドクター一覧 (id:名前)\n';
+  doctors.forEach(function(d){ctx+=d.id+':'+d.n+' ';});
+  ctx+='\n\n## 医院一覧 (id:名前)\n';
+  CLINICS.forEach(function(c){ctx+=c.id+':'+c.n+' ';});
+  ctx+='\n\n## ステータス\nyasumi:休み, yukyu:有給, daikyu:代休, kyushutsu:休日出勤\n\n';
+
+  /* 対象日のシフト状況 */
+  var dates=targetDates||[];
+  if(!dates.length){
+    /* 当月全体 */
+    var days2=new Date(curY,curM+1,0).getDate();
+    for(var d2=1;d2<=days2;d2++){
+      dates.push(curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0'));
+    }
   }
-  /* 削除判定 */
-  if(text.match(/削除|取消|キャンセル|外す|はずす/))action='del';
-  /* 希望出勤判定 */
-  if(text.match(/希望出勤|出勤希望/))action='wish';
-  return {doc:doc,clinicId:clinicId,dateStr:dateStr,action:action};
+  ctx+='## 対象日のシフト状況\n';
+  dates.forEach(function(dateStr){
+    var dt=new Date(dateStr);
+    var w=dt.getDay();
+    var label=(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+')';
+    var dayS=shifts[dateStr]||[];
+    var assigned=dayS.map(function(s){
+      var doc=doctors.find(function(dd){return dd.id===s.docId;});
+      return (doc?doc.n:'?')+'→'+cname(s.clinicId);
+    });
+    /* 休診医院 */
+    var closedClinics=CLINICS.filter(function(c){return isClosed(dateStr,c.id);}).map(function(c){return c.n;});
+    ctx+=dateStr+' '+label+': ';
+    ctx+=assigned.length?assigned.join(', '):'（誰もいない）';
+    if(closedClinics.length)ctx+=' [休診:'+closedClinics.join(',')+']';
+    /* 未配置ドクター */
+    var assignedIds=dayS.map(function(s){return s.docId;});
+    var free=doctors.filter(function(d){return assignedIds.indexOf(d.id)<0;});
+    if(free.length<10)ctx+=' 空き:'+free.map(function(d){return d.n;}).join(',');
+    ctx+='\n';
+  });
+
+  /* 直近の勤務パターン（参考） */
+  ctx+='\n## ドクター別よく行く医院（過去実績）\n';
+  var docClinics={};
+  Object.keys(shifts).forEach(function(ds2){
+    (shifts[ds2]||[]).forEach(function(s){
+      var rest=['yasumi','yukyu','daikyu','daishutsu'];
+      if(rest.indexOf(s.clinicId)>=0)return;
+      if(!docClinics[s.docId])docClinics[s.docId]={};
+      docClinics[s.docId][s.clinicId]=(docClinics[s.docId][s.clinicId]||0)+1;
+    });
+  });
+  doctors.forEach(function(doc){
+    var cc=docClinics[doc.id]||{};
+    var sorted=Object.keys(cc).sort(function(a,b){return cc[b]-cc[a];}).slice(0,4);
+    if(sorted.length)ctx+=doc.n+': '+sorted.map(function(c){return cname(c)+'('+cc[c]+'回)';}).join(', ')+'\n';
+  });
+  return ctx;
+}
+
+function applyAiActions(actions){
+  var results=[];
+  var DOW3=['日','月','火','水','木','金','土'];
+  actions.forEach(function(a){
+    var doc=null,cid=null;
+    /* docIdまたは名前でドクター検索 */
+    if(a.docId)doc=doctors.find(function(d){return d.id===a.docId;});
+    if(!doc&&a.docName)doc=doctors.find(function(d){return d.n===a.docName||a.docName.indexOf(d.n)>=0;});
+    if(!doc){results.push('ドクター不明: '+JSON.stringify(a));return;}
+    /* clinicIdまたは名前で医院検索 */
+    if(a.clinicId)cid=a.clinicId;
+    if(!cid&&a.clinicName){var found=ALL.find(function(c){return c.n===a.clinicName||a.clinicName.indexOf(c.n)>=0;});if(found)cid=found.id;}
+    if(!a.dateStr){results.push('日付不明: '+JSON.stringify(a));return;}
+
+    var dt=new Date(a.dateStr);
+    var dateLabel=(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[dt.getDay()]+')';
+
+    if(a.action==='del'){
+      if(shifts[a.dateStr]){
+        shifts[a.dateStr]=shifts[a.dateStr].filter(function(s){return s.docId!==doc.id;});
+        if(!shifts[a.dateStr].length)delete shifts[a.dateStr];
+      }
+      dbDel(a.dateStr,doc.id);
+      results.push(doc.n+' '+dateLabel+' 削除');
+    } else {
+      if(!cid){results.push(doc.n+': 医院不明');return;}
+      if(!shifts[a.dateStr])shifts[a.dateStr]=[];
+      var idx=shifts[a.dateStr].findIndex(function(s){return s.docId===doc.id;});
+      var entry={docId:doc.id,clinicId:cid,memo:a.memo||''};
+      if(idx>=0)shifts[a.dateStr][idx]=entry;else shifts[a.dateStr].push(entry);
+      dbSave(a.dateStr,doc.id,cid,a.memo||'');
+      results.push(doc.n+' → '+dateLabel+' '+cname(cid));
+    }
+  });
+  renderAll();
+  return results;
 }
 
 function sendChat(){
@@ -4188,46 +4268,84 @@ function sendChat(){
   addChatMsg(text,'user');
 
   if(!isAdmin){addChatMsg('管理者ログインが必要です。','sys');return;}
+  if(!ANTHROPIC_API_KEY){addChatMsg('APIキーが未設定です。HTML内のANTHROPIC_API_KEYを設定してください。','sys');return;}
 
-  var cmd=parseShiftCommand(text);
-  if(!cmd.doc){addChatMsg('ドクター名を認識できませんでした。例: 「浦野を6/3アサノ出勤希望で」','bot');return;}
-  if(!cmd.dateStr){addChatMsg('日付を認識できませんでした。例: 6/3 や 6月3日','bot');return;}
+  /* 日付抽出してコンテキスト絞り込み */
+  var targetDates=[];
+  var mDates=text.match(/(\d{1,2})[\/月](\d{1,2})/g);
+  if(mDates){
+    mDates.forEach(function(m){
+      var p=m.match(/(\d{1,2})[\/月](\d{1,2})/);
+      if(p)targetDates.push(curY+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0'));
+    });
+  }
 
-  if(cmd.action==='del'){
-    if(shifts[cmd.dateStr]){
-      var before=shifts[cmd.dateStr].length;
-      shifts[cmd.dateStr]=shifts[cmd.dateStr].filter(function(s){return s.docId!==cmd.doc.id;});
-      if(!shifts[cmd.dateStr].length)delete shifts[cmd.dateStr];
-      if(shifts[cmd.dateStr]?shifts[cmd.dateStr].length<before:before>0){
-        dbDel(cmd.dateStr,cmd.doc.id);
-        addChatMsg(cmd.doc.n+'の'+cmd.dateStr+'のシフトを削除しました。','bot');
-      } else {
-        addChatMsg('該当するシフトが見つかりません。','bot');
+  var shiftCtx=buildShiftContext(targetDates.length?targetDates:null);
+
+  chatHistory.push({role:'user',content:text});
+
+  var systemPrompt='あなたは清翔会のシフト管理AIアシスタントです。ユーザーの自然文指示を理解し、シフトの追加・削除・自動配置を行います。\n\n'+
+    '必ず以下のJSON形式で回答してください:\n'+
+    '{"message":"ユーザーへの説明文","actions":[{"action":"add|del","dateStr":"YYYY-MM-DD","docId":"d1","docName":"小池","clinicId":"esca","clinicName":"エスカ","memo":""}]}\n\n'+
+    'ルール:\n'+
+    '- 「シフト組んで」「入れて」→ action:"add"\n'+
+    '- 「削除」「外して」→ action:"del"\n'+
+    '- 休診日の医院には配置しない\n'+
+    '- 既にシフトが入っている人は別の日に回す\n'+
+    '- ドクターの過去実績（よく行く医院）を考慮して配置\n'+
+    '- 日曜は基本全休\n'+
+    '- actionsが空でも質問への回答はmessageに入れる\n\n'+
+    shiftCtx;
+
+  addChatMsg('考え中...','sys');
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':ANTHROPIC_API_KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:2048,
+      system:systemPrompt,
+      messages:chatHistory.slice(-6)
+    })
+  }).then(function(r){
+    if(!r.ok)return r.text().then(function(t){throw new Error('API Error: '+r.status+' '+t);});
+    return r.json();
+  }).then(function(data){
+    /* 「考え中...」を削除 */
+    var msgs=document.getElementById('chatMsgs');
+    var last=msgs.lastChild;if(last&&last.textContent==='考え中...')msgs.removeChild(last);
+
+    var respText=(data.content&&data.content[0])?data.content[0].text:'';
+    chatHistory.push({role:'assistant',content:respText});
+
+    /* JSON抽出 */
+    var jsonMatch=respText.match(/\{[\s\S]*\}/);
+    if(jsonMatch){
+      try{
+        var resp=JSON.parse(jsonMatch[0]);
+        if(resp.message)addChatMsg(resp.message,'bot');
+        if(resp.actions&&resp.actions.length){
+          var results=applyAiActions(resp.actions);
+          if(results.length)addChatMsg('実行結果:\n'+results.join('\n'),'sys');
+        }
+      }catch(e2){
+        addChatMsg(respText,'bot');
       }
     } else {
-      addChatMsg('該当するシフトが見つかりません。','bot');
+      addChatMsg(respText,'bot');
     }
-    renderAll();return;
-  }
-
-  if(!cmd.clinicId){
-    if(cmd.action==='wish'){cmd.clinicId='kyushutsu';}
-    else{addChatMsg('医院名を認識できませんでした。例: エスカ, 銀座, アサノ','bot');return;}
-  }
-
-  if(!shifts[cmd.dateStr])shifts[cmd.dateStr]=[];
-  var idx=shifts[cmd.dateStr].findIndex(function(s){return s.docId===cmd.doc.id;});
-  var memo=cmd.action==='wish'?'希望出勤':'';
-  var entry={docId:cmd.doc.id,clinicId:cmd.clinicId,memo:memo};
-  if(idx>=0)shifts[cmd.dateStr][idx]=entry;else shifts[cmd.dateStr].push(entry);
-  dbSave(cmd.dateStr,cmd.doc.id,cmd.clinicId,memo);
-
-  var clinicName=cname(cmd.clinicId);
-  var dt=new Date(cmd.dateStr);
-  var DOW3=['日','月','火','水','木','金','土'];
-  var dateLabel=(dt.getMonth()+1)+'/'+ dt.getDate()+'('+DOW3[dt.getDay()]+')';
-  addChatMsg(cmd.doc.n+' → '+dateLabel+' '+clinicName+(memo?' ('+memo+')':'')+' を登録しました。','bot');
-  renderAll();
+  }).catch(function(err){
+    var msgs=document.getElementById('chatMsgs');
+    var last=msgs.lastChild;if(last&&last.textContent==='考え中...')msgs.removeChild(last);
+    addChatMsg('エラー: '+err.message,'sys');
+    chatHistory.pop();
+  });
 }
 
 </script>
@@ -4240,7 +4358,7 @@ function sendChat(){
     <button id="chatCloseBtn" style="border:none;background:none;font-size:16px;cursor:pointer;color:var(--ink3);">&times;</button>
   </div>
   <div id="chatMsgs">
-    <div class="chat-msg sys">自然文でシフト操作できます。例: 「浦野を6/3アサノで」「小池の6/5を削除」</div>
+    <div class="chat-msg sys">自然文でシフト操作できます。例:<br>「浦野を6/3アサノで」<br>「6/1に先生入ってないからシフト組んで」<br>「小池の6/5を削除」</div>
   </div>
   <div id="chatInput">
     <input type="text" id="chatMsg" placeholder="例: 浦野を6/3アサノで">
