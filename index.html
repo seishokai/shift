@@ -230,6 +230,18 @@ thead .date-th{top:0;}
 .sl-add{padding:6px 12px;border:1.5px dashed var(--border);border-radius:8px;background:transparent;font-family:inherit;font-size:11px;color:var(--ink3);cursor:pointer;margin-top:2px;}
 .sl-add:active{background:var(--bg);}
 .sl-closed{font-size:10px;color:#e74c3c;font-weight:700;margin-left:8px;}
+/* インライン編集ポップアップ */
+#inlineEdit{position:fixed;z-index:310;background:var(--card);border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.25);padding:8px;display:none;max-width:280px;min-width:200px;border:1px solid var(--border);}
+#inlineEdit.on{display:block;}
+.ie-hdr{font-size:11px;font-weight:700;color:var(--ink);padding:2px 4px 6px;display:flex;justify-content:space-between;align-items:center;}
+.ie-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:4px;}
+.ie-btn{padding:6px 2px;border-radius:6px;border:1.5px solid transparent;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;text-align:center;transition:.1s;}
+.ie-btn:active{opacity:.7;}
+.ie-btn.cur{border-width:2px;}
+.ie-rest{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px;}
+.ie-rest-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-family:inherit;font-size:9px;cursor:pointer;background:var(--bg);color:var(--ink2);}
+.ie-rest-btn.on{background:#edebe6;border-color:var(--ink);color:var(--ink);font-weight:700;}
+.ie-del{padding:4px 8px;border:none;border-radius:6px;background:#fdf0ee;color:#b83030;font-size:10px;font-weight:600;cursor:pointer;}
 /* チャットボタン */
 #chatFab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#7b2d8b,#5b1d6b);color:#fff;font-size:22px;cursor:pointer;z-index:250;box-shadow:0 4px 16px rgba(123,45,139,.4);display:flex;align-items:center;justify-content:center;transition:.2s;}
 #chatFab:active{transform:scale(.9);}
@@ -634,6 +646,12 @@ thead .date-th{top:0;}
   </div>
 </div>
 
+<!-- インライン編集 -->
+<div id="inlineEdit">
+  <div class="ie-hdr"><span id="ieTitle"></span><button id="ieDel" class="ie-del" style="display:none;">削除</button></div>
+  <div class="ie-grid" id="ieGrid"></div>
+  <div class="ie-rest" id="ieRest"></div>
+</div>
 <div id="sb"></div>
 
 <script>
@@ -1094,10 +1112,9 @@ el.innerHTML=guideBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
         renderAllView(targetId);renderA();renderC();
         ev.preventDefault();return;
       }
-      /* 通常クリック：医院選択ポップアップ（既存あり・なし両方） */
+      /* 通常クリック：インライン編集 */
       var docId2=td.dataset.editDoc,dateStr2=td.dataset.editDate;
-      selDocId=docId2;
-      openQpop(dateStr2);
+      openInlineEdit(td,docId2,dateStr2);
     });
 
     tableEl.addEventListener('mousemove',function(ev){
@@ -1577,6 +1594,61 @@ function openQpop(dateStr){
   document.getElementById('qpopOv').classList.add('on');
 }
 function closeQpop(){document.getElementById('qpopOv').classList.remove('on');qpopDate=null;}
+
+/* ---- インライン編集（Excel風） ---- */
+var ieDocId=null, ieDateStr=null;
+function openInlineEdit(td,docId,dateStr){
+  ieDocId=docId;ieDateStr=dateStr;
+  var ie=document.getElementById('inlineEdit');
+  var doc=doctors.find(function(d){return d.id===docId;});
+  var dt=new Date(dateStr);
+  var DOW4=['日','月','火','水','木','金','土'];
+  document.getElementById('ieTitle').textContent=(doc?doc.n:'')+' '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW4[dt.getDay()]+')';
+  var current=(shifts[dateStr]||[]).find(function(s){return s.docId===docId;});
+  /* 医院ボタン */
+  document.getElementById('ieGrid').innerHTML=CLINICS.map(function(cl){
+    var cc=getCC(cl.id),on=current&&current.clinicId===cl.id;
+    return '<button class="ie-btn'+(on?' cur':'')+'" data-ie-cid="'+cl.id+'" style="background:'+cc.b+';color:'+cc.c+(on?';border-color:'+cc.c:'')+'">'+cl.n+'</button>';
+  }).join('');
+  /* 休み等 */
+  document.getElementById('ieRest').innerHTML=STATUSES.map(function(s){
+    var on=current&&current.clinicId===s.id;
+    return '<button class="ie-rest-btn'+(on?' on':'')+'" data-ie-sid="'+s.id+'">'+s.n+'</button>';
+  }).join('');
+  document.getElementById('ieDel').style.display=current?'':'none';
+  /* 位置 */
+  var rect=td.getBoundingClientRect();
+  var x=Math.min(rect.left,window.innerWidth-290);
+  var y=rect.bottom+4;
+  if(y+300>window.innerHeight) y=rect.top-300;
+  if(x<4) x=4;
+  if(y<4) y=4;
+  ie.style.left=x+'px';ie.style.top=y+'px';
+  ie.classList.add('on');
+}
+function closeInlineEdit(){document.getElementById('inlineEdit').classList.remove('on');ieDocId=null;ieDateStr=null;}
+function inlineSave(cid){
+  if(!ieDocId||!ieDateStr||!cid)return;
+  if(!shifts[ieDateStr])shifts[ieDateStr]=[];
+  var idx=shifts[ieDateStr].findIndex(function(s){return s.docId===ieDocId;});
+  var e={docId:ieDocId,clinicId:cid,memo:''};
+  if(idx>=0)shifts[ieDateStr][idx]=e;else shifts[ieDateStr].push(e);
+  dbSave(ieDateStr,ieDocId,cid,'');
+  closeInlineEdit();
+  renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+  showSb('保存','ok');
+}
+function inlineDelete(){
+  if(!ieDocId||!ieDateStr)return;
+  if(shifts[ieDateStr]){
+    shifts[ieDateStr]=shifts[ieDateStr].filter(function(s){return s.docId!==ieDocId;});
+    if(!shifts[ieDateStr].length)delete shifts[ieDateStr];
+  }
+  dbDel(ieDateStr,ieDocId);
+  closeInlineEdit();
+  renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+  showSb('削除','ok');
+}
 function quickSave(dateStrArg, docIdArg, cid){
   var targetDate=dateStrArg||qpopDate;
   var targetDoc=docIdArg||selDocId;
@@ -4130,6 +4202,21 @@ document.addEventListener('DOMContentLoaded',function(){
       }
     });
   }
+
+  /* インライン編集イベント */
+  document.addEventListener('click',function(e){
+    var ie=document.getElementById('inlineEdit');
+    if(!ie.classList.contains('on'))return;
+    var btn=e.target.closest('[data-ie-cid]');
+    if(btn){inlineSave(btn.dataset.ieCid);return;}
+    var rbtn=e.target.closest('[data-ie-sid]');
+    if(rbtn){inlineSave(rbtn.dataset.ieSid);return;}
+    if(e.target.id==='ieDel'){inlineDelete();return;}
+    /* ポップアップ外クリックで閉じる */
+    if(!e.target.closest('#inlineEdit')&&!e.target.closest('[data-edit-doc]')){
+      closeInlineEdit();
+    }
+  });
 
   /* チャット機能 */
   var chatFab=document.getElementById('chatFab');
