@@ -833,6 +833,9 @@ function setAdmin(v){
   var t4=document.getElementById('htab4');if(t4)t4.style.display=v?'':'none';
   var t9=document.getElementById('htab9');if(t9)t9.style.display=v?'':'none';
   var ghBtn=document.getElementById('ghUploadBtn');if(ghBtn)ghBtn.style.display=v?'':'none';
+  /* チャットボタンは管理者のみ */
+  var fab=document.getElementById('chatFab');if(fab)fab.style.display=v?'':'none';
+  var cp=document.getElementById('chatPanel');if(cp&&!v)cp.classList.remove('open');
   if(!v&&(curTab===4||curTab===5)){curTab=0;}
   renderAll();
 }
@@ -4559,7 +4562,7 @@ function sendChat(){
 </script>
 
 <!-- チャットUI -->
-<button id="chatFab">&#10024;</button>
+<button id="chatFab" style="display:none;">&#10024;</button>
 <div id="chatPanel">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);background:#f5eef8;">
     <span style="font-size:13px;font-weight:800;color:#4a235a;">&#10024; シフトチャット</span>
