@@ -263,7 +263,6 @@ thead .date-th{top:0;}
   <span class="hdr-title" id="hdrTitle">清翔会 シフト</span>
   <span id="hdrAdminBadge" style="display:none;background:#2e7d32;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.04em;white-space:nowrap;">管理画面</span>
   <div style="display:flex;gap:2px;margin:0 6px;">
-    <button class="hdr-tab" id="htab4" style="display:none;">シフト作成</button>
     <button class="hdr-tab" id="htab0">人</button>
     <button class="hdr-tab" id="htab1">医院</button>
     <button class="hdr-tab" id="htab2">人数</button>
@@ -572,10 +571,8 @@ thead .date-th{top:0;}
   </div>
 </div>
 
-<!-- VIEW E: シフト作成（管理用） -->
-<div id="vE" style="display:none;">
-  <div id="shiftListBody" style="max-width:600px;margin:0 auto;padding:0 0 80px;"></div>
-</div>
+<!-- VIEW E: 未使用 -->
+<div id="vE" style="display:none;"></div>
 
 
 
@@ -847,8 +844,6 @@ function setAdmin(v){
   if(badge)badge.style.display=v?'':'none';
   var aiBtn=document.getElementById('aiShiftBtn');
   if(aiBtn)aiBtn.style.display=v?'':'none';
-  /* シフト作成タブは管理者のみ */
-  var t4=document.getElementById('htab4');if(t4)t4.style.display=v?'':'none';
   var t9=document.getElementById('htab9');if(t9)t9.style.display=v?'':'none';
   var ghBtn=document.getElementById('ghUploadBtn');if(ghBtn)ghBtn.style.display=v?'':'none';
   /* チャットボタンは管理者のみ */
@@ -1041,9 +1036,35 @@ h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;
     h+=dateCell2+'</tr>';
   }
   h+='</tbody></table>';
-  var guideBar=isAdmin?'<div style="padding:5px 12px;background:#f5f4f0;border-bottom:1px solid var(--border);font-size:10px;color:var(--ink3);display:flex;gap:12px;">'+
-  '<span>🖱 タップ→追加/削除</span><span>⌨ Ctrl+タップ→削除</span><span>👆 スライド→一括削除</span></div>':'';
-el.innerHTML=guideBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?'130':'112')+'px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
+  /* ドクター別出勤日数バー */
+  var countBar='';
+  if(isAdmin){
+    var docWorkDays={};
+    var restIds2=new Set(['yasumi','yukyu','daikyu']);
+    doctors.forEach(function(doc){docWorkDays[doc.id]=0;});
+    for(var cd=1;cd<=days;cd++){
+      var cds=ds(cd);
+      (shifts[cds]||[]).forEach(function(s){
+        if(docWorkDays[s.docId]!==undefined&&!restIds2.has(s.clinicId)) docWorkDays[s.docId]++;
+      });
+    }
+    /* 平均を計算 */
+    var totalWork=0,docCount2=0;
+    doctors.forEach(function(d){totalWork+=docWorkDays[d.id];docCount2++;});
+    var avg=docCount2?Math.round(totalWork/docCount2*10)/10:0;
+    countBar='<table style="border-collapse:collapse;table-layout:fixed;white-space:nowrap;font-size:9px;position:sticky;top:0;z-index:20;background:#fff;">';
+    countBar+='<tr style="height:22px;">';
+    countBar+='<td style="width:28px;min-width:28px;text-align:center;font-size:8px;font-weight:700;color:var(--ink3);background:#f5f4f0;border:0.5px solid #ccc;border-right:2px solid #aaa;position:sticky;left:0;z-index:22;">出勤</td>';
+    doctors.forEach(function(doc){
+      var cnt=docWorkDays[doc.id];
+      var bg=cnt>=23?'#fdf0ee':cnt<=15?'#e8f5e9':'#f5f4f0';
+      var col=cnt>=23?'#b83030':cnt<=15?'#2e7d32':'var(--ink)';
+      countBar+='<td style="width:42px;max-width:42px;text-align:center;font-size:11px;font-weight:800;color:'+col+';background:'+bg+';border:0.5px solid #ddd;padding:2px 0;">'+cnt+'</td>';
+    });
+    countBar+='<td style="width:28px;min-width:28px;text-align:center;font-size:8px;font-weight:700;color:var(--ink3);background:#f5f4f0;border:0.5px solid #ccc;border-left:2px solid #aaa;position:sticky;right:0;z-index:22;">出勤</td>';
+    countBar+='</tr></table>';
+  }
+el.innerHTML=countBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?'130':'112')+'px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
 
   el.querySelectorAll('[data-open-doc]').forEach(function(th){
     th.addEventListener('click',function(){
