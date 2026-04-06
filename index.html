@@ -4327,7 +4327,7 @@ function localAutoAssign(text){
   }
 
   /* 自動配置モード: 「シフト組んで」「入れて」「埋めて」等 */
-  if(!text.match(/組んで|入れて|埋めて|配置|アサイン|割り当て|追加して|足りない|いない|空き/)) return null;
+  if(!text.match(/組んで|入れて|埋めて|配置|アサイン|割り当て|追加して|足りない|いない|空き|シフト|もっと/)) return null;
 
   /* ドクター別よく行く医院を集計 */
   var docFreq={};
@@ -4350,40 +4350,50 @@ function localAutoAssign(text){
 
     /* 営業中の医院を取得 */
     var openClinics=CLINICS.filter(function(c){return !isClosed(dateStr,c.id);});
-    /* 各医院の現在人数 */
-    var clinicCount={};
-    openClinics.forEach(function(c){
-      clinicCount[c.id]=dayS.filter(function(s){return s.clinicId===c.id;}).length;
+
+    /* 空きドクター（この日にシフトがない人、休み・有給・代休除く） */
+    var freeDocs=doctors.filter(function(d){
+      if(assignedIds.indexOf(d.id)>=0){
+        /* 既に休み/有給/代休が入ってる人はスキップ */
+        var existing=dayS.find(function(s){return s.docId===d.id;});
+        if(existing&&['yasumi','yukyu','daikyu'].indexOf(existing.clinicId)>=0) return false;
+        return false; /* 既にシフトあり */
+      }
+      return true;
     });
-
-    /* 人数が0の医院を優先的に埋める */
-    var emptyClinics=openClinics.filter(function(c){return clinicCount[c.id]===0;});
-
-    /* 空きドクター（この日にシフトがない人） */
-    var freeDocs=doctors.filter(function(d){return assignedIds.indexOf(d.id)<0;});
 
     /* 特定ドクター指定時はその人だけ */
     if(specDoc){
       freeDocs=freeDocs.filter(function(d){return d.id===specDoc.id;});
     }
 
-    emptyClinics.forEach(function(cl){
-      if(!freeDocs.length) return;
-      /* この医院によく行くドクターを優先 */
-      freeDocs.sort(function(a,b){
-        var fa=docFreq[a.id]&&docFreq[a.id][cl.id]?docFreq[a.id][cl.id]:0;
-        var fb=docFreq[b.id]&&docFreq[b.id][cl.id]?docFreq[b.id][cl.id]:0;
-        return fb-fa;
+    if(!freeDocs.length) return;
+
+    /* 各ドクターを最適な医院に配置 */
+    freeDocs.forEach(function(doc){
+      /* このドクターのよく行く医院リスト（頻度順） */
+      var freq=docFreq[doc.id]||{};
+      var bestClinic=null;
+      var bestScore=-1;
+
+      openClinics.forEach(function(cl){
+        var f=freq[cl.id]||0;
+        /* 現在の人数が少ない医院を優先（人数少ない=スコア加算） */
+        var curCount=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;}).length;
+        var score=f*10+(10-curCount);
+        if(score>bestScore){bestScore=score;bestClinic=cl;}
       });
-      var doc=freeDocs.shift();
-      if(!shifts[dateStr])shifts[dateStr]=[];
-      shifts[dateStr].push({docId:doc.id,clinicId:cl.id,memo:''});
-      dbSave(dateStr,doc.id,cl.id,'');
-      results.push(doc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+') '+cl.n);
+
+      if(bestClinic){
+        if(!shifts[dateStr])shifts[dateStr]=[];
+        shifts[dateStr].push({docId:doc.id,clinicId:bestClinic.id,memo:''});
+        dbSave(dateStr,doc.id,bestClinic.id,'');
+        results.push(doc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+') '+bestClinic.n);
+      }
     });
   });
   renderAll();
-  return results.length?results.join('\n'):'配置が必要な空き医院はありませんでした。';
+  return results.length?results.join('\n'):'全員配置済みです。';
 }
 
 function sendChat(){
