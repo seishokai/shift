@@ -217,6 +217,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 
 thead .col-head{top:0;z-index:15;}
 thead .date-th{top:0;}
+/* シフト作成一覧 */
+.sl-day{border-bottom:1px solid var(--border);padding:10px 12px;background:var(--card);}
+.sl-day.sun{background:#fff5f5;}.sl-day.sat{background:#f0f5ff;}
+.sl-day-hdr{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.sl-day-hdr .sl-dow{font-size:11px;font-weight:600;color:var(--ink3);}
+.sl-day-hdr .sl-dow.sun{color:#c0392b;}.sl-day-hdr .sl-dow.sat{color:#1a5276;}
+.sl-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.sl-sel{flex:1;padding:7px 8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px;background:var(--bg);color:var(--ink);appearance:auto;}
+.sl-del{width:32px;height:32px;border:none;border-radius:8px;background:#fdf0ee;color:#b83030;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.sl-del:active{opacity:.7;}
+.sl-add{padding:6px 12px;border:1.5px dashed var(--border);border-radius:8px;background:transparent;font-family:inherit;font-size:11px;color:var(--ink3);cursor:pointer;margin-top:2px;}
+.sl-add:active{background:var(--bg);}
+.sl-closed{font-size:10px;color:#e74c3c;font-weight:700;margin-left:8px;}
+/* チャットボタン */
+#chatFab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#7b2d8b,#5b1d6b);color:#fff;font-size:22px;cursor:pointer;z-index:250;box-shadow:0 4px 16px rgba(123,45,139,.4);display:flex;align-items:center;justify-content:center;transition:.2s;}
+#chatFab:active{transform:scale(.9);}
+#chatPanel{position:fixed;bottom:84px;right:16px;width:340px;max-width:calc(100vw - 32px);max-height:60vh;background:var(--card);border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.18);z-index:260;display:none;flex-direction:column;overflow:hidden;border:1px solid var(--border);}
+#chatPanel.open{display:flex;}
+#chatMsgs{flex:1;overflow-y:auto;padding:12px;min-height:200px;max-height:45vh;}
+.chat-msg{margin-bottom:8px;padding:8px 10px;border-radius:10px;font-size:12px;line-height:1.5;max-width:85%;word-break:break-word;}
+.chat-msg.user{background:#e8f4fd;color:#1a5276;margin-left:auto;}
+.chat-msg.bot{background:#f5eef8;color:#4a235a;}
+.chat-msg.sys{background:#f5f4f0;color:var(--ink3);font-size:11px;text-align:center;max-width:100%;}
+#chatInput{display:flex;border-top:1px solid var(--border);padding:8px;}
+#chatInput input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg);outline:none;}
+#chatInput button{margin-left:6px;padding:8px 14px;border:none;border-radius:10px;background:#7b2d8b;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -536,84 +562,7 @@ thead .date-th{top:0;}
 
 <!-- VIEW E: シフト作成（管理用） -->
 <div id="vE" style="display:none;">
-  <div style="max-width:600px;margin:0 auto;padding:16px;">
-
-    <!-- サブタブ -->
-    <div style="display:flex;gap:6px;margin-bottom:16px;">
-      <button class="shift-sub-tab on" data-sub="0" style="flex:1;padding:10px;border:none;border-radius:10px;background:#7b2d8b;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">🤖 AI生成</button>
-      <button class="shift-sub-tab" data-sub="1" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">📝 シフト希望</button>
-      <button class="shift-sub-tab" data-sub="2" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--ink2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">✏️ シフト作成</button>
-    </div>
-
-    <!-- AI生成パネル -->
-    <div id="shiftSubPanel0">
-      <div style="background:#f5eef8;border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;color:#6c3483;line-height:1.6;">
-        直前2ヶ月の実績から行先パターンと医院の必要人数を分析し、シフト案を自動生成します。事前入力済みの有休・休みは保持されます。
-      </div>
-      <div style="margin-bottom:10px;">
-        <label style="font-size:11px;font-weight:700;color:var(--ink3);display:block;margin-bottom:6px;">生成する月</label>
-        <div style="display:flex;gap:8px;">
-          <select id="aiYear2" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
-            <option value="2026">2026年</option><option value="2027">2027年</option>
-          </select>
-          <select id="aiMonth2" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
-            <option value="0">1月</option><option value="1">2月</option><option value="2">3月</option>
-            <option value="3">4月</option><option value="4">5月</option><option value="5">6月</option>
-            <option value="6">7月</option><option value="7">8月</option><option value="8">9月</option>
-            <option value="9">10月</option><option value="10">11月</option><option value="11">12月</option>
-          </select>
-        </div>
-      </div>
-      <button id="aiGenerateBtn2" style="width:100%;padding:13px;background:#7b2d8b;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">✨ シフトを生成</button>
-      <div id="aiProgress2" style="display:none;text-align:center;padding:20px;color:var(--ink3);font-size:13px;">分析・生成中...</div>
-      <div id="aiResult2" style="display:none;">
-        <div style="background:#e8f5e9;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#2e7d32;" id="aiSummary2"></div>
-        <button id="aiApplyBtn2" style="width:100%;padding:13px;background:#2e7d32;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">✅ このシフトを適用する</button>
-        <p style="font-size:11px;color:var(--ink3);text-align:center;margin-top:8px;">適用後は通常通り手で修正できます</p>
-      </div>
-    </div>
-
-    <!-- シフト希望パネル -->
-    <div id="shiftSubPanel1" style="display:none;">
-      <p style="font-size:12px;color:var(--ink2);margin-bottom:8px;">LINEなどからコピーしたテキストを貼り付けてください。</p>
-      <div style="background:#f5f4f0;border-radius:10px;padding:10px;margin-bottom:10px;font-size:11px;color:var(--ink3);line-height:1.8;">
-        <strong style="color:var(--ink2);">対応フォーマット例：</strong><br>
-        武内 6/3.7.15.16<br>
-        向田 6月3日〜5日<br>
-        山田先生 月曜日と木曜日（自然文はAI解析）
-      </div>
-      <textarea id="kyumiText2" placeholder="ここにテキストを貼り付け..." style="width:100%;height:140px;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;background:var(--bg);resize:vertical;line-height:1.7;margin-bottom:10px;"></textarea>
-      <div style="display:flex;gap:8px;margin-bottom:6px;">
-        <select id="kyumiYear2" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
-          <option value="2026">2026年</option><option value="2027">2027年</option>
-        </select>
-        <select id="kyumiMonth2" style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);">
-          <option value="4">5月</option><option value="5">6月</option><option value="6">7月</option>
-          <option value="7">8月</option><option value="8">9月</option><option value="9">10月</option>
-          <option value="10">11月</option><option value="11">12月</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <button id="kyumiAiParseBtn" style="flex:1;padding:12px;border:none;border-radius:10px;background:#7b2d8b;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">🤖 AI解析</button>
-        <button id="kyumiParseBtn2" style="flex:1;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:inherit;font-size:13px;cursor:pointer;color:var(--ink2);">通常解析</button>
-      </div>
-      <div id="kyumiAiStatus" style="display:none;text-align:center;padding:10px;font-size:12px;color:#7b2d8b;">🤖 AI解析中...</div>
-      <div id="kyumiPreview2" style="display:none;background:#e8f5e9;border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;max-height:180px;overflow-y:auto;"></div>
-      <button id="kyumiApplyBtn2" style="width:100%;padding:12px;border:none;border-radius:10px;background:#2e7d32;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:none;">✅ シフト希望を反映</button>
-    </div>
-
-    <!-- シフト作成パネル -->
-    <div id="shiftSubPanel2" style="display:none;">
-      <div style="background:#e8f4fd;border-radius:12px;padding:14px;margin-bottom:14px;font-size:12px;color:#1a5276;line-height:1.7;">
-        <strong>「人」タブと同じ操作でシフトを作成できます。</strong><br>
-        ① ドクターを選択<br>
-        ② 医院を選択<br>
-        ③ カレンダーの日付をタップ（またはドラッグで一括入力）
-      </div>
-      <button id="goToPersonTabBtn" style="width:100%;padding:13px;background:#1a1a18;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">👤 人タブで作成する →</button>
-    </div>
-
-  </div>
+  <div id="shiftListBody" style="max-width:600px;margin:0 auto;padding:0 0 80px;"></div>
 </div>
 
 
@@ -898,6 +847,7 @@ function chgMonth(d){
 function setTab(n){
   curTab=n;
   if(n===9){['vA','vB','vC','vD','vE','vF','vG'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var vHEl=document.getElementById('vH');if(vHEl)vHEl.style.display='';document.querySelectorAll('.hdr-tab').forEach(function(t){t.classList.remove('on');});var t9el=document.getElementById('htab9');if(t9el)t9el.classList.add('on');initKyuH();curTab=9;return;}
+  var vHEl2=document.getElementById('vH');if(vHEl2)vHEl2.style.display='none';
   var viewIds=['vA','vB','vC','vD','vE','vF','vG'];
   [0,1,2,3,4,5,6].forEach(function(i){
     var htb=document.getElementById('htab'+i);
@@ -1010,8 +960,8 @@ function renderAllView(targetId){
     return '<th style="min-width:28px;width:28px;text-align:center;position:sticky;bottom:0;'+pos+':0;background:#d0d0d0;z-index:15;padding:2px 2px;font-size:9px;font-weight:700;border:0.5px solid #bbb;'+border+'">日</th>';
   }
 
-  var headRow='<tr>'+dateTh('left')+doctors.map(docTh).join('')+dateTh('right')+'</tr>';
-  var footRow='<tr>'+dateThBot('left')+doctors.map(docThBot).join('')+dateThBot('right')+'</tr>';
+  var headRow='<tr style="height:28px;max-height:28px;">'+dateTh('left')+doctors.map(docTh).join('')+dateTh('right')+'</tr>';
+  var footRow='<tr style="height:28px;max-height:28px;">'+dateThBot('left')+doctors.map(docThBot).join('')+dateThBot('right')+'</tr>';
 
   var h='<table style="border-collapse:collapse;white-space:nowrap;font-size:9px;table-layout:fixed;">';
   h+='<thead>'+headRow+'</thead>';
@@ -1035,7 +985,7 @@ function renderAllView(targetId){
     var dateCell='<td style="'+dateCellStyle+'left:0;z-index:6;border-right:2px solid #aaa;'+todayBorderL+'">'+dateLabel+'</td>';
     var dateCell2='<td style="'+dateCellStyle+'right:0;z-index:6;border-left:2px solid #aaa;'+todayBorderR+'">'+dateLabel+'</td>';
 
-    h+='<tr>'+dateCell;
+    h+='<tr style="height:28px;max-height:28px;">'+dateCell;
     doctors.forEach(function(doc){
       var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===doc.id;});
       var isKyu=sh&&sh.memo==='休出';
@@ -1045,24 +995,26 @@ function renderAllView(targetId){
       if(sh){
         if(isDai){
           cellBg='#777';
-          inner='<span style="color:#fff;font-size:11px;font-weight:700;display:block;text-align:center;line-height:1.3;padding:3px 1px;">代出</span>';
+          inner='<span style="color:#fff;font-size:10px;font-weight:700;display:block;text-align:center;line-height:28px;">代出</span>';
         } else {
           var c=getCC(sh.clinicId);
           var bg=sh.clinicId==='yukyu'?'#e53935':sh.clinicId==='yasumi'?'#78909c':sh.clinicId==='daikyu'?'#546e7a':c.c;
           cellBg=bg;
-          inner='<span style="color:#fff;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center;line-height:1.3;padding:2px 0;">'+cname(sh.clinicId)+'</span>';
-          if(isKyu)inner+='<span style="font-size:8px;color:#ffe0b2;font-weight:700;vertical-align:super;">↑</span>';
-          if(sh.memo==='代出')inner+='<span style="font-size:8px;color:#ddd;font-weight:700;vertical-align:super;">代</span>';
+          inner='<span style="color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center;line-height:28px;">'+cname(sh.clinicId);
+          if(isKyu)inner+='<span style="font-size:7px;color:#ffe0b2;vertical-align:super;">↑</span>';
+          if(sh.memo==='代出')inner+='<span style="font-size:7px;color:#ddd;vertical-align:super;">代</span>';
+          inner+='</span>';
         }
       }
+      var tdH='height:28px;max-height:28px;overflow:hidden;vertical-align:middle;text-align:center;padding:0 1px;';
       if(isAdmin){
         var selKey=doc.id+'|'+dateStr;
         var isBalSel=balMultiSel.has(selKey);
-        var editStyle=';cursor:pointer;'+(isBalSel?'outline:2px solid #e67e22;outline-offset:-1px;background:#fff3e0;':'');
-        h+='<td data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'" data-bal-doc="'+doc.id+'" data-bal-date="'+dateStr+'" style="text-align:center;background:'+cellBg+';width:42px;max-width:42px;height:32px;overflow:hidden;vertical-align:middle;border:'+(sh?'none':'0.5px solid #e8e5e0')+';padding:'+(sh?'0':'2px')+';'+editStyle+'">'+inner+(!sh?'<span style="color:#e0ddd8;font-size:10px;">＋</span>':'')+'</td>';
+        var editStyle='cursor:pointer;'+(isBalSel?'outline:2px solid #e67e22;outline-offset:-1px;background:#fff3e0;':'');
+        h+='<td data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'" data-bal-doc="'+doc.id+'" data-bal-date="'+dateStr+'" style="'+tdH+'background:'+cellBg+';width:42px;max-width:42px;border:'+(sh?'none':'0.5px solid #e8e5e0')+';'+editStyle+'">'+inner+(!sh?'<span style="color:#e0ddd8;font-size:10px;">＋</span>':'')+'</td>';
       } else {
         var eAttr2=isAdmin?' data-edit-doc="'+doc.id+'" data-edit-date="'+dateStr+'"':'';var colHL=viewSelDocId&&doc.id===viewSelDocId?';outline:2px solid #1a1a18;outline-offset:-2px;':'';
-h+='<td'+eAttr2+' style="text-align:center;background:'+cellBg+';width:36px;max-width:36px;overflow:hidden;vertical-align:middle;border:0.5px solid #ddd'+(isAdmin?';cursor:pointer':'')+'">'+inner+(isAdmin&&!sh?'<span style="color:#ddd;font-size:10px;">＋</span>':'')+'</td>';
+h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;border:0.5px solid #ddd'+(isAdmin?';cursor:pointer':'')+colHL+'">'+inner+(isAdmin&&!sh?'<span style="color:#ddd;font-size:10px;">＋</span>':'')+'</td>';
       }
     });
     h+=dateCell2+'</tr>';
@@ -2043,6 +1995,96 @@ function executePrint(type){
   setTimeout(function(){URL.revokeObjectURL(url);},10000);
 }
 
+/* ---- シフト作成一覧 ---- */
+var slY, slM;
+function renderShiftList(){
+  var el=document.getElementById('shiftListBody');
+  if(!el)return;
+  if(!slY){slY=curY;slM=curM;}
+  var days=new Date(slY,slM+1,0).getDate();
+  var DOW2=['日','月','火','水','木','金','土'];
+  var h='<div style="display:flex;align-items:center;justify-content:center;gap:0;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;">';
+  h+='<button id="slPrev" style="width:32px;height:30px;border:1.5px solid var(--border);background:var(--bg);font-size:20px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;border-radius:10px 0 0 10px;border-right:none;">&#8249;</button>';
+  h+='<span style="font-size:13px;font-weight:700;padding:0 14px;height:30px;display:flex;align-items:center;border:1.5px solid var(--border);background:var(--card);">'+slY+'年'+(slM+1)+'月</span>';
+  h+='<button id="slNext" style="width:32px;height:30px;border:1.5px solid var(--border);background:var(--bg);font-size:20px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;border-radius:0 10px 10px 0;border-left:none;">&#8250;</button>';
+  h+='</div>';
+  for(var d=1;d<=days;d++){
+    var dateStr=slY+'-'+String(slM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var w=new Date(slY,slM,d).getDay();
+    var wCls=w===0?' sun':w===6?' sat':'';
+    var dayShifts=(shifts[dateStr]||[]).slice();
+    /* 全医院が休診かチェック */
+    var allClosed=CLINICS.every(function(c){return isClosed(dateStr,c.id);});
+    h+='<div class="sl-day'+wCls+'">';
+    h+='<div class="sl-day-hdr">'+(slM+1)+'/'+d+'<span class="sl-dow'+wCls+'">'+DOW2[w]+'</span>';
+    if(allClosed)h+='<span class="sl-closed">全休</span>';
+    h+='</div>';
+    dayShifts.forEach(function(s,i){
+      var doc=doctors.find(function(dd){return dd.id===s.docId;});
+      h+='<div class="sl-row" data-sl-date="'+dateStr+'" data-sl-idx="'+i+'">';
+      h+='<select class="sl-sel sl-doc" data-sl-date="'+dateStr+'" data-sl-i="'+i+'">';
+      h+='<option value="">-- Dr --</option>';
+      doctors.forEach(function(dd){h+='<option value="'+dd.id+'"'+(dd.id===s.docId?' selected':'')+'>'+dd.n+'</option>';});
+      h+='</select>';
+      h+='<select class="sl-sel sl-clinic" data-sl-date="'+dateStr+'" data-sl-i="'+i+'">';
+      h+='<option value="">-- 医院 --</option>';
+      CLINICS.forEach(function(c){h+='<option value="'+c.id+'"'+(c.id===s.clinicId?' selected':'')+'>'+c.n+'</option>';});
+      STATUSES.forEach(function(st){h+='<option value="'+st.id+'"'+(st.id===s.clinicId?' selected':'')+'>'+st.n+'</option>';});
+      h+='</select>';
+      h+='<button class="sl-del" data-sl-date="'+dateStr+'" data-sl-i="'+i+'">&times;</button>';
+      h+='</div>';
+    });
+    h+='<button class="sl-add" data-sl-add="'+dateStr+'">＋ 追加</button>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+  /* イベント */
+  el.querySelector('#slPrev').addEventListener('click',function(){slM--;if(slM<0){slM=11;slY--;}renderShiftList();});
+  el.querySelector('#slNext').addEventListener('click',function(){slM++;if(slM>11){slM=0;slY++;}renderShiftList();});
+  el.querySelectorAll('.sl-doc').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var ds2=sel.dataset.slDate,idx=parseInt(sel.dataset.slI);
+      if(!shifts[ds2])return;
+      var old=shifts[ds2][idx];if(!old)return;
+      var oldDocId=old.docId;
+      old.docId=sel.value;
+      if(oldDocId)dbDel(ds2,oldDocId);
+      if(sel.value&&old.clinicId)dbSave(ds2,sel.value,old.clinicId,old.memo||'');
+    });
+  });
+  el.querySelectorAll('.sl-clinic').forEach(function(sel){
+    sel.addEventListener('change',function(){
+      var ds2=sel.dataset.slDate,idx=parseInt(sel.dataset.slI);
+      if(!shifts[ds2])return;
+      var old=shifts[ds2][idx];if(!old)return;
+      old.clinicId=sel.value;
+      if(old.docId&&sel.value)dbSave(ds2,old.docId,sel.value,old.memo||'');
+    });
+  });
+  el.querySelectorAll('.sl-del').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var ds2=btn.dataset.slDate,idx=parseInt(btn.dataset.slI);
+      if(!shifts[ds2])return;
+      var entry=shifts[ds2][idx];
+      if(entry&&entry.docId)dbDel(ds2,entry.docId);
+      shifts[ds2].splice(idx,1);
+      if(!shifts[ds2].length)delete shifts[ds2];
+      renderShiftList();renderA();renderC();
+    });
+  });
+  el.querySelectorAll('.sl-add').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var ds2=btn.dataset.slAdd;
+      if(!shifts[ds2])shifts[ds2]=[];
+      shifts[ds2].push({docId:'',clinicId:'',memo:''});
+      renderShiftList();
+      /* 追加した行にスクロール */
+      var rows=el.querySelectorAll('[data-sl-date="'+ds2+'"]');
+      if(rows.length){var last=rows[rows.length-1];last.scrollIntoView({behavior:'smooth',block:'center'});}
+    });
+  });
+}
+
 /* ---- AIシフト生成 ---- */
 var aiGeneratedShifts = null;
 
@@ -2485,7 +2527,8 @@ function renderC(){
   h+='</tr></thead><tbody>';
   CLINICS.forEach(function(cl){
     var col=getCC(cl.id).c;
-    h+='<tr><td class="c-fix" style="background:var(--card);text-align:left;padding-left:8px;font-size:11px;font-weight:600;color:'+col+'">'+cl.n+'</td>';
+    /* 人数行 */
+    h+='<tr><td class="c-fix" style="background:var(--card);text-align:left;padding-left:8px;font-size:11px;font-weight:600;color:'+col+';border-bottom:none;">'+cl.n+'</td>';
     for(var d=1;d<=days;d++){
       var dateStr=ds(d),w=dow(d);
       var dayS=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;});
@@ -2493,11 +2536,24 @@ function renderC(){
       var closed=isClosed(dateStr,cl.id)&&!isToday(d);
       if(dayS.length){
         var names=dayS.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});return doc?doc.n:'';}).join(' ');
-        h+='<td class="'+cls+'"><span class="cnum" style="color:'+col+'">'+dayS.length+'</span><span class="cnames">'+names+'</span></td>';
+        h+='<td class="'+cls+'" style="border-bottom:none;"><span class="cnum" style="color:'+col+'">'+dayS.length+'</span><span class="cnames">'+names+'</span></td>';
       } else if(closed){
-        h+='<td class="'+cls+'" style="background:#fff0f0;color:#e74c3c;text-align:center;font-size:9px;font-weight:700;">休診</td>';
+        h+='<td class="'+cls+'" style="background:#f5f5f5;border-bottom:none;"></td>';
       } else {
-        h+='<td class="'+cls+'"></td>';
+        h+='<td class="'+cls+'" style="border-bottom:none;"><span class="cnum" style="color:#ccc;">0</span></td>';
+      }
+    }
+    h+='</tr>';
+    /* 休診日行 */
+    h+='<tr><td class="c-fix" style="background:var(--card);text-align:left;padding-left:8px;font-size:8px;color:#999;border-top:none;padding-top:0;"></td>';
+    for(var d2=1;d2<=days;d2++){
+      var dateStr2=ds(d2),w2=dow(d2);
+      var cls2=w2===0?'sun':w2===6?'sat':'';
+      var closed2=isClosed(dateStr2,cl.id)&&!isToday(d2);
+      if(closed2){
+        h+='<td class="'+cls2+'" style="background:#fff0f0;text-align:center;font-size:8px;font-weight:700;color:#e74c3c;border-top:none;padding:1px 2px;">休</td>';
+      } else {
+        h+='<td class="'+cls2+'" style="border-top:none;padding:1px 2px;"></td>';
       }
     }
     h+='</tr>';
@@ -3259,6 +3315,7 @@ function renderAll(){
   else if(curTab===1)renderA();
   else if(curTab===2)renderC();
   else if(curTab===3)renderD();
+  else if(curTab===4){slY=curY;slM=curM;renderShiftList();}
   /* vGはinitKyumiViewGで管理 */
 
 }
@@ -4071,6 +4128,21 @@ document.addEventListener('DOMContentLoaded',function(){
     });
   }
 
+  /* チャット機能 */
+  var chatFab=document.getElementById('chatFab');
+  var chatPanel=document.getElementById('chatPanel');
+  if(chatFab){
+    chatFab.addEventListener('click',function(){
+      chatPanel.classList.toggle('open');
+      if(chatPanel.classList.contains('open')){
+        var inp=document.getElementById('chatMsg');if(inp)inp.focus();
+      }
+    });
+    document.getElementById('chatCloseBtn').addEventListener('click',function(){chatPanel.classList.remove('open');});
+    document.getElementById('chatSendBtn').addEventListener('click',sendChat);
+    document.getElementById('chatMsg').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing)sendChat();});
+  }
+
   shifts={};Object.assign(shifts,EXCEL_DATA);
   /* htab初期化 */
   var htab0=document.getElementById('htab0');
@@ -4080,6 +4152,355 @@ document.addEventListener('DOMContentLoaded',function(){
   renderAll();
   loadDB().then(function(){renderAll();scheduleAutoBackup();});
 });
+/* ---- チャット機能 ---- */
+var ANTHROPIC_API_KEY = ''; /* ここにAPIキーを設定 */
+var chatHistory = [];
+
+function addChatMsg(text,cls){
+  var msgs=document.getElementById('chatMsgs');
+  var d=document.createElement('div');d.className='chat-msg '+cls;
+  d.innerHTML=text.replace(/\n/g,'<br>');
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function buildShiftContext(targetDates){
+  /* 指定日付周辺のシフト状況をAIに渡すコンテキスト構築 */
+  var DOW3=['日','月','火','水','木','金','土'];
+  var ctx='## 現在の表示月: '+curY+'年'+(curM+1)+'月\n\n';
+  ctx+='## ドクター一覧 (id:名前)\n';
+  doctors.forEach(function(d){ctx+=d.id+':'+d.n+' ';});
+  ctx+='\n\n## 医院一覧 (id:名前)\n';
+  CLINICS.forEach(function(c){ctx+=c.id+':'+c.n+' ';});
+  ctx+='\n\n## ステータス\nyasumi:休み, yukyu:有給, daikyu:代休, kyushutsu:休日出勤\n\n';
+
+  /* 対象日のシフト状況 */
+  var dates=targetDates||[];
+  if(!dates.length){
+    /* 当月全体 */
+    var days2=new Date(curY,curM+1,0).getDate();
+    for(var d2=1;d2<=days2;d2++){
+      dates.push(curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0'));
+    }
+  }
+  ctx+='## 対象日のシフト状況\n';
+  dates.forEach(function(dateStr){
+    var dt=new Date(dateStr);
+    var w=dt.getDay();
+    var label=(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+')';
+    var dayS=shifts[dateStr]||[];
+    var assigned=dayS.map(function(s){
+      var doc=doctors.find(function(dd){return dd.id===s.docId;});
+      return (doc?doc.n:'?')+'→'+cname(s.clinicId);
+    });
+    /* 休診医院 */
+    var closedClinics=CLINICS.filter(function(c){return isClosed(dateStr,c.id);}).map(function(c){return c.n;});
+    ctx+=dateStr+' '+label+': ';
+    ctx+=assigned.length?assigned.join(', '):'（誰もいない）';
+    if(closedClinics.length)ctx+=' [休診:'+closedClinics.join(',')+']';
+    /* 未配置ドクター */
+    var assignedIds=dayS.map(function(s){return s.docId;});
+    var free=doctors.filter(function(d){return assignedIds.indexOf(d.id)<0;});
+    if(free.length<10)ctx+=' 空き:'+free.map(function(d){return d.n;}).join(',');
+    ctx+='\n';
+  });
+
+  /* 直近の勤務パターン（参考） */
+  ctx+='\n## ドクター別よく行く医院（過去実績）\n';
+  var docClinics={};
+  Object.keys(shifts).forEach(function(ds2){
+    (shifts[ds2]||[]).forEach(function(s){
+      var rest=['yasumi','yukyu','daikyu','daishutsu'];
+      if(rest.indexOf(s.clinicId)>=0)return;
+      if(!docClinics[s.docId])docClinics[s.docId]={};
+      docClinics[s.docId][s.clinicId]=(docClinics[s.docId][s.clinicId]||0)+1;
+    });
+  });
+  doctors.forEach(function(doc){
+    var cc=docClinics[doc.id]||{};
+    var sorted=Object.keys(cc).sort(function(a,b){return cc[b]-cc[a];}).slice(0,4);
+    if(sorted.length)ctx+=doc.n+': '+sorted.map(function(c){return cname(c)+'('+cc[c]+'回)';}).join(', ')+'\n';
+  });
+  return ctx;
+}
+
+function applyAiActions(actions){
+  var results=[];
+  var DOW3=['日','月','火','水','木','金','土'];
+  actions.forEach(function(a){
+    var doc=null,cid=null;
+    /* docIdまたは名前でドクター検索 */
+    if(a.docId)doc=doctors.find(function(d){return d.id===a.docId;});
+    if(!doc&&a.docName)doc=doctors.find(function(d){return d.n===a.docName||a.docName.indexOf(d.n)>=0;});
+    if(!doc){results.push('ドクター不明: '+JSON.stringify(a));return;}
+    /* clinicIdまたは名前で医院検索 */
+    if(a.clinicId)cid=a.clinicId;
+    if(!cid&&a.clinicName){var found=ALL.find(function(c){return c.n===a.clinicName||a.clinicName.indexOf(c.n)>=0;});if(found)cid=found.id;}
+    if(!a.dateStr){results.push('日付不明: '+JSON.stringify(a));return;}
+
+    var dt=new Date(a.dateStr);
+    var dateLabel=(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[dt.getDay()]+')';
+
+    if(a.action==='del'){
+      if(shifts[a.dateStr]){
+        shifts[a.dateStr]=shifts[a.dateStr].filter(function(s){return s.docId!==doc.id;});
+        if(!shifts[a.dateStr].length)delete shifts[a.dateStr];
+      }
+      dbDel(a.dateStr,doc.id);
+      results.push(doc.n+' '+dateLabel+' 削除');
+    } else {
+      if(!cid){results.push(doc.n+': 医院不明');return;}
+      if(!shifts[a.dateStr])shifts[a.dateStr]=[];
+      var idx=shifts[a.dateStr].findIndex(function(s){return s.docId===doc.id;});
+      var entry={docId:doc.id,clinicId:cid,memo:a.memo||''};
+      if(idx>=0)shifts[a.dateStr][idx]=entry;else shifts[a.dateStr].push(entry);
+      dbSave(a.dateStr,doc.id,cid,a.memo||'');
+      results.push(doc.n+' → '+dateLabel+' '+cname(cid));
+    }
+  });
+  renderAll();
+  return results;
+}
+
+/* ---- ローカルシフト自動配置 ---- */
+function localAutoAssign(text){
+  var DOW3=['日','月','火','水','木','金','土'];
+  var results=[];
+
+  /* 日付抽出 */
+  var targetDates=[];
+  var mDates=text.match(/(\d{1,2})[\/月](\d{1,2})/g);
+  if(mDates){
+    mDates.forEach(function(m){
+      var p=m.match(/(\d{1,2})[\/月](\d{1,2})/);
+      if(p)targetDates.push(curY+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0'));
+    });
+  }
+  /* 「今月全部」「全日」等 */
+  if(text.match(/今月|全部|全日|全体/)&&!targetDates.length){
+    var days2=new Date(curY,curM+1,0).getDate();
+    for(var d2=1;d2<=days2;d2++) targetDates.push(curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0'));
+  }
+  if(!targetDates.length) return null; /* 日付が取れなかったら処理不可 */
+
+  /* ドクター指定あるか */
+  var specDoc=null;
+  doctors.forEach(function(d){if(text.indexOf(d.n)>=0)specDoc=d;});
+
+  /* 医院指定あるか */
+  var specClinic=null;
+  ALL.forEach(function(c){if(text.indexOf(c.n)>=0)specClinic=c;});
+
+  /* 削除判定 */
+  if(text.match(/削除|取消|キャンセル|外す|はずす/)){
+    if(specDoc){
+      targetDates.forEach(function(dateStr){
+        if(shifts[dateStr]){
+          var before=shifts[dateStr].length;
+          shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==specDoc.id;});
+          if(!shifts[dateStr].length)delete shifts[dateStr];
+          if((shifts[dateStr]?shifts[dateStr].length:0)<before){
+            dbDel(dateStr,specDoc.id);
+            var dt=new Date(dateStr);
+            results.push(specDoc.n+' '+( dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[dt.getDay()]+') 削除');
+          }
+        }
+      });
+      renderAll();
+      return results.length?results.join('\n'):'該当するシフトが見つかりません。';
+    }
+    return 'どのドクターを削除するか指定してください。';
+  }
+
+  /* 単純追加（ドクター＋医院＋日付が全部指定） */
+  if(specDoc&&specClinic){
+    targetDates.forEach(function(dateStr){
+      if(!shifts[dateStr])shifts[dateStr]=[];
+      var idx=shifts[dateStr].findIndex(function(s){return s.docId===specDoc.id;});
+      var entry={docId:specDoc.id,clinicId:specClinic.id,memo:''};
+      if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
+      dbSave(dateStr,specDoc.id,specClinic.id,'');
+      var dt=new Date(dateStr);
+      results.push(specDoc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[dt.getDay()]+') '+specClinic.n);
+    });
+    renderAll();
+    return results.join('\n');
+  }
+
+  /* 自動配置モード: 「シフト組んで」「入れて」「埋めて」等 */
+  if(!text.match(/組んで|入れて|埋めて|配置|アサイン|割り当て|追加して|足りない|いない|空き/)) return null;
+
+  /* ドクター別よく行く医院を集計 */
+  var docFreq={};
+  Object.keys(shifts).forEach(function(ds2){
+    (shifts[ds2]||[]).forEach(function(s){
+      var rest=['yasumi','yukyu','daikyu','daishutsu'];
+      if(rest.indexOf(s.clinicId)>=0)return;
+      if(!docFreq[s.docId])docFreq[s.docId]={};
+      docFreq[s.docId][s.clinicId]=(docFreq[s.docId][s.clinicId]||0)+1;
+    });
+  });
+
+  targetDates.forEach(function(dateStr){
+    var dt=new Date(dateStr);
+    var w=dt.getDay();
+    if(w===0) return; /* 日曜スキップ */
+
+    var dayS=shifts[dateStr]||[];
+    var assignedIds=dayS.map(function(s){return s.docId;});
+
+    /* 営業中の医院を取得 */
+    var openClinics=CLINICS.filter(function(c){return !isClosed(dateStr,c.id);});
+    /* 各医院の現在人数 */
+    var clinicCount={};
+    openClinics.forEach(function(c){
+      clinicCount[c.id]=dayS.filter(function(s){return s.clinicId===c.id;}).length;
+    });
+
+    /* 人数が0の医院を優先的に埋める */
+    var emptyClinics=openClinics.filter(function(c){return clinicCount[c.id]===0;});
+
+    /* 空きドクター（この日にシフトがない人） */
+    var freeDocs=doctors.filter(function(d){return assignedIds.indexOf(d.id)<0;});
+
+    /* 特定ドクター指定時はその人だけ */
+    if(specDoc){
+      freeDocs=freeDocs.filter(function(d){return d.id===specDoc.id;});
+    }
+
+    emptyClinics.forEach(function(cl){
+      if(!freeDocs.length) return;
+      /* この医院によく行くドクターを優先 */
+      freeDocs.sort(function(a,b){
+        var fa=docFreq[a.id]&&docFreq[a.id][cl.id]?docFreq[a.id][cl.id]:0;
+        var fb=docFreq[b.id]&&docFreq[b.id][cl.id]?docFreq[b.id][cl.id]:0;
+        return fb-fa;
+      });
+      var doc=freeDocs.shift();
+      if(!shifts[dateStr])shifts[dateStr]=[];
+      shifts[dateStr].push({docId:doc.id,clinicId:cl.id,memo:''});
+      dbSave(dateStr,doc.id,cl.id,'');
+      results.push(doc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+') '+cl.n);
+    });
+  });
+  renderAll();
+  return results.length?results.join('\n'):'配置が必要な空き医院はありませんでした。';
+}
+
+function sendChat(){
+  var inp=document.getElementById('chatMsg');
+  var text=inp.value.trim();if(!text)return;
+  inp.value='';
+  addChatMsg(text,'user');
+
+  if(!isAdmin){addChatMsg('管理者ログインが必要です。','sys');return;}
+
+  /* APIキーがない場合: ローカル処理 */
+  if(!ANTHROPIC_API_KEY){
+    var localResult=localAutoAssign(text);
+    if(localResult){
+      addChatMsg(localResult,'bot');
+    } else {
+      addChatMsg('日付を含めて指示してください。\n例: 「6/1にシフト組んで」「浦野を6/3アサノで」「小池の6/5削除」','bot');
+    }
+    return;
+  }
+
+  /* APIキーがある場合: Claude API */
+
+  /* 日付抽出してコンテキスト絞り込み */
+  var targetDates=[];
+  var mDates=text.match(/(\d{1,2})[\/月](\d{1,2})/g);
+  if(mDates){
+    mDates.forEach(function(m){
+      var p=m.match(/(\d{1,2})[\/月](\d{1,2})/);
+      if(p)targetDates.push(curY+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0'));
+    });
+  }
+
+  var shiftCtx=buildShiftContext(targetDates.length?targetDates:null);
+
+  chatHistory.push({role:'user',content:text});
+
+  var systemPrompt='あなたは清翔会のシフト管理AIアシスタントです。ユーザーの自然文指示を理解し、シフトの追加・削除・自動配置を行います。\n\n'+
+    '必ず以下のJSON形式で回答してください:\n'+
+    '{"message":"ユーザーへの説明文","actions":[{"action":"add|del","dateStr":"YYYY-MM-DD","docId":"d1","docName":"小池","clinicId":"esca","clinicName":"エスカ","memo":""}]}\n\n'+
+    'ルール:\n'+
+    '- 「シフト組んで」「入れて」→ action:"add"\n'+
+    '- 「削除」「外して」→ action:"del"\n'+
+    '- 休診日の医院には配置しない\n'+
+    '- 既にシフトが入っている人は別の日に回す\n'+
+    '- ドクターの過去実績（よく行く医院）を考慮して配置\n'+
+    '- 日曜は基本全休\n'+
+    '- actionsが空でも質問への回答はmessageに入れる\n\n'+
+    shiftCtx;
+
+  addChatMsg('考え中...','sys');
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':ANTHROPIC_API_KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:2048,
+      system:systemPrompt,
+      messages:chatHistory.slice(-6)
+    })
+  }).then(function(r){
+    if(!r.ok)return r.text().then(function(t){throw new Error('API Error: '+r.status+' '+t);});
+    return r.json();
+  }).then(function(data){
+    /* 「考え中...」を削除 */
+    var msgs=document.getElementById('chatMsgs');
+    var last=msgs.lastChild;if(last&&last.textContent==='考え中...')msgs.removeChild(last);
+
+    var respText=(data.content&&data.content[0])?data.content[0].text:'';
+    chatHistory.push({role:'assistant',content:respText});
+
+    /* JSON抽出 */
+    var jsonMatch=respText.match(/\{[\s\S]*\}/);
+    if(jsonMatch){
+      try{
+        var resp=JSON.parse(jsonMatch[0]);
+        if(resp.message)addChatMsg(resp.message,'bot');
+        if(resp.actions&&resp.actions.length){
+          var results=applyAiActions(resp.actions);
+          if(results.length)addChatMsg('実行結果:\n'+results.join('\n'),'sys');
+        }
+      }catch(e2){
+        addChatMsg(respText,'bot');
+      }
+    } else {
+      addChatMsg(respText,'bot');
+    }
+  }).catch(function(err){
+    var msgs=document.getElementById('chatMsgs');
+    var last=msgs.lastChild;if(last&&last.textContent==='考え中...')msgs.removeChild(last);
+    addChatMsg('エラー: '+err.message,'sys');
+    chatHistory.pop();
+  });
+}
+
 </script>
+
+<!-- チャットUI -->
+<button id="chatFab">&#10024;</button>
+<div id="chatPanel">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);background:#f5eef8;">
+    <span style="font-size:13px;font-weight:800;color:#4a235a;">&#10024; シフトチャット</span>
+    <button id="chatCloseBtn" style="border:none;background:none;font-size:16px;cursor:pointer;color:var(--ink3);">&times;</button>
+  </div>
+  <div id="chatMsgs">
+    <div class="chat-msg sys">自然文でシフト操作できます。例:<br>「浦野を6/3アサノで」<br>「6/1に先生入ってないからシフト組んで」<br>「小池の6/5を削除」</div>
+  </div>
+  <div id="chatInput">
+    <input type="text" id="chatMsg" placeholder="例: 浦野を6/3アサノで">
+    <button id="chatSendBtn">送信</button>
+  </div>
+</div>
 </body>
 </html>
