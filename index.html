@@ -4268,11 +4268,28 @@ function localAutoAssign(text){
 
   /* 日付抽出 */
   var targetDates=[];
-  var mDates=text.match(/(\d{1,2})[\/月](\d{1,2})/g);
-  if(mDates){
-    mDates.forEach(function(m){
+  /* 月単位指定: 「6月」「7月」「6月7月」等 */
+  var monthMatches=text.match(/(\d{1,2})月/g);
+  var dayMatches=text.match(/(\d{1,2})[\/月](\d{1,2})[日]?/g);
+  if(dayMatches){
+    /* 個別日付指定: 6/1, 6月3日 等 */
+    dayMatches.forEach(function(m){
       var p=m.match(/(\d{1,2})[\/月](\d{1,2})/);
       if(p)targetDates.push(curY+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0'));
+    });
+  } else if(monthMatches){
+    /* 月指定のみ（日がない）: 「6月」「6月7月」→ その月全日を展開 */
+    var addedMonths={};
+    monthMatches.forEach(function(m){
+      var mp=m.match(/(\d{1,2})月/);
+      if(!mp) return;
+      var mm=parseInt(mp[1]);
+      if(addedMonths[mm]) return;
+      addedMonths[mm]=true;
+      var daysInMonth=new Date(curY,mm,0).getDate();
+      for(var d2=1;d2<=daysInMonth;d2++){
+        targetDates.push(curY+'-'+String(mm).padStart(2,'0')+'-'+String(d2).padStart(2,'0'));
+      }
     });
   }
   /* 「今月全部」「全日」等 */
