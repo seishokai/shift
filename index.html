@@ -1018,7 +1018,9 @@ function renderAllView(targetId){
 
     /* 日付+曜日を1行に */
     var dateLabel=d+'('+DOW2[w]+')';
-    var dateCellStyle='position:sticky;text-align:center;font-size:8px;font-weight:700;color:'+dateColor+';padding:1px 2px;border:0.5px solid #ccc;width:28px;min-width:28px;white-space:nowrap;background:'+(isT2?'#ffe082':isSun?'#ffd6d6':isSat?'#d6e4ff':hol?'#e8e8e8':'#e8e8e8')+';';
+    if(hol) dateColor='#c0392b';
+    var dateCellStyle='position:sticky;text-align:center;font-size:8px;font-weight:700;color:'+dateColor+';padding:1px 2px;border:0.5px solid #ccc;width:28px;min-width:28px;white-space:nowrap;background:'+(isT2?'#ffe082':isSun?'#ffd6d6':hol?'#ffe0e0':isSat?'#d6e4ff':'#e8e8e8')+';';
+    if(hol) dateLabel+='祝';
     var dateCell='<td style="'+dateCellStyle+'left:0;z-index:6;border-right:2px solid #aaa;'+todayBorderL+'">'+dateLabel+'</td>';
     var dateCell2='<td style="'+dateCellStyle+'right:0;z-index:6;border-left:2px solid #aaa;'+todayBorderR+'">'+dateLabel+'</td>';
 
