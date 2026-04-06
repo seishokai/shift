@@ -4268,29 +4268,39 @@ function localAutoAssign(text){
 
   /* 日付抽出 */
   var targetDates=[];
-  /* 月単位指定: 「6月」「7月」「6月7月」等 */
-  var monthMatches=text.match(/(\d{1,2})月/g);
-  var dayMatches=text.match(/(\d{1,2})[\/月](\d{1,2})[日]?/g);
+  /* 個別日付: 6/1, 6月3日, 6月15日 等（「月」の後に1〜2桁の日＋「日」が続く） */
+  var dayMatches=text.match(/(\d{1,2})\/(\d{1,2})/g);
+  var dayMatches2=text.match(/(\d{1,2})月(\d{1,2})日/g);
   if(dayMatches){
-    /* 個別日付指定: 6/1, 6月3日 等 */
     dayMatches.forEach(function(m){
-      var p=m.match(/(\d{1,2})[\/月](\d{1,2})/);
+      var p=m.match(/(\d{1,2})\/(\d{1,2})/);
       if(p)targetDates.push(curY+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0'));
     });
-  } else if(monthMatches){
-    /* 月指定のみ（日がない）: 「6月」「6月7月」→ その月全日を展開 */
-    var addedMonths={};
-    monthMatches.forEach(function(m){
-      var mp=m.match(/(\d{1,2})月/);
-      if(!mp) return;
-      var mm=parseInt(mp[1]);
-      if(addedMonths[mm]) return;
-      addedMonths[mm]=true;
-      var daysInMonth=new Date(curY,mm,0).getDate();
-      for(var d2=1;d2<=daysInMonth;d2++){
-        targetDates.push(curY+'-'+String(mm).padStart(2,'0')+'-'+String(d2).padStart(2,'0'));
-      }
+  }
+  if(dayMatches2){
+    dayMatches2.forEach(function(m){
+      var p=m.match(/(\d{1,2})月(\d{1,2})日/);
+      if(p)targetDates.push(curY+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0'));
     });
+  }
+  /* 月単位指定: 「6月」「7月」「6月7月シフト組んで」等（日付が取れなかった場合） */
+  if(!targetDates.length){
+    var monthOnly=text.match(/(\d{1,2})月/g);
+    if(monthOnly){
+      var addedMonths={};
+      monthOnly.forEach(function(m){
+        var mp=m.match(/(\d{1,2})月/);
+        if(!mp) return;
+        var mm=parseInt(mp[1]);
+        if(mm<1||mm>12) return;
+        if(addedMonths[mm]) return;
+        addedMonths[mm]=true;
+        var daysInMonth=new Date(curY,mm,0).getDate();
+        for(var d2=1;d2<=daysInMonth;d2++){
+          targetDates.push(curY+'-'+String(mm).padStart(2,'0')+'-'+String(d2).padStart(2,'0'));
+        }
+      });
+    }
   }
   /* 「今月全部」「全日」等 */
   if(text.match(/今月|全部|全日|全体/)&&!targetDates.length){
@@ -4382,7 +4392,7 @@ function localAutoAssign(text){
   targetDates.forEach(function(dateStr){
     var dt=new Date(dateStr);
     var w=dt.getDay();
-    if(w===0) return; /* 日曜スキップ */
+    /* 日曜: 全院休診だが休日出勤者がいる可能性あるのでスキップしない */
 
     if(!shifts[dateStr])shifts[dateStr]=[];
     var dayS=shifts[dateStr];
