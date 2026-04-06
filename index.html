@@ -4367,43 +4367,59 @@ function localAutoAssign(text){
     var w=dt.getDay();
     if(w===0) return; /* 日曜スキップ */
 
-    var dayS=shifts[dateStr]||[];
+    if(!shifts[dateStr])shifts[dateStr]=[];
+    var dayS=shifts[dateStr];
     var assignedIds=dayS.map(function(s){return s.docId;});
 
     /* 営業中の医院を取得 */
     var openClinics=CLINICS.filter(function(c){return !isClosed(dateStr,c.id);});
 
-    /* 空きドクター（この日にシフトがない＋休み/有給除く） */
-    var freeDocs=doctors.filter(function(d){
-      if(assignedIds.indexOf(d.id)>=0) return false;
-      /* 週休2日チェック: この週すでに5日以上働いていたらスキップ */
-      if(getWeekWorkDays(d.id,dateStr)>=5) return false;
-      return true;
-    });
-
-    /* 特定ドクター指定時はその人だけ */
-    if(specDoc){
-      freeDocs=freeDocs.filter(function(d){return d.id===specDoc.id;});
+    /* 空きドクターを取得する関数（最新のshiftsを参照） */
+    function getFreeDocs(){
+      var curIds=shifts[dateStr].map(function(s){return s.docId;});
+      var free=doctors.filter(function(d){
+        if(curIds.indexOf(d.id)>=0) return false;
+        if(getWeekWorkDays(d.id,dateStr)>=5) return false;
+        return true;
+      });
+      if(specDoc) free=free.filter(function(d){return d.id===specDoc.id;});
+      return free;
     }
 
-    if(!freeDocs.length) return;
+    /* ステップ1: 人数0の医院を必ず埋める（最優先） */
+    openClinics.forEach(function(cl){
+      var hasDoc=shifts[dateStr].find(function(s){return s.clinicId===cl.id;});
+      if(hasDoc) return; /* 既に誰かいる */
+      var freeDocs=getFreeDocs();
+      if(!freeDocs.length) return;
+      /* この医院によく行くドクターを優先 */
+      freeDocs.sort(function(a,b){
+        var fa=docFreq[a.id]&&docFreq[a.id][cl.id]?docFreq[a.id][cl.id]:0;
+        var fb=docFreq[b.id]&&docFreq[b.id][cl.id]?docFreq[b.id][cl.id]:0;
+        return fb-fa;
+      });
+      var doc=freeDocs[0];
+      shifts[dateStr].push({docId:doc.id,clinicId:cl.id,memo:''});
+      dbSave(dateStr,doc.id,cl.id,'');
+      results.push(doc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+') '+cl.n);
+    });
 
-    /* 各ドクターを最適な医院に配置 */
-    freeDocs.forEach(function(doc){
+    /* ステップ2: 残りの空きドクターも最適な医院に配置 */
+    var remaining=getFreeDocs();
+    remaining.forEach(function(doc){
       var freq=docFreq[doc.id]||{};
       var bestClinic=null;
       var bestScore=-1;
 
       openClinics.forEach(function(cl){
         var f=freq[cl.id]||0;
-        /* 現在の人数が少ない医院を優先 */
-        var curCount=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;}).length;
-        var score=f*10+(10-curCount);
+        var curCount=shifts[dateStr].filter(function(s){return s.clinicId===cl.id;}).length;
+        /* 人数が少ない医院を強く優先 */
+        var score=f*5+(20-curCount*3);
         if(score>bestScore){bestScore=score;bestClinic=cl;}
       });
 
       if(bestClinic){
-        if(!shifts[dateStr])shifts[dateStr]=[];
         shifts[dateStr].push({docId:doc.id,clinicId:bestClinic.id,memo:''});
         dbSave(dateStr,doc.id,bestClinic.id,'');
         results.push(doc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+') '+bestClinic.n);
