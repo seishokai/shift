@@ -975,7 +975,29 @@ function renderAllView(targetId){
     return '<th style="min-width:28px;width:28px;text-align:center;position:sticky;bottom:0;'+pos+':0;background:#d0d0d0;z-index:15;padding:2px 2px;font-size:9px;font-weight:700;border:0.5px solid #bbb;'+border+'">日</th>';
   }
 
+  /* ドクター別出勤日数を計算 */
+  var docWorkDays={};
+  var restIds2=new Set(['yasumi','yukyu','daikyu']);
+  doctors.forEach(function(doc){docWorkDays[doc.id]=0;});
+  for(var cd=1;cd<=days;cd++){
+    var cds=ds(cd);
+    (shifts[cds]||[]).forEach(function(s){
+      if(docWorkDays[s.docId]!==undefined&&!restIds2.has(s.clinicId)) docWorkDays[s.docId]++;
+    });
+  }
+  /* 出勤数行 */
+  function countTh(doc){
+    var cnt=docWorkDays[doc.id];
+    var bg=cnt>=23?'#fdf0ee':cnt<=15?'#e8f5e9':'#e8e8e8';
+    var col=cnt>=23?'#b83030':cnt<=15?'#2e7d32':'var(--ink)';
+    return '<th style="min-width:42px;max-width:42px;text-align:center;font-size:11px;font-weight:800;color:'+col+';background:'+bg+';position:sticky;top:28px;z-index:9;border:0.5px solid #bbb;padding:1px 0;">'+cnt+'</th>';
+  }
+  function countCorner(pos){
+    var border=pos==='left'?'border-right:2px solid #aaa;':'border-left:2px solid #aaa;';
+    return '<th style="min-width:28px;width:28px;text-align:center;font-size:8px;font-weight:700;color:var(--ink3);background:#e8e8e8;position:sticky;top:28px;'+pos+':0;z-index:15;border:0.5px solid #bbb;'+border+'">出勤</th>';
+  }
   var headRow='<tr style="height:28px;max-height:28px;">'+dateTh('left')+doctors.map(docTh).join('')+dateTh('right')+'</tr>';
+  headRow+='<tr style="height:22px;">'+countCorner('left')+doctors.map(countTh).join('')+countCorner('right')+'</tr>';
   var footRow='<tr style="height:28px;max-height:28px;">'+dateThBot('left')+doctors.map(docThBot).join('')+dateThBot('right')+'</tr>';
 
   var h='<table style="border-collapse:collapse;white-space:nowrap;font-size:9px;table-layout:fixed;">';
@@ -1035,35 +1057,7 @@ h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;
     h+=dateCell2+'</tr>';
   }
   h+='</tbody></table>';
-  /* ドクター別出勤日数バー */
-  var countBar='';
-  if(isAdmin){
-    var docWorkDays={};
-    var restIds2=new Set(['yasumi','yukyu','daikyu']);
-    doctors.forEach(function(doc){docWorkDays[doc.id]=0;});
-    for(var cd=1;cd<=days;cd++){
-      var cds=ds(cd);
-      (shifts[cds]||[]).forEach(function(s){
-        if(docWorkDays[s.docId]!==undefined&&!restIds2.has(s.clinicId)) docWorkDays[s.docId]++;
-      });
-    }
-    /* 平均を計算 */
-    var totalWork=0,docCount2=0;
-    doctors.forEach(function(d){totalWork+=docWorkDays[d.id];docCount2++;});
-    var avg=docCount2?Math.round(totalWork/docCount2*10)/10:0;
-    countBar='<table style="border-collapse:collapse;table-layout:fixed;white-space:nowrap;font-size:9px;position:sticky;top:0;z-index:20;background:#fff;">';
-    countBar+='<tr style="height:22px;">';
-    countBar+='<td style="width:28px;min-width:28px;text-align:center;font-size:8px;font-weight:700;color:var(--ink3);background:#f5f4f0;border:0.5px solid #ccc;border-right:2px solid #aaa;position:sticky;left:0;z-index:22;">出勤</td>';
-    doctors.forEach(function(doc){
-      var cnt=docWorkDays[doc.id];
-      var bg=cnt>=23?'#fdf0ee':cnt<=15?'#e8f5e9':'#f5f4f0';
-      var col=cnt>=23?'#b83030':cnt<=15?'#2e7d32':'var(--ink)';
-      countBar+='<td style="width:42px;max-width:42px;text-align:center;font-size:11px;font-weight:800;color:'+col+';background:'+bg+';border:0.5px solid #ddd;padding:2px 0;">'+cnt+'</td>';
-    });
-    countBar+='<td style="width:28px;min-width:28px;text-align:center;font-size:8px;font-weight:700;color:var(--ink3);background:#f5f4f0;border:0.5px solid #ccc;border-left:2px solid #aaa;position:sticky;right:0;z-index:22;">出勤</td>';
-    countBar+='</tr></table>';
-  }
-el.innerHTML=countBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?'130':'112')+'px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
+el.innerHTML='<div style="overflow:auto;height:calc(100vh - 112px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
 
   el.querySelectorAll('[data-open-doc]').forEach(function(th){
     th.addEventListener('click',function(){
