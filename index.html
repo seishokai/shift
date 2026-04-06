@@ -1037,14 +1037,18 @@ function renderAllView(targetId){
           inner='<span style="color:#fff;font-size:10px;font-weight:700;display:block;text-align:center;line-height:28px;">代出</span>';
         } else {
           var c=getCC(sh.clinicId);
-          var bg=sh.clinicId==='yukyu'?'#e53935':sh.clinicId==='yasumi'?'#78909c':sh.clinicId==='daikyu'?'#546e7a':c.c;
+          var bg=sh.clinicId==='yukyu'?'#eceff1':sh.clinicId==='yasumi'?'#eceff1':sh.clinicId==='daikyu'?'#eceff1':c.c;
           cellBg=bg;
           var label=cname(sh.clinicId);
-          /* 休み希望（シフト希望から登録された休み）は区別 */
+          /* 休み系は薄グレー背景+文字色で区別 */
+          var txtCol='#fff';
+          if(sh.clinicId==='yukyu'){txtCol='#e53935';} /* 有給=赤文字 */
+          else if(sh.clinicId==='daikyu'){txtCol='#1a5276';} /* 代休=紺文字 */
+          else if(sh.clinicId==='yasumi'){txtCol='#78909c';} /* 休み=グレー文字 */
           if(sh.clinicId==='yasumi'&&sh.memo==='希望'){
-            cellBg='#b39ddb';label='希望休';
+            txtCol='#7b2d8b';label='希望休'; /* 希望休=紫文字 */
           }
-          inner='<span style="color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center;line-height:28px;">'+label;
+          inner='<span style="color:'+txtCol+';font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;text-align:center;line-height:28px;">'+label;
           if(isKyu)inner+='<span style="font-size:7px;color:#ffe0b2;vertical-align:super;">↑</span>';
           if(sh.memo==='代出')inner+='<span style="font-size:7px;color:#ddd;vertical-align:super;">代</span>';
           inner+='</span>';
