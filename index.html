@@ -4388,7 +4388,7 @@ function localAutoAssign(text){
   }
 
   /* 自動配置モード: 「シフト組んで」「入れて」「埋めて」等 */
-  if(!text.match(/組んで|入れて|埋めて|配置|アサイン|割り当て|追加して|足りない|いない|空き|シフト|もっと/)) return null;
+  if(!text.match(/組んで|くんで|組む|くむ|入れて|いれて|埋めて|うめて|配置|アサイン|割り当て|追加|足りない|いない|空き|シフト|もっと|つくって|作って|お願い/)) return null;
 
   /* ドクター別よく行く医院を集計 */
   var docFreq={};
@@ -4432,8 +4432,12 @@ function localAutoAssign(text){
     var dayS=shifts[dateStr];
     var assignedIds=dayS.map(function(s){return s.docId;});
 
-    /* 営業中の医院を取得 */
-    var openClinics=CLINICS.filter(function(c){return !isClosed(dateStr,c.id);});
+    /* 営業中の医院を取得（曜日明示指定の場合は全医院対象） */
+    var explicitDow=dowFilter.length>0;
+    var openClinics=CLINICS.filter(function(c){
+      if(explicitDow&&w===0) return true; /* 日曜明示指定→全院対象 */
+      return !isClosed(dateStr,c.id);
+    });
 
     /* 空きドクターを取得する関数（最新のshiftsを参照） */
     function getFreeDocs(){
