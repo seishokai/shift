@@ -65,7 +65,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .leg{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--ink2);background:var(--bg);padding:2px 7px;border-radius:10px;}
 .leg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 /* ===== VIEW B: 人タブ ===== */
-.doc-sel-bar{background:var(--card);overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:0;flex-shrink:0;border-bottom:none;border-right:1px solid var(--border);}
+.doc-sel-bar{background:var(--card);overflow-y:auto;display:block;padding:0;flex-shrink:0;border-bottom:1px solid var(--border);}
 .doc-sel-chip{padding:11px 14px;border-radius:0;border:none;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;background:var(--card);color:var(--ink);font-family:inherit;font-weight:600;transition:.1s;white-space:nowrap;}
 .doc-sel-chip:active{transform:scale(.95);}
 .doc-sel-chip.on{background:#e8f5e9;color:#2e7d32;border-left:3px solid #2e7d32;}
@@ -1207,18 +1207,19 @@ function renderP(){
   }
   document.getElementById('vB-admin').style.display='';
   document.getElementById('vB-view').style.display='none';
-  /* ドクター選択バー */
+  /* ドクター選択バー（ボタン形式） */
   document.getElementById('docSelBar').innerHTML=(function(){
+    var h='<div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px;">';
+    doctors.forEach(function(d){
+      var on=selDocId===d.id;
+      h+='<button class="doc-sel-chip" data-did="'+d.id+'" style="padding:6px 12px;border-radius:16px;border:'+(on?'2px solid #1a1a18':'1.5px solid var(--border)')+';background:'+(on?'#1a1a18':'var(--card)')+';color:'+(on?'#fff':'var(--ink)')+';font-family:inherit;font-size:11px;font-weight:'+(on?'700':'500')+';cursor:pointer;white-space:nowrap;">'+d.n+'</button>';
+    });
+    h+='</div>';
     if(selDocId){
-      var sd=doctors.find(function(d){return d.id===selDocId;});
-      return '<button onclick="selDocId=null;renderP();" style="display:flex;align-items:center;gap:6px;padding:10px 14px;border:none;border-bottom:1px solid var(--border);background:var(--bg);font-family:inherit;font-size:12px;color:var(--ink3);cursor:pointer;width:100%;">← 一覧に戻る</button>'+
-        '<div style="padding:12px 14px;background:#1a1a18;color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;">'+( sd?sd.n:'')+(sd&&sd.memo?'<span style="font-size:11px;font-weight:400;opacity:.7;margin-left:4px;">'+sd.memo+'</span>':'')+'</div>';
+      var sd=doctors.find(function(dd){return dd.id===selDocId;});
+      h+='<div style="padding:6px 12px;background:#1a1a18;color:#fff;font-size:13px;font-weight:700;">'+( sd?sd.n:'')+' <button onclick="selDocId=null;renderP();" style="border:none;background:rgba(255,255,255,.2);color:#fff;padding:2px 8px;border-radius:8px;font-size:10px;cursor:pointer;margin-left:8px;">解除</button></div>';
     }
-    return doctors.map(function(d){
-      return '<button class="doc-sel-chip" data-did="'+d.id+'" style="display:flex;align-items:center;justify-content:space-between;">'+
-        '<span>'+d.n+(d.memo?'<span style="font-size:10px;font-weight:400;opacity:.6;margin-left:6px;">'+d.memo+'</span>':'')+'</span>'+
-        '<span style="color:var(--ink3);font-size:16px;font-weight:300;">›</span></button>';
-    }).join('');
+    return h;
   })();
   renderClinicPickBar();
   renderCalGrid();
