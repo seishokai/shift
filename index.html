@@ -4311,7 +4311,7 @@ function localAutoAssign(text){
     for(var d2=1;d2<=days2;d2++) targetDates.push(curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0'));
   }
 
-  /* 曜日指定: 「月曜」「火曜日」「毎週水曜」等（「6月」の「月」と区別） */
+  /* 曜日指定: 「月曜」「火曜日」「毎週水曜」等（「6月」の「月」と区別。「曜」必須） */
   var dowNames=['日','月','火','水','木','金','土'];
   var dowFilter=[];
   var dowMatch=text.match(/(日|月|火|水|木|金|土)曜日?/g);
@@ -4322,7 +4322,6 @@ function localAutoAssign(text){
       if(idx>=0&&dowFilter.indexOf(idx)<0) dowFilter.push(idx);
     });
   }
-  /* 「毎週月」「毎月」等は曜日指定ではない。「曜」が必須 */
 
   if(dowFilter.length>0){
     if(!targetDates.length){
