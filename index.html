@@ -3034,6 +3034,24 @@ function loadKyumiLog(){
 function saveKyumiLog(log){
   _kyumiLogCache=log;
   try{localStorage.setItem('seishokai_kyumi_log',JSON.stringify(log));}catch(e){}
+  /* Supabaseにもバックアップ保存 */
+  sbReq('/rest/v1/kyumi_log',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
+    body:JSON.stringify(log.map(function(e){return{id:e.id,doc_id:e.docId||'',doc_name:e.docName||'',date_str:e.dateStr||'',type:e.type||'',type_label:e.typeLabel||'',clinic_id:e.clinicId||'',status:e.status||'active',timestamp:e.timestamp||''};}))
+  }).catch(function(){});
+}
+/* Supabaseからkyumiログを読み込み（起動時） */
+function loadKyumiLogFromDB(){
+  return sbReq('/rest/v1/kyumi_log?select=*&order=id.asc&limit=1000').then(function(rows){
+    if(!rows||!rows.length)return;
+    var log=rows.map(function(r){return{id:r.id,docId:r.doc_id,docName:r.doc_name,dateStr:r.date_str,type:r.type,typeLabel:r.type_label,clinicId:r.clinic_id,status:r.status,timestamp:r.timestamp};});
+    /* ローカルとマージ（IDベースで重複排除） */
+    var local=loadKyumiLog();
+    var ids=new Set(local.map(function(e){return e.id;}));
+    log.forEach(function(e){if(!ids.has(e.id)){local.push(e);ids.add(e.id);}});
+    local.sort(function(a,b){return a.id-b.id;});
+    _kyumiLogCache=local;
+    try{localStorage.setItem('seishokai_kyumi_log',JSON.stringify(local));}catch(e2){}
+  }).catch(function(){});
 }
 
 function addKyumiRequest(docId,year,month,day,type,clinicIdOpt){
@@ -4270,7 +4288,7 @@ document.addEventListener('DOMContentLoaded',function(){
   /* vE,vG は初期非表示 */
   ['vE','vG'].forEach(function(id){var v=document.getElementById(id);if(v)v.style.display='none';});
   renderAll();
-  loadDB().then(function(){renderAll();scheduleAutoBackup();});
+  loadDB().then(function(){renderAll();scheduleAutoBackup();loadKyumiLogFromDB().then(function(){if(curTab===3)renderD();});});
 });
 /* ---- チャット機能 ---- */
 var ANTHROPIC_API_KEY = ''; /* ここにAPIキーを設定 */
