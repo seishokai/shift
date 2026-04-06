@@ -4327,18 +4327,40 @@ function localAutoAssign(text){
   }
 
   /* 自動配置モード: 「シフト組んで」「入れて」「埋めて」等 */
-  if(!text.match(/組んで|入れて|埋めて|配置|アサイン|割り当て|追加して|足りない|いない|空き/)) return null;
+  if(!text.match(/組んで|入れて|埋めて|配置|アサイン|割り当て|追加して|足りない|いない|空き|シフト|もっと/)) return null;
 
   /* ドクター別よく行く医院を集計 */
   var docFreq={};
   Object.keys(shifts).forEach(function(ds2){
     (shifts[ds2]||[]).forEach(function(s){
-      var rest=['yasumi','yukyu','daikyu','daishutsu'];
-      if(rest.indexOf(s.clinicId)>=0)return;
+      var rest2=['yasumi','yukyu','daikyu','daishutsu'];
+      if(rest2.indexOf(s.clinicId)>=0)return;
       if(!docFreq[s.docId])docFreq[s.docId]={};
       docFreq[s.docId][s.clinicId]=(docFreq[s.docId][s.clinicId]||0)+1;
     });
   });
+
+  /* 週の勤務日数を計算する関数（月〜土の6日間） */
+  function getWeekWorkDays(docId,dateStr){
+    var dt2=new Date(dateStr);
+    var dayOfWeek=dt2.getDay(); /* 0=日...6=土 */
+    /* その週の月曜日を求める */
+    var mon=new Date(dt2);
+    var diff=dayOfWeek===0?-6:1-dayOfWeek;
+    mon.setDate(mon.getDate()+diff);
+    var count=0;
+    for(var i=0;i<7;i++){
+      var d3=new Date(mon);d3.setDate(mon.getDate()+i);
+      var ds3=d3.getFullYear()+'-'+String(d3.getMonth()+1).padStart(2,'0')+'-'+String(d3.getDate()).padStart(2,'0');
+      var dayShifts=shifts[ds3]||[];
+      var has=dayShifts.find(function(s){return s.docId===docId;});
+      if(has){
+        var restIds=['yasumi','yukyu','daikyu'];
+        if(restIds.indexOf(has.clinicId)<0) count++;
+      }
+    }
+    return count;
+  }
 
   targetDates.forEach(function(dateStr){
     var dt=new Date(dateStr);
@@ -4350,40 +4372,46 @@ function localAutoAssign(text){
 
     /* 営業中の医院を取得 */
     var openClinics=CLINICS.filter(function(c){return !isClosed(dateStr,c.id);});
-    /* 各医院の現在人数 */
-    var clinicCount={};
-    openClinics.forEach(function(c){
-      clinicCount[c.id]=dayS.filter(function(s){return s.clinicId===c.id;}).length;
+
+    /* 空きドクター（この日にシフトがない＋休み/有給除く） */
+    var freeDocs=doctors.filter(function(d){
+      if(assignedIds.indexOf(d.id)>=0) return false;
+      /* 週休2日チェック: この週すでに5日以上働いていたらスキップ */
+      if(getWeekWorkDays(d.id,dateStr)>=5) return false;
+      return true;
     });
-
-    /* 人数が0の医院を優先的に埋める */
-    var emptyClinics=openClinics.filter(function(c){return clinicCount[c.id]===0;});
-
-    /* 空きドクター（この日にシフトがない人） */
-    var freeDocs=doctors.filter(function(d){return assignedIds.indexOf(d.id)<0;});
 
     /* 特定ドクター指定時はその人だけ */
     if(specDoc){
       freeDocs=freeDocs.filter(function(d){return d.id===specDoc.id;});
     }
 
-    emptyClinics.forEach(function(cl){
-      if(!freeDocs.length) return;
-      /* この医院によく行くドクターを優先 */
-      freeDocs.sort(function(a,b){
-        var fa=docFreq[a.id]&&docFreq[a.id][cl.id]?docFreq[a.id][cl.id]:0;
-        var fb=docFreq[b.id]&&docFreq[b.id][cl.id]?docFreq[b.id][cl.id]:0;
-        return fb-fa;
+    if(!freeDocs.length) return;
+
+    /* 各ドクターを最適な医院に配置 */
+    freeDocs.forEach(function(doc){
+      var freq=docFreq[doc.id]||{};
+      var bestClinic=null;
+      var bestScore=-1;
+
+      openClinics.forEach(function(cl){
+        var f=freq[cl.id]||0;
+        /* 現在の人数が少ない医院を優先 */
+        var curCount=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;}).length;
+        var score=f*10+(10-curCount);
+        if(score>bestScore){bestScore=score;bestClinic=cl;}
       });
-      var doc=freeDocs.shift();
-      if(!shifts[dateStr])shifts[dateStr]=[];
-      shifts[dateStr].push({docId:doc.id,clinicId:cl.id,memo:''});
-      dbSave(dateStr,doc.id,cl.id,'');
-      results.push(doc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+') '+cl.n);
+
+      if(bestClinic){
+        if(!shifts[dateStr])shifts[dateStr]=[];
+        shifts[dateStr].push({docId:doc.id,clinicId:bestClinic.id,memo:''});
+        dbSave(dateStr,doc.id,bestClinic.id,'');
+        results.push(doc.n+' → '+(dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW3[w]+') '+bestClinic.n);
+      }
     });
   });
   renderAll();
-  return results.length?results.join('\n'):'配置が必要な空き医院はありませんでした。';
+  return results.length?results.join('\n'):'全員配置済みです。';
 }
 
 function sendChat(){
