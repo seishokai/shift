@@ -4268,7 +4268,7 @@ function localAutoAssign(text){
 
   /* 日付抽出 */
   var targetDates=[];
-  /* 個別日付: 6/1, 6月3日, 6月15日 等（「月」の後に1〜2桁の日＋「日」が続く） */
+  /* 個別日付: 6/1, 6月3日 等 */
   var dayMatches=text.match(/(\d{1,2})\/(\d{1,2})/g);
   var dayMatches2=text.match(/(\d{1,2})月(\d{1,2})日/g);
   if(dayMatches){
