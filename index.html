@@ -778,14 +778,37 @@ function loadDB(){
     showSb('');
   }).catch(function(){Object.assign(shifts,EXCEL_DATA);showSb('オフライン','w');});
 }
+var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
+  _pendingSaves++;
+  showSb('保存中...('+_pendingSaves+')');
   return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
     body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
-  }).then(function(){}).catch(function(e){console.warn('DB保存失敗:',e);});
+  }).then(function(){
+    _pendingSaves--;
+    if(_pendingSaves<=0){_pendingSaves=0;showSb('保存完了','ok');}
+  }).catch(function(e){
+    _pendingSaves--;
+    console.warn('DB保存失敗:',e);
+    showSb('保存失敗！再試行中...','e');
+    /* リトライ（1回） */
+    setTimeout(function(){
+      sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
+        body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+      }).then(function(){showSb('再試行で保存完了','ok');}).catch(function(){showSb('保存失敗。ネット接続を確認','e');});
+    },1000);
+  });
 }
 function dbDel(dateStr,docId){
+  showSb('削除中...');
   return sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'}
-  ).then(function(){showSb('削除','ok');}).catch(function(){showSb('削除失敗','w');});
+  ).then(function(){showSb('削除完了','ok');}).catch(function(){
+    showSb('削除失敗！再試行中...','e');
+    setTimeout(function(){
+      sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'})
+      .then(function(){showSb('再試行で削除完了','ok');}).catch(function(){showSb('削除失敗。ネット接続を確認','e');});
+    },1000);
+  });
 }
 function doUpload(){
   if(!confirm('ExcelデータをDBにアップロードします'))return;
@@ -810,6 +833,7 @@ function showSb(msg,type){
   el.style.display='block';el.textContent=msg;
   el.style.background=type==='ok'?'#2e7d32':type==='w'?'#b8860b':type==='e'?'#b83030':'#1a1a18';
   if(type==='ok')setTimeout(function(){showSb('');},2000);
+  if(type==='e')setTimeout(function(){showSb('');},5000);
 }
 
 /* ---- AUTH ---- */
