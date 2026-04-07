@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>予約管理 - 清翔会</title>
+<style>
+:root{--bg:#f5f4f0;--card:#fff;--ink:#1a1a18;--ink2:#6b6965;--ink3:#b0ada8;--border:#e8e5e0;
+--blue:#2d6a9f;--blue-bg:#e8f4fd;--green:#2e7d32;--green-bg:#e8f5e9;--red:#c0392b;--red-bg:#fdf0ee;
+--orange:#e67e22;--orange-bg:#fef5e7;--purple:#7030a0;--purple-bg:#f5eef8;--gray:#999;--gray-bg:#f2f2f0;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:13px;}
+/* HEADER */
+.hdr{background:var(--blue-bg);height:48px;display:flex;align-items:center;padding:0 12px;gap:8px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.10);}
+.hdr-title{font-size:14px;font-weight:800;letter-spacing:.02em;white-space:nowrap;}
+.hdr-tab{background:transparent;border:1px solid #b0cfe8;color:var(--blue);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer;white-space:nowrap;transition:.15s;}
+.hdr-tab.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+.hdr-right{margin-left:auto;display:flex;gap:6px;align-items:center;}
+.sync-btn{background:var(--blue);color:#fff;border:none;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+.sync-btn:active{opacity:.7;}
+/* STATS BAR */
+.stats-bar{display:flex;gap:0;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;}
+.stat-item{flex:1;min-width:0;padding:10px 8px;text-align:center;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-size:20px;font-weight:800;display:block;}
+.stat-lbl{font-size:9px;color:var(--ink2);display:block;margin-top:2px;}
+/* FILTERS */
+.filter-bar{display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap;}
+.filter-chip{background:var(--bg);border:1px solid var(--border);color:var(--ink2);font-size:10px;font-weight:600;padding:4px 10px;border-radius:16px;cursor:pointer;white-space:nowrap;font-family:inherit;transition:.15s;}
+.filter-chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+/* SEARCH */
+.search-wrap{padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);}
+.search-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--bg);outline:none;}
+.search-input:focus{border-color:var(--blue);}
+/* CARD LIST */
+.card-list{padding:8px 12px;}
+.card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid var(--border);transition:.15s;}
+.card:active{transform:scale(.99);}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.card-name{font-size:15px;font-weight:700;}
+.card-date{font-size:11px;color:var(--ink2);}
+.card-clinic{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:2px;}
+.card-treatment{font-size:12px;color:var(--ink2);margin:6px 0;line-height:1.4;}
+.card-contact{font-size:10px;color:var(--ink3);margin-bottom:8px;}
+.card-promo{font-size:9px;color:var(--ink3);background:var(--bg);padding:2px 6px;border-radius:4px;display:inline-block;margin-bottom:8px;}
+/* STATUS BUTTONS */
+.status-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.sbtn{padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;color:var(--ink2);}
+.sbtn:active{transform:scale(.95);}
+.sbtn.cancel-on{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.sbtn.visited-on{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.sbtn.novisit-on{background:var(--gray-bg);border-color:var(--gray);color:var(--gray);}
+.sbtn.contract-on{background:var(--purple-bg);border-color:var(--purple);color:var(--purple);}
+.sbtn.pending-on{background:var(--orange-bg);border-color:var(--orange);color:var(--orange);}
+.sbtn.nocontract-on{background:var(--gray-bg);border-color:var(--gray);color:var(--gray);}
+/* AMOUNT INPUT */
+.amount-row{display:flex;align-items:center;gap:6px;margin-top:8px;}
+.amount-input{width:120px;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;text-align:right;outline:none;}
+.amount-input:focus{border-color:var(--purple);}
+.amount-unit{font-size:12px;color:var(--ink2);font-weight:600;}
+.amount-save{background:var(--purple);color:#fff;border:none;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+/* DETAIL MODAL */
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:300;align-items:flex-end;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--card);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:20px;animation:slideUp .25s ease-out;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal h3{font-size:18px;margin-bottom:12px;}
+.modal-info{font-size:13px;color:var(--ink2);margin-bottom:6px;}
+.modal-info b{color:var(--ink);font-weight:600;}
+.modal-section{margin-top:16px;padding-top:12px;border-top:1px solid var(--border);}
+.modal-section h4{font-size:12px;color:var(--ink2);margin-bottom:8px;font-weight:600;}
+.modal-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.modal-btn{flex:1;min-width:80px;padding:12px 8px;border-radius:10px;border:2px solid var(--border);background:var(--card);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;text-align:center;}
+.modal-btn:active{transform:scale(.95);}
+.modal-btn.selected{border-width:2px;}
+.modal-btn.sel-cancel{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.modal-btn.sel-visited{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.modal-btn.sel-novisit{background:var(--gray-bg);border-color:var(--gray);color:var(--gray);}
+.modal-btn.sel-contract{background:var(--purple-bg);border-color:var(--purple);color:var(--purple);}
+.modal-btn.sel-pending{background:var(--orange-bg);border-color:var(--orange);color:var(--orange);}
+.modal-btn.sel-nocontract{background:var(--gray-bg);border-color:var(--gray);color:var(--gray);}
+.modal-amount{margin-top:12px;display:flex;align-items:center;gap:8px;}
+.modal-amount input{flex:1;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:16px;font-family:inherit;text-align:right;outline:none;}
+.modal-amount input:focus{border-color:var(--purple);}
+.modal-amount span{font-size:14px;font-weight:600;color:var(--ink2);}
+.modal-save{width:100%;margin-top:16px;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.modal-save:active{opacity:.8;}
+.modal-close{width:100%;margin-top:8px;padding:12px;background:transparent;color:var(--ink2);border:1px solid var(--border);border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+/* DASHBOARD TAB */
+.dash{padding:12px;display:none;}
+.dash.show{display:block;}
+.dash-card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid var(--border);}
+.dash-card h4{font-size:12px;color:var(--ink2);margin-bottom:10px;font-weight:600;}
+.dash-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);}
+.dash-row:last-child{border-bottom:none;}
+.dash-row-label{font-size:12px;color:var(--ink);}
+.dash-row-val{font-size:16px;font-weight:700;}
+.bar-chart{margin-top:8px;}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.bar-label{font-size:11px;width:80px;text-align:right;color:var(--ink2);flex-shrink:0;}
+.bar-track{flex:1;height:20px;background:var(--bg);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .3s;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;font-size:9px;font-weight:700;color:#fff;min-width:20px;}
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--ink3);}
+.empty-state .icon{font-size:48px;margin-bottom:12px;}
+.empty-state p{font-size:13px;line-height:1.6;}
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:10px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+/* LOADING */
+.loading{text-align:center;padding:40px;color:var(--ink3);}
+.spinner{display:inline-block;width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* RESPONSIVE */
+@media(min-width:600px){.card-list{max-width:600px;margin:0 auto;}.dash{max-width:600px;margin:0 auto;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <span class="hdr-title">予約管理</span>
+  <button class="hdr-tab on" onclick="switchTab('list')">一覧</button>
+  <button class="hdr-tab" onclick="switchTab('dash')">集計</button>
+  <div class="hdr-right">
+    <span id="countLabel" style="font-size:10px;color:var(--ink2);"></span>
+    <button class="sync-btn" onclick="loadData()">↻ 同期</button>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar" id="statsBar">
+  <div class="stat-item"><span class="stat-num" id="stTotal">-</span><span class="stat-lbl">総予約</span></div>
+  <div class="stat-item"><span class="stat-num" id="stVisited" style="color:var(--green)">-</span><span class="stat-lbl">来院済</span></div>
+  <div class="stat-item"><span class="stat-num" id="stCancel" style="color:var(--red)">-</span><span class="stat-lbl">ｷｬﾝｾﾙ</span></div>
+  <div class="stat-item"><span class="stat-num" id="stContract" style="color:var(--purple)">-</span><span class="stat-lbl">成約</span></div>
+  <div class="stat-item"><span class="stat-num" id="stAmount" style="color:var(--purple);font-size:14px;">-</span><span class="stat-lbl">売上</span></div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap" id="searchWrap">
+  <input class="search-input" id="searchInput" placeholder="名前・施術・クリニックで検索..." oninput="renderList()">
+</div>
+
+<!-- FILTERS -->
+<div class="filter-bar" id="filterBar">
+  <button class="filter-chip on" data-filter="all" onclick="setFilter('all',this)">すべて</button>
+  <button class="filter-chip" data-filter="new" onclick="setFilter('new',this)">未対応</button>
+  <button class="filter-chip" data-filter="visited" onclick="setFilter('visited',this)">来院済</button>
+  <button class="filter-chip" data-filter="cancelled" onclick="setFilter('cancelled',this)">ｷｬﾝｾﾙ</button>
+  <button class="filter-chip" data-filter="contracted" onclick="setFilter('contracted',this)">成約</button>
+  <button class="filter-chip" data-filter="pending_contract" onclick="setFilter('pending_contract',this)">検討中</button>
+</div>
+
+<!-- CARD LIST -->
+<div class="card-list" id="cardList">
+  <div class="loading"><div class="spinner"></div><p style="margin-top:8px;">読み込み中...</p></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="dashView"></div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModalBg(event)">
+  <div class="modal" id="modal"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== CONFIG ===== */
+const SB_URL = 'https://trsugjpvhlkwjvtloype.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc3VnanB2aGxrd2p2dGxveXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc4ODQsImV4cCI6MjA5MDQzMzg4NH0.GASbFeN_dLduCw81DQen8e4Hwc0TkHrcZWbB8dgNsec';
+const SB_H = {apikey:SB_KEY, Authorization:'Bearer '+SB_KEY, 'Content-Type':'application/json', Prefer:'return=representation'};
+const TABLE = 'reservations';
+
+/* ===== STATE ===== */
+let allData = [];
+let currentFilter = 'all';
+let currentTab = 'list';
+
+/* ===== CLINIC COLORS ===== */
+const CLINIC_COLORS = {
+  'BF銀座歯科':'#7d6608','銀座':'#7d6608',
+  'エスカ':'#c0392b','ｴｽｶ':'#c0392b',
+  'アール':'#7030a0','ｱｰﾙ':'#7030a0',
+  'ウィズ':'#1e8449','ｳｨｽﾞ':'#1e8449',
+  'ルミナス':'#27ae60','ﾙﾐﾅｽ':'#27ae60','名古屋ルミナス':'#27ae60',
+  '茶屋':'#d4a017','アサノ':'#85200c','ｱｻﾉ':'#85200c',
+  '知立':'#0a6b8a','小牧':'#d81b60','八事':'#8b4513',
+  '大森':'#1f6b4e','京都':'#6b3a87','訪問':'#2c6e8a',
+  'エスカ歯科':'#c0392b',
+};
+function clinicColor(c){
+  if(!c)return{bg:'#f2f2f0',fg:'#999'};
+  for(const[k,v]of Object.entries(CLINIC_COLORS)){if(c.includes(k))return{bg:v+'18',fg:v};}
+  return{bg:'#e8f4fd',fg:'#2d6a9f'};
+}
+
+/* ===== DATA LOAD ===== */
+async function loadData(){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/${TABLE}?select=*&order=appointment_date.desc`, {headers:SB_H});
+    if(!r.ok) throw new Error(r.statusText);
+    allData = await r.json();
+    updateStats();
+    renderList();
+    if(currentTab==='dash') renderDash();
+    showToast('同期完了 ('+allData.length+'件)');
+  }catch(e){
+    console.error(e);
+    showToast('読み込み失敗: '+e.message);
+  }
+}
+
+/* ===== STATS ===== */
+function updateStats(){
+  const total = allData.length;
+  const visited = allData.filter(d=>d.visited==='来院済').length;
+  const cancel = allData.filter(d=>d.pre_cancel==='キャンセル済'||d.visited==='キャンセル').length;
+  const contract = allData.filter(d=>d.contracted==='成約').length;
+  const amount = allData.reduce((s,d)=>s+(d.contract_amount||0),0);
+  document.getElementById('stTotal').textContent = total;
+  document.getElementById('stVisited').textContent = visited;
+  document.getElementById('stCancel').textContent = cancel;
+  document.getElementById('stContract').textContent = contract;
+  document.getElementById('stAmount').textContent = amount>0 ? (amount>=10000 ? Math.round(amount/10000)+'万' : amount.toLocaleString()) : '-';
+  document.getElementById('countLabel').textContent = filtered().length+'/'+total+'件';
+}
+
+/* ===== FILTER ===== */
+function filtered(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  return allData.filter(d=>{
+    if(currentFilter==='new' && (d.visited||d.pre_cancel==='キャンセル済')) return false;
+    if(currentFilter==='visited' && d.visited!=='来院済') return false;
+    if(currentFilter==='cancelled' && d.pre_cancel!=='キャンセル済' && d.visited!=='キャンセル') return false;
+    if(currentFilter==='contracted' && d.contracted!=='成約') return false;
+    if(currentFilter==='pending_contract' && d.contracted!=='検討中') return false;
+    if(q){
+      const t = [d.name,d.treatment,d.clinic,d.email,d.phone].join(' ').toLowerCase();
+      if(!t.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function setFilter(f,el){
+  currentFilter=f;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  renderList();
+  updateStats();
+}
+
+/* ===== RENDER LIST ===== */
+function renderList(){
+  const list = filtered();
+  const el = document.getElementById('cardList');
+  if(!list.length){
+    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>該当する予約がありません</p></div>';
+    document.getElementById('countLabel').textContent = '0/'+allData.length+'件';
+    return;
+  }
+  document.getElementById('countLabel').textContent = list.length+'/'+allData.length+'件';
+  el.innerHTML = list.map(d=>{
+    const cc = clinicColor(d.clinic);
+    const apptDate = d.appointment_date ? formatDate(d.appointment_date) : '-';
+    const regDate = d.registration_date ? formatDateShort(d.registration_date) : '';
+    const isCancelled = d.pre_cancel==='キャンセル済'||d.visited==='キャンセル';
+    const statusBadges = buildStatusBadges(d);
+    return `<div class="card" onclick="openModal('${d.id}')" style="${isCancelled?'opacity:.55':''}">
+      <div class="card-top">
+        <div>
+          <span class="card-name">${esc(d.name||'名前なし')}</span>
+          <span class="card-clinic" style="background:${cc.bg};color:${cc.fg};margin-left:6px;">${esc(d.clinic||'-')}</span>
+        </div>
+        <div style="text-align:right">
+          <div class="card-date" style="font-weight:600;font-size:12px;">${apptDate}</div>
+          <div style="font-size:9px;color:var(--ink3);">登録 ${regDate}</div>
+        </div>
+      </div>
+      <div class="card-treatment">${esc(d.treatment||'-')}</div>
+      ${d.promotion?'<div class="card-promo">'+esc(d.promotion)+'</div>':''}
+      <div class="status-row">${statusBadges}</div>
+      ${d.contract_amount?'<div style="margin-top:6px;font-size:14px;font-weight:700;color:var(--purple);">¥'+Number(d.contract_amount).toLocaleString()+'</div>':''}
+    </div>`;
+  }).join('');
+}
+
+function buildStatusBadges(d){
+  let h = '';
+  if(d.pre_cancel==='キャンセル済') h+='<span class="sbtn cancel-on">事前ｷｬﾝｾﾙ</span>';
+  if(d.visited==='来院済') h+='<span class="sbtn visited-on">来院済</span>';
+  else if(d.visited==='キャンセル') h+='<span class="sbtn cancel-on">当日ｷｬﾝｾﾙ</span>';
+  else if(!d.pre_cancel||d.pre_cancel!=='キャンセル済') h+='<span class="sbtn" style="border-style:dashed;">未来院</span>';
+  if(d.contracted==='成約') h+='<span class="sbtn contract-on">成約</span>';
+  else if(d.contracted==='検討中') h+='<span class="sbtn pending-on">検討中</span>';
+  else if(d.contracted==='未成約') h+='<span class="sbtn nocontract-on">未成約</span>';
+  return h;
+}
+
+/* ===== MODAL ===== */
+function openModal(id){
+  const d = allData.find(x=>x.id===id);
+  if(!d) return;
+  const cc = clinicColor(d.clinic);
+  const m = document.getElementById('modal');
+  m.innerHTML = `
+    <div class="modal-handle"></div>
+    <h3>${esc(d.name||'名前なし')}</h3>
+    <div class="modal-info"><b>予約日時:</b> ${formatDate(d.appointment_date)}</div>
+    <div class="modal-info"><b>登録日:</b> ${formatDateShort(d.registration_date)}</div>
+    <div class="modal-info"><b>施術:</b> ${esc(d.treatment||'-')}</div>
+    <div class="modal-info"><b>クリニック:</b> <span style="background:${cc.bg};color:${cc.fg};padding:1px 6px;border-radius:4px;font-weight:600;">${esc(d.clinic||'-')}</span></div>
+    <div class="modal-info"><b>連絡先:</b> <a href="tel:${d.phone||''}" style="color:var(--blue);">${esc(d.phone||'-')}</a></div>
+    <div class="modal-info"><b>メール:</b> <a href="mailto:${d.email||''}" style="color:var(--blue);font-size:11px;">${esc(d.email||'-')}</a></div>
+    ${d.promotion?'<div class="modal-info"><b>プロモーション:</b> '+esc(d.promotion)+'</div>':''}
+
+    <div class="modal-section">
+      <h4>事前キャンセル</h4>
+      <div class="modal-btns">
+        <button class="modal-btn ${d.pre_cancel==='キャンセル済'?'selected sel-cancel':''}" onclick="setField('${id}','pre_cancel','キャンセル済',this)">キャンセル済</button>
+        <button class="modal-btn ${!d.pre_cancel||d.pre_cancel===''?'selected':''}" onclick="setField('${id}','pre_cancel','',this)">なし</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h4>来院状況</h4>
+      <div class="modal-btns">
+        <button class="modal-btn ${d.visited==='来院済'?'selected sel-visited':''}" onclick="setField('${id}','visited','来院済',this)">来院済</button>
+        <button class="modal-btn ${d.visited==='キャンセル'?'selected sel-cancel':''}" onclick="setField('${id}','visited','キャンセル',this)">キャンセル</button>
+        <button class="modal-btn ${!d.visited||d.visited===''?'selected':''}" onclick="setField('${id}','visited','',this)">未来院</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h4>成約状況</h4>
+      <div class="modal-btns">
+        <button class="modal-btn ${d.contracted==='成約'?'selected sel-contract':''}" onclick="setField('${id}','contracted','成約',this)">成約</button>
+        <button class="modal-btn ${d.contracted==='検討中'?'selected sel-pending':''}" onclick="setField('${id}','contracted','検討中',this)">検討中</button>
+        <button class="modal-btn ${d.contracted==='未成約'?'selected sel-nocontract':''}" onclick="setField('${id}','contracted','未成約',this)">未成約</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <h4>成約金額</h4>
+      <div class="modal-amount">
+        <input type="number" id="amountInput" value="${d.contract_amount||''}" placeholder="0" inputmode="numeric">
+        <span>円</span>
+      </div>
+      <button class="modal-save" style="margin-top:10px;background:var(--purple);" onclick="saveAmount('${id}')">金額を保存</button>
+    </div>
+
+    <button class="modal-close" onclick="closeModal()">閉じる</button>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
+function closeModalBg(e){ if(e.target===e.currentTarget) closeModal(); }
+
+/* ===== UPDATE FIELD ===== */
+async function setField(id, field, value, btnEl){
+  try{
+    const body = {}; body[field] = value;
+    const r = await fetch(`${SB_URL}/rest/v1/${TABLE}?id=eq.${id}`, {
+      method:'PATCH', headers:SB_H, body:JSON.stringify(body)
+    });
+    if(!r.ok) throw new Error(r.statusText);
+    const updated = await r.json();
+    if(updated.length){ const idx = allData.findIndex(x=>x.id===id); if(idx>=0) allData[idx]=updated[0]; }
+    // Re-render modal
+    openModal(id);
+    updateStats();
+    renderList();
+    showToast('更新しました');
+  }catch(e){
+    showToast('更新失敗: '+e.message);
+  }
+}
+
+async function saveAmount(id){
+  const val = document.getElementById('amountInput').value;
+  const amount = val ? parseInt(val) : null;
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/${TABLE}?id=eq.${id}`, {
+      method:'PATCH', headers:SB_H, body:JSON.stringify({contract_amount: amount})
+    });
+    if(!r.ok) throw new Error(r.statusText);
+    const updated = await r.json();
+    if(updated.length){ const idx = allData.findIndex(x=>x.id===id); if(idx>=0) allData[idx]=updated[0]; }
+    updateStats();
+    renderList();
+    showToast('金額を保存しました');
+  }catch(e){
+    showToast('保存失敗: '+e.message);
+  }
+}
+
+/* ===== DASHBOARD ===== */
+function renderDash(){
+  const el = document.getElementById('dashView');
+  // Clinic breakdown
+  const byClinic = {};
+  allData.forEach(d=>{
+    const c = d.clinic||'不明';
+    if(!byClinic[c]) byClinic[c]={total:0,visited:0,cancelled:0,contracted:0,amount:0};
+    byClinic[c].total++;
+    if(d.visited==='来院済') byClinic[c].visited++;
+    if(d.pre_cancel==='キャンセル済'||d.visited==='キャンセル') byClinic[c].cancelled++;
+    if(d.contracted==='成約'){byClinic[c].contracted++;byClinic[c].amount+=(d.contract_amount||0);}
+  });
+  const total = allData.length||1;
+  const visited = allData.filter(d=>d.visited==='来院済').length;
+  const contracted = allData.filter(d=>d.contracted==='成約').length;
+  const totalAmount = allData.reduce((s,d)=>s+(d.contract_amount||0),0);
+  const visitRate = total>0 ? Math.round(visited/total*100) : 0;
+  const contractRate = visited>0 ? Math.round(contracted/visited*100) : 0;
+
+  // Treatment breakdown
+  const byTreatment = {};
+  allData.forEach(d=>{
+    const t = d.treatment||'不明';
+    if(!byTreatment[t]) byTreatment[t]=0;
+    byTreatment[t]++;
+  });
+  const treatSorted = Object.entries(byTreatment).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const treatMax = treatSorted.length>0 ? treatSorted[0][1] : 1;
+
+  el.innerHTML = `
+    <div class="dash-card">
+      <h4>全体サマリー</h4>
+      <div class="dash-row"><span class="dash-row-label">総予約数</span><span class="dash-row-val">${allData.length}</span></div>
+      <div class="dash-row"><span class="dash-row-label">来院率</span><span class="dash-row-val" style="color:var(--green)">${visitRate}%</span></div>
+      <div class="dash-row"><span class="dash-row-label">成約率 (来院者中)</span><span class="dash-row-val" style="color:var(--purple)">${contractRate}%</span></div>
+      <div class="dash-row"><span class="dash-row-label">総売上</span><span class="dash-row-val" style="color:var(--purple)">¥${totalAmount.toLocaleString()}</span></div>
+    </div>
+    <div class="dash-card">
+      <h4>クリニック別</h4>
+      ${Object.entries(byClinic).sort((a,b)=>b[1].total-a[1].total).map(([c,v])=>{
+        const cc=clinicColor(c);
+        return `<div class="bar-row">
+          <span class="bar-label" style="color:${cc.fg}">${esc(c)}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.total/total*100)}%;background:${cc.fg}">${v.total}</div></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="dash-card">
+      <h4>施術別 (上位10)</h4>
+      ${treatSorted.map(([t,cnt])=>`<div class="bar-row">
+        <span class="bar-label">${esc(t.length>12?t.slice(0,12)+'…':t)}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt/treatMax*100)}%;background:var(--blue)">${cnt}</div></div>
+      </div>`).join('')}
+    </div>
+    <div class="dash-card">
+      <h4>クリニック別 成約・売上</h4>
+      ${Object.entries(byClinic).filter(([,v])=>v.contracted>0).sort((a,b)=>b[1].amount-a[1].amount).map(([c,v])=>{
+        const cc=clinicColor(c);
+        return `<div class="dash-row">
+          <span class="dash-row-label" style="color:${cc.fg}">${esc(c)}</span>
+          <span class="dash-row-val" style="font-size:13px;">${v.contracted}件 / ¥${v.amount.toLocaleString()}</span>
+        </div>`;
+      }).join('')||'<div style="color:var(--ink3);font-size:12px;padding:8px 0;">成約データなし</div>'}
+    </div>
+  `;
+}
+
+/* ===== TAB SWITCH ===== */
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.hdr-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelector(`.hdr-tab[onclick="switchTab('${tab}')"]`).classList.add('on');
+  document.getElementById('cardList').style.display = tab==='list'?'':'none';
+  document.getElementById('searchWrap').style.display = tab==='list'?'':'none';
+  document.getElementById('filterBar').style.display = tab==='list'?'flex':'none';
+  document.getElementById('statsBar').style.display = tab==='list'?'flex':'none';
+  document.getElementById('dashView').className = tab==='dash'?'dash show':'dash';
+  if(tab==='dash') renderDash();
+}
+
+/* ===== UTILS ===== */
+function formatDate(s){
+  if(!s)return'-';
+  const d=new Date(s);
+  if(isNaN(d))return s;
+  const dow=['日','月','火','水','木','金','土'][d.getDay()];
+  return `${d.getMonth()+1}/${d.getDate()}(${dow}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function formatDateShort(s){
+  if(!s)return'-';
+  const d=new Date(s);
+  if(isNaN(d))return s;
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+
+/* ===== INIT ===== */
+loadData();
+</script>
+</body>
+</html>
