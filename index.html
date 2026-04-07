@@ -782,7 +782,7 @@ var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
   showSb('保存中...');
-  /* 先に既存を削除してから挿入（upsertの代わり） */
+  /* 先に既存を削除してから挿入（upsert代わり） */
   return sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'})
   .then(function(){
     return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'return=minimal'},
