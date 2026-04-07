@@ -781,21 +781,26 @@ function loadDB(){
 var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
-  showSb('保存中...('+_pendingSaves+')');
-  return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
-    body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+  showSb('保存中...');
+  /* 先に既存を削除してから挿入（upsert代わり） */
+  return sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'})
+  .then(function(){
+    return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'return=minimal'},
+      body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+    });
   }).then(function(){
     _pendingSaves--;
     if(_pendingSaves<=0){_pendingSaves=0;showSb('保存完了','ok');}
   }).catch(function(e){
     _pendingSaves--;
     console.warn('DB保存失敗:',e);
-    showSb('保存失敗！再試行中...','e');
-    /* リトライ（1回） */
+    showSb('保存失敗！再試行...','e');
     setTimeout(function(){
-      sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
-        body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
-      }).then(function(){showSb('再試行で保存完了','ok');}).catch(function(){showSb('保存失敗。ネット接続を確認','e');});
+      sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'}).then(function(){
+        return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'return=minimal'},
+          body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+        });
+      }).then(function(){showSb('保存完了','ok');}).catch(function(){showSb('保存失敗。ネット確認','e');});
     },1000);
   });
 }
@@ -1690,7 +1695,6 @@ function inlineSave(cid){
   dbSave(ieDateStr,ieDocId,cid,'');
   closeInlineEdit();
   renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
-  showSb('保存','ok');
 }
 function inlineDelete(){
   if(!ieDocId||!ieDateStr)return;
