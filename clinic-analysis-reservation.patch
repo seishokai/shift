@@ -1,0 +1,633 @@
+From c0abfd210c3e35d94b3866ed7fd5abec26bdd6dc Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 7 Apr 2026 15:12:30 +0000
+Subject: [PATCH] =?UTF-8?q?feat:=20=E4=BA=88=E7=B4=84=E7=AE=A1=E7=90=86?=
+ =?UTF-8?q?=E3=82=BF=E3=83=96=E3=82=92=E8=BF=BD=E5=8A=A0=EF=BC=88Supabase?=
+ =?UTF-8?q?=E9=80=A3=E6=90=BA=EF=BC=89?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- ヘッダー/ボトムナビに「予約管理」タブを追加
+- カード型UIで予約一覧表示（検索・フィルター付き）
+- モーダルで来院/キャンセル/成約ステータスをワンタップ切替
+- 成約金額入力機能
+- 統計サマリー（総予約・来院済・キャンセル・成約・売上）
+- GAS同期スクリプト（スプレッドシート⇔Supabase双方向同期）
+- Supabaseテーブル作成SQL
+
+https://claude.ai/code/session_014ExBCxHE3ZKPBjxwm2uNEX
+---
+ app.js             | 230 +++++++++++++++++++++++++++++++++++++++++++++
+ gas-sync.js        | 182 +++++++++++++++++++++++++++++++++++
+ index.html         |  41 ++++++++
+ styles.css         |  36 +++++++
+ supabase-setup.sql |  52 ++++++++++
+ 5 files changed, 541 insertions(+)
+ create mode 100644 gas-sync.js
+ create mode 100644 supabase-setup.sql
+
+diff --git a/app.js b/app.js
+index a66a864..5c64d44 100644
+--- a/app.js
++++ b/app.js
+@@ -482,6 +482,7 @@ function showApp() {
+   renderRates();
+   renderReviews();
+   renderDocuments();
++  initReservations();
+ }
+ 
+ // === Navigation ===
+@@ -1379,3 +1380,232 @@ function renderReviews() {
+     </tr>`;
+   }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">データなし</td></tr>';
+ }
++
++// ==================== 予約管理 ====================
++const RSV_SB_URL = 'https://trsugjpvhlkwjvtloype.supabase.co';
++const RSV_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc3VnanB2aGxrd2p2dGxveXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc4ODQsImV4cCI6MjA5MDQzMzg4NH0.GASbFeN_dLduCw81DQen8e4Hwc0TkHrcZWbB8dgNsec';
++const RSV_SB_H = {apikey:RSV_SB_KEY, Authorization:'Bearer '+RSV_SB_KEY, 'Content-Type':'application/json', Prefer:'return=representation'};
++
++let rsvData = [];
++let rsvFilter = 'all';
++
++function initReservations() {
++  document.getElementById('rsv-sync-btn').addEventListener('click', loadReservations);
++  document.getElementById('rsv-search').addEventListener('input', renderReservations);
++  document.querySelectorAll('[data-rsvf]').forEach(b => {
++    b.addEventListener('click', () => {
++      document.querySelectorAll('[data-rsvf]').forEach(x => x.classList.remove('active'));
++      b.classList.add('active');
++      rsvFilter = b.dataset.rsvf;
++      renderReservations();
++    });
++  });
++  loadReservations();
++}
++
++async function loadReservations() {
++  const listEl = document.getElementById('rsv-list');
++  listEl.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 0">読み込み中...</p>';
++  try {
++    const r = await fetch(`${RSV_SB_URL}/rest/v1/reservations?select=*&order=appointment_date.desc`, {headers:RSV_SB_H});
++    if (!r.ok) throw new Error(r.statusText);
++    rsvData = await r.json();
++    renderRsvStats();
++    renderReservations();
++  } catch(e) {
++    listEl.innerHTML = `<p style="text-align:center;color:var(--red);padding:40px 0">読み込み失敗: ${e.message}<br><small>Supabaseにreservationsテーブルを作成してください</small></p>`;
++  }
++}
++
++function rsvFiltered() {
++  const q = (document.getElementById('rsv-search').value || '').toLowerCase();
++  return rsvData.filter(d => {
++    if (rsvFilter === 'new' && (d.visited || d.pre_cancel === 'キャンセル済')) return false;
++    if (rsvFilter === 'visited' && d.visited !== '来院済') return false;
++    if (rsvFilter === 'cancelled' && d.pre_cancel !== 'キャンセル済' && d.visited !== 'キャンセル') return false;
++    if (rsvFilter === 'contracted' && d.contracted !== '成約') return false;
++    if (rsvFilter === 'pending' && d.contracted !== '検討中') return false;
++    if (q) {
++      const t = [d.name, d.treatment, d.clinic, d.email, d.phone].join(' ').toLowerCase();
++      if (!t.includes(q)) return false;
++    }
++    return true;
++  });
++}
++
++function renderRsvStats() {
++  const total = rsvData.length;
++  const visited = rsvData.filter(d => d.visited === '来院済').length;
++  const cancel = rsvData.filter(d => d.pre_cancel === 'キャンセル済' || d.visited === 'キャンセル').length;
++  const contract = rsvData.filter(d => d.contracted === '成約').length;
++  const amount = rsvData.reduce((s, d) => s + (d.contract_amount || 0), 0);
++  const amountStr = amount > 0 ? (amount >= 10000 ? Math.round(amount / 10000) + '万' : amount.toLocaleString()) : '-';
++
++  document.getElementById('rsv-stats').innerHTML = `
++    <div class="stat-card"><span class="stat-num">${total}</span><span class="stat-label">総予約</span></div>
++    <div class="stat-card"><span class="stat-num" style="color:var(--green)">${visited}</span><span class="stat-label">来院済</span></div>
++    <div class="stat-card"><span class="stat-num" style="color:var(--red)">${cancel}</span><span class="stat-label">ｷｬﾝｾﾙ</span></div>
++    <div class="stat-card"><span class="stat-num" style="color:#7030a0">${contract}</span><span class="stat-label">成約</span></div>
++    <div class="stat-card"><span class="stat-num" style="color:#7030a0;font-size:16px">¥${amountStr}</span><span class="stat-label">売上</span></div>
++  `;
++  document.getElementById('rsv-count').textContent = `${rsvFiltered().length}/${total}件`;
++}
++
++const RSV_CLINIC_COLORS = {
++  'BF銀座歯科':'#7d6608','エスカ':'#c0392b','アール':'#7030a0','ウィズ':'#1e8449',
++  'ルミナス':'#27ae60','名古屋ルミナス':'#27ae60','茶屋':'#d4a017','アサノ':'#85200c',
++  '知立':'#0a6b8a','小牧':'#d81b60','八事':'#8b4513','大森':'#1f6b4e','京都':'#6b3a87',
++  '銀座':'#7d6608','訪問':'#2c6e8a',
++};
++function rsvClinicColor(c) {
++  if (!c) return {bg:'#f2f2f0',fg:'#999'};
++  for (const [k,v] of Object.entries(RSV_CLINIC_COLORS)) { if (c.includes(k)) return {bg:v+'18',fg:v}; }
++  return {bg:'#e8f4fd',fg:'#2d6a9f'};
++}
++
++function rsvFormatDate(s) {
++  if (!s) return '-';
++  const d = new Date(s);
++  if (isNaN(d)) return s;
++  const dow = ['日','月','火','水','木','金','土'][d.getDay()];
++  return `${d.getMonth()+1}/${d.getDate()}(${dow}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
++}
++function rsvFormatDateShort(s) {
++  if (!s) return '-';
++  const d = new Date(s);
++  if (isNaN(d)) return s;
++  return `${d.getMonth()+1}/${d.getDate()}`;
++}
++function rsvEsc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
++
++function renderReservations() {
++  const list = rsvFiltered();
++  const el = document.getElementById('rsv-list');
++  document.getElementById('rsv-count').textContent = `${list.length}/${rsvData.length}件`;
++
++  if (!list.length) {
++    el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 0">該当する予約がありません</p>';
++    return;
++  }
++
++  el.innerHTML = list.map(d => {
++    const cc = rsvClinicColor(d.clinic);
++    const isCancelled = d.pre_cancel === 'キャンセル済' || d.visited === 'キャンセル';
++    let badges = '';
++    if (d.pre_cancel === 'キャンセル済') badges += '<span class="rsv-badge rsv-badge-cancel">事前ｷｬﾝｾﾙ</span>';
++    if (d.visited === '来院済') badges += '<span class="rsv-badge rsv-badge-visited">来院済</span>';
++    else if (d.visited === 'キャンセル') badges += '<span class="rsv-badge rsv-badge-cancel">当日ｷｬﾝｾﾙ</span>';
++    else if (d.pre_cancel !== 'キャンセル済') badges += '<span class="rsv-badge rsv-badge-default">未来院</span>';
++    if (d.contracted === '成約') badges += '<span class="rsv-badge rsv-badge-contract">成約</span>';
++    else if (d.contracted === '検討中') badges += '<span class="rsv-badge rsv-badge-pending">検討中</span>';
++    else if (d.contracted === '未成約') badges += '<span class="rsv-badge rsv-badge-nocontract">未成約</span>';
++
++    return `<div class="rsv-card${isCancelled?' rsv-cancelled':''}" onclick="openRsvModal('${d.id}')">
++      <div class="rsv-card-top">
++        <div>
++          <span class="rsv-card-name">${rsvEsc(d.name||'名前なし')}</span>
++          <span class="rsv-card-clinic" style="background:${cc.bg};color:${cc.fg}">${rsvEsc(d.clinic||'-')}</span>
++        </div>
++        <div style="text-align:right">
++          <div class="rsv-card-date">${rsvFormatDate(d.appointment_date)}</div>
++          <div style="font-size:10px;color:var(--text-muted)">登録 ${rsvFormatDateShort(d.registration_date)}</div>
++        </div>
++      </div>
++      <div class="rsv-card-treatment">${rsvEsc(d.treatment||'-')}</div>
++      ${d.promotion?'<div class="rsv-card-promo">'+rsvEsc(d.promotion)+'</div>':''}
++      <div class="rsv-badges">${badges}</div>
++      ${d.contract_amount?'<div class="rsv-card-amount">¥'+Number(d.contract_amount).toLocaleString()+'</div>':''}
++    </div>`;
++  }).join('');
++}
++
++function openRsvModal(id) {
++  const d = rsvData.find(x => x.id === id);
++  if (!d) return;
++  const cc = rsvClinicColor(d.clinic);
++  const m = document.getElementById('rsv-modal-body');
++  m.innerHTML = `
++    <button class="modal-close" onclick="document.getElementById('rsv-modal').hidden=true">&times;</button>
++    <h3 style="font-size:18px;margin-bottom:16px">${rsvEsc(d.name||'名前なし')}</h3>
++    <div class="rsv-modal-info"><b>予約日時:</b> ${rsvFormatDate(d.appointment_date)}</div>
++    <div class="rsv-modal-info"><b>登録日:</b> ${rsvFormatDateShort(d.registration_date)}</div>
++    <div class="rsv-modal-info"><b>施術:</b> ${rsvEsc(d.treatment||'-')}</div>
++    <div class="rsv-modal-info"><b>クリニック:</b> <span style="background:${cc.bg};color:${cc.fg};padding:1px 6px;border-radius:4px;font-weight:600">${rsvEsc(d.clinic||'-')}</span></div>
++    <div class="rsv-modal-info"><b>連絡先:</b> <a href="tel:${d.phone||''}" style="color:var(--primary)">${rsvEsc(d.phone||'-')}</a></div>
++    <div class="rsv-modal-info"><b>メール:</b> <a href="mailto:${d.email||''}" style="color:var(--primary);font-size:11px">${rsvEsc(d.email||'-')}</a></div>
++    ${d.promotion?'<div class="rsv-modal-info"><b>プロモーション:</b> '+rsvEsc(d.promotion)+'</div>':''}
++
++    <div class="rsv-modal-section">
++      <h4>事前キャンセル</h4>
++      <div class="rsv-modal-btns">
++        <button class="rsv-mbtn ${d.pre_cancel==='キャンセル済'?'rsv-mbtn-cancel':''}" onclick="rsvSetField('${id}','pre_cancel','キャンセル済')">キャンセル済</button>
++        <button class="rsv-mbtn ${!d.pre_cancel||d.pre_cancel===''?'rsv-mbtn-active':''}" onclick="rsvSetField('${id}','pre_cancel','')">なし</button>
++      </div>
++    </div>
++
++    <div class="rsv-modal-section">
++      <h4>来院状況</h4>
++      <div class="rsv-modal-btns">
++        <button class="rsv-mbtn ${d.visited==='来院済'?'rsv-mbtn-visited':''}" onclick="rsvSetField('${id}','visited','来院済')">来院済</button>
++        <button class="rsv-mbtn ${d.visited==='キャンセル'?'rsv-mbtn-cancel':''}" onclick="rsvSetField('${id}','visited','キャンセル')">キャンセル</button>
++        <button class="rsv-mbtn ${!d.visited||d.visited===''?'rsv-mbtn-active':''}" onclick="rsvSetField('${id}','visited','')">未来院</button>
++      </div>
++    </div>
++
++    <div class="rsv-modal-section">
++      <h4>成約状況</h4>
++      <div class="rsv-modal-btns">
++        <button class="rsv-mbtn ${d.contracted==='成約'?'rsv-mbtn-contract':''}" onclick="rsvSetField('${id}','contracted','成約')">成約</button>
++        <button class="rsv-mbtn ${d.contracted==='検討中'?'rsv-mbtn-pending':''}" onclick="rsvSetField('${id}','contracted','検討中')">検討中</button>
++        <button class="rsv-mbtn ${d.contracted==='未成約'?'rsv-mbtn-nocontract':''}" onclick="rsvSetField('${id}','contracted','未成約')">未成約</button>
++      </div>
++    </div>
++
++    <div class="rsv-modal-section">
++      <h4>成約金額</h4>
++      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
++        <input type="number" class="form-input" id="rsv-amount-input" value="${d.contract_amount||''}" placeholder="0" style="flex:1;text-align:right;font-size:16px" inputmode="numeric">
++        <span style="font-weight:600;color:var(--text-muted)">円</span>
++      </div>
++      <button class="btn btn-dark" style="width:100%;margin-top:10px;background:#7030a0;border-color:#7030a0" onclick="rsvSaveAmount('${id}')">金額を保存</button>
++    </div>
++
++    <button class="btn" style="width:100%;margin-top:12px" onclick="document.getElementById('rsv-modal').hidden=true">閉じる</button>
++  `;
++  document.getElementById('rsv-modal').hidden = false;
++}
++
++async function rsvSetField(id, field, value) {
++  try {
++    const body = {}; body[field] = value;
++    const r = await fetch(`${RSV_SB_URL}/rest/v1/reservations?id=eq.${id}`, {
++      method: 'PATCH', headers: RSV_SB_H, body: JSON.stringify(body)
++    });
++    if (!r.ok) throw new Error(r.statusText);
++    const updated = await r.json();
++    if (updated.length) { const idx = rsvData.findIndex(x => x.id === id); if (idx >= 0) rsvData[idx] = updated[0]; }
++    openRsvModal(id);
++    renderRsvStats();
++    renderReservations();
++  } catch(e) {
++    alert('更新失敗: ' + e.message);
++  }
++}
++
++async function rsvSaveAmount(id) {
++  const val = document.getElementById('rsv-amount-input').value;
++  const amount = val ? parseInt(val) : null;
++  try {
++    const r = await fetch(`${RSV_SB_URL}/rest/v1/reservations?id=eq.${id}`, {
++      method: 'PATCH', headers: RSV_SB_H, body: JSON.stringify({contract_amount: amount})
++    });
++    if (!r.ok) throw new Error(r.statusText);
++    const updated = await r.json();
++    if (updated.length) { const idx = rsvData.findIndex(x => x.id === id); if (idx >= 0) rsvData[idx] = updated[0]; }
++    renderRsvStats();
++    renderReservations();
++    alert('金額を保存しました');
++  } catch(e) {
++    alert('保存失敗: ' + e.message);
++  }
++}
+diff --git a/gas-sync.js b/gas-sync.js
+new file mode 100644
+index 0000000..98cb353
+--- /dev/null
++++ b/gas-sync.js
+@@ -0,0 +1,182 @@
++/**
++ * Google Apps Script: スプレッドシート → Supabase 同期
++ *
++ * 【セットアップ手順】
++ * 1. スプレッドシートで「拡張機能」→「Apps Script」を開く
++ * 2. このコードを貼り付ける
++ * 3. SUPABASE_URL と SUPABASE_KEY を設定する
++ * 4. syncToSupabase() を実行してテスト
++ * 5. トリガー設定：「編集」→「トリガー」→ syncToSupabase を「時間ベース」で5分おきに実行
++ *
++ * 【スプレッドシートのカラム構成】
++ * A: 登録日 | B: 予約日時 | C: 名前 | D: 施術 | E: クリニック
++ * F: メールアドレス | G: 連絡先 | H: プロモーション | I: 事前キャンセル
++ * J: 来院有無 | K: 成約有無
++ */
++
++const SUPABASE_URL = 'https://trsugjpvhlkwjvtloype.supabase.co';
++const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc3VnanB2aGxrd2p2dGxveXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc4ODQsImV4cCI6MjA5MDQzMzg4NH0.GASbFeN_dLduCw81DQen8e4Hwc0TkHrcZWbB8dgNsec';
++const SHEET_NAME = 'hikaru_Affiliates'; // シート名
++
++function syncToSupabase() {
++  const ss = SpreadsheetApp.getActiveSpreadsheet();
++  const sheet = ss.getSheetByName(SHEET_NAME);
++  if (!sheet) {
++    Logger.log('シートが見つかりません: ' + SHEET_NAME);
++    return;
++  }
++
++  const data = sheet.getDataRange().getValues();
++  const headers = data[0]; // ヘッダー行
++  const rows = data.slice(1); // データ行
++
++  // 既存データを取得（name + appointment_date で重複チェック）
++  const existing = getExistingRecords();
++  const existingKeys = new Set(existing.map(r => makeKey(r.name, r.appointment_date)));
++
++  let newRecords = [];
++  let updateRecords = [];
++
++  for (const row of rows) {
++    if (!row[2]) continue; // 名前が空ならスキップ
++
++    const record = {
++      registration_date: formatDateForDB(row[0]),
++      appointment_date: formatDateForDB(row[1]),
++      name: String(row[2]).trim(),
++      treatment: String(row[3]).trim(),
++      clinic: String(row[4]).trim(),
++      email: String(row[5]).trim(),
++      phone: String(row[6]).trim(),
++      promotion: String(row[7]).trim(),
++      pre_cancel: String(row[8]).trim() || null,
++    };
++
++    const key = makeKey(record.name, record.appointment_date);
++
++    if (!existingKeys.has(key)) {
++      newRecords.push(record);
++    }
++  }
++
++  // 新規レコードをバッチ挿入
++  if (newRecords.length > 0) {
++    upsertRecords(newRecords);
++    Logger.log(newRecords.length + '件の新規予約を同期しました');
++  } else {
++    Logger.log('新規予約はありません');
++  }
++
++  // スプレッドシート側のJ列・K列をSupabaseから逆同期（Webで更新した内容を反映）
++  syncBackToSheet(sheet, data, existing);
++}
++
++/**
++ * Supabase → スプレッドシート逆同期（来院有無・成約有無）
++ */
++function syncBackToSheet(sheet, sheetData, supabaseData) {
++  const rows = sheetData.slice(1);
++
++  for (let i = 0; i < rows.length; i++) {
++    const row = rows[i];
++    if (!row[2]) continue;
++
++    const name = String(row[2]).trim();
++    const apptDate = formatDateForDB(row[1]);
++
++    // Supabaseから該当レコードを探す
++    const match = supabaseData.find(r =>
++      r.name === name && r.appointment_date === apptDate
++    );
++
++    if (match) {
++      const rowIdx = i + 2; // ヘッダー分 +1, 0始まり +1
++
++      // J列（来院有無）: Supabase側に値があればシートに書き戻す
++      if (match.visited && match.visited !== String(row[9] || '').trim()) {
++        sheet.getRange(rowIdx, 10).setValue(match.visited);
++      }
++
++      // K列（成約有無）: Supabase側に値があればシートに書き戻す
++      if (match.contracted && match.contracted !== String(row[10] || '').trim()) {
++        sheet.getRange(rowIdx, 11).setValue(match.contracted);
++      }
++    }
++  }
++}
++
++/**
++ * 既存レコードを全件取得
++ */
++function getExistingRecords() {
++  const url = SUPABASE_URL + '/rest/v1/reservations?select=id,name,appointment_date,visited,contracted';
++  const options = {
++    method: 'get',
++    headers: {
++      'apikey': SUPABASE_KEY,
++      'Authorization': 'Bearer ' + SUPABASE_KEY,
++    },
++    muteHttpExceptions: true,
++  };
++  const res = UrlFetchApp.fetch(url, options);
++  if (res.getResponseCode() !== 200) {
++    Logger.log('取得エラー: ' + res.getContentText());
++    return [];
++  }
++  return JSON.parse(res.getContentText());
++}
++
++/**
++ * レコードをバッチ挿入
++ */
++function upsertRecords(records) {
++  const url = SUPABASE_URL + '/rest/v1/reservations';
++  const options = {
++    method: 'post',
++    headers: {
++      'apikey': SUPABASE_KEY,
++      'Authorization': 'Bearer ' + SUPABASE_KEY,
++      'Content-Type': 'application/json',
++      'Prefer': 'resolution=ignore-duplicates',
++    },
++    payload: JSON.stringify(records),
++    muteHttpExceptions: true,
++  };
++  const res = UrlFetchApp.fetch(url, options);
++  if (res.getResponseCode() >= 300) {
++    Logger.log('挿入エラー: ' + res.getContentText());
++  }
++}
++
++/**
++ * 重複チェック用キー
++ */
++function makeKey(name, date) {
++  return (name || '').trim() + '|' + (date || '');
++}
++
++/**
++ * 日付をDB用フォーマットに変換
++ */
++function formatDateForDB(val) {
++  if (!val) return null;
++  if (val instanceof Date) {
++    const y = val.getFullYear();
++    const m = String(val.getMonth() + 1).padStart(2, '0');
++    const d = String(val.getDate()).padStart(2, '0');
++    const h = String(val.getHours()).padStart(2, '0');
++    const min = String(val.getMinutes()).padStart(2, '0');
++    return `${y}-${m}-${d}T${h}:${min}:00`;
++  }
++  return String(val).trim();
++}
++
++/**
++ * メニューに同期ボタンを追加
++ */
++function onOpen() {
++  SpreadsheetApp.getUi()
++    .createMenu('🔄 予約同期')
++    .addItem('Supabaseに同期', 'syncToSupabase')
++    .addToUi();
++}
+diff --git a/index.html b/index.html
+index bebada1..3d19e99 100644
+--- a/index.html
++++ b/index.html
+@@ -38,6 +38,7 @@
+         <button class="nav-btn active" data-view="tc">TC</button>
+         <button class="nav-btn" data-view="sales">売上</button>
+         <button class="nav-btn" data-view="reviews">口コミ</button>
++        <button class="nav-btn" data-view="reservations">予約管理</button>
+       </nav>
+       <div class="nav-spacer"></div>
+       <button class="btn-logout" id="logout-btn">ログアウト</button>
+@@ -57,6 +58,10 @@
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+         <span>口コミ</span>
+       </button>
++      <button class="bottom-nav-btn" data-view="reservations">
++        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
++        <span>予約</span>
++      </button>
+       <button class="bottom-nav-btn" data-view="settings">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+         <span>TC</span>
+@@ -410,6 +415,42 @@
+       </div>
+     </main>
+ 
++    <!-- ==================== 予約管理 ==================== -->
++    <main id="view-reservations" class="view" hidden>
++      <div class="page-header">
++        <h2>予約管理</h2>
++        <div style="display:flex;gap:8px;align-items:center;">
++          <span id="rsv-count" style="font-size:12px;color:var(--muted)"></span>
++          <button class="btn btn-dark" id="rsv-sync-btn" style="padding:6px 14px;font-size:12px">↻ 同期</button>
++        </div>
++      </div>
++
++      <!-- Stats -->
++      <div class="stats-row" id="rsv-stats"></div>
++
++      <!-- Search & Filters -->
++      <div style="padding:0 24px 12px">
++        <input type="text" class="form-input" id="rsv-search" placeholder="名前・施術・クリニックで検索..." style="margin-bottom:8px">
++        <div style="display:flex;gap:6px;flex-wrap:wrap;" id="rsv-filters">
++          <button class="facility-tab active" data-rsvf="all">すべて</button>
++          <button class="facility-tab" data-rsvf="new">未対応</button>
++          <button class="facility-tab" data-rsvf="visited">来院済</button>
++          <button class="facility-tab" data-rsvf="cancelled">ｷｬﾝｾﾙ</button>
++          <button class="facility-tab" data-rsvf="contracted">成約</button>
++          <button class="facility-tab" data-rsvf="pending">検討中</button>
++        </div>
++      </div>
++
++      <!-- Card List -->
++      <div id="rsv-list" style="padding:0 24px 24px;"></div>
++    </main>
++
++    <!-- 予約詳細モーダル -->
++    <div id="rsv-modal" class="modal" hidden>
++      <div class="modal-overlay" onclick="document.getElementById('rsv-modal').hidden=true"></div>
++      <div class="modal-content" style="max-width:480px;padding:24px" id="rsv-modal-body"></div>
++    </div>
++
+     <!-- ==================== 設定 ==================== -->
+     <main id="view-settings" class="view" hidden>
+       <div class="page-header"><h2>設定</h2></div>
+diff --git a/styles.css b/styles.css
+index e796e4d..f1210fb 100644
+--- a/styles.css
++++ b/styles.css
+@@ -482,3 +482,39 @@ body {
+   .stat-num { font-size: 20px; }
+   .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+ }
++
++/* ==================== 予約管理 ==================== */
++.rsv-card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;transition:all .15s;}
++.rsv-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);}
++.rsv-card:active{transform:scale(.99);}
++.rsv-card.rsv-cancelled{opacity:.5;}
++.rsv-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
++.rsv-card-name{font-size:15px;font-weight:700;}
++.rsv-card-clinic{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;display:inline-block;margin-left:6px;vertical-align:middle;}
++.rsv-card-date{font-size:12px;font-weight:600;color:var(--text-secondary);}
++.rsv-card-treatment{font-size:12px;color:var(--text-muted);margin-bottom:4px;line-height:1.4;}
++.rsv-card-promo{font-size:9px;color:var(--text-muted);background:var(--bg);padding:2px 6px;border-radius:4px;display:inline-block;margin-bottom:6px;}
++.rsv-card-amount{margin-top:6px;font-size:15px;font-weight:700;color:#7030a0;}
++.rsv-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
++.rsv-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1.5px solid var(--border);}
++.rsv-badge-cancel{background:#fdf0ee;border-color:#c0392b;color:#c0392b;}
++.rsv-badge-visited{background:#e8f5e9;border-color:#2e7d32;color:#2e7d32;}
++.rsv-badge-default{border-style:dashed;color:var(--text-muted);}
++.rsv-badge-contract{background:#f5eef8;border-color:#7030a0;color:#7030a0;}
++.rsv-badge-pending{background:#fef5e7;border-color:#e67e22;color:#e67e22;}
++.rsv-badge-nocontract{background:#f2f2f0;border-color:#999;color:#999;}
++
++/* Modal sections */
++.rsv-modal-info{font-size:13px;color:var(--text-muted);margin-bottom:6px;}
++.rsv-modal-info b{color:var(--text-primary);font-weight:600;}
++.rsv-modal-section{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
++.rsv-modal-section h4{font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600;}
++.rsv-modal-btns{display:flex;gap:8px;flex-wrap:wrap;}
++.rsv-mbtn{flex:1;min-width:70px;padding:10px 8px;border-radius:var(--radius);border:2px solid var(--border);background:var(--card);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;text-align:center;color:var(--text-muted);}
++.rsv-mbtn:active{transform:scale(.95);}
++.rsv-mbtn-active{border-color:var(--text-primary);color:var(--text-primary);background:var(--bg);}
++.rsv-mbtn-cancel{background:#fdf0ee;border-color:#c0392b;color:#c0392b;}
++.rsv-mbtn-visited{background:#e8f5e9;border-color:#2e7d32;color:#2e7d32;}
++.rsv-mbtn-contract{background:#f5eef8;border-color:#7030a0;color:#7030a0;}
++.rsv-mbtn-pending{background:#fef5e7;border-color:#e67e22;color:#e67e22;}
++.rsv-mbtn-nocontract{background:#f2f2f0;border-color:#999;color:#999;}
+diff --git a/supabase-setup.sql b/supabase-setup.sql
+new file mode 100644
+index 0000000..8df8bc4
+--- /dev/null
++++ b/supabase-setup.sql
+@@ -0,0 +1,52 @@
++-- ============================================
++-- 予約管理テーブル (reservations)
++-- Supabase SQL Editor で実行してください
++-- ============================================
++
++CREATE TABLE IF NOT EXISTS reservations (
++  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
++  registration_date TIMESTAMPTZ,        -- 登録日 (A列)
++  appointment_date TIMESTAMPTZ,         -- 予約日時 (B列)
++  name TEXT NOT NULL,                   -- 名前 (C列)
++  treatment TEXT,                       -- 施術 (D列)
++  clinic TEXT,                          -- クリニック (E列)
++  email TEXT,                           -- メールアドレス (F列)
++  phone TEXT,                           -- 連絡先 (G列)
++  promotion TEXT,                       -- プロモーション (H列)
++  pre_cancel TEXT,                      -- 事前キャンセル (I列) GASから自動
++  visited TEXT,                         -- 来院有無 (J列) Webアプリから入力
++  contracted TEXT,                      -- 成約有無 (K列) Webアプリから入力
++  contract_amount INTEGER,              -- 成約金額 Webアプリから入力
++  created_at TIMESTAMPTZ DEFAULT NOW(),
++  updated_at TIMESTAMPTZ DEFAULT NOW()
++);
++
++-- 重複防止用ユニーク制約（名前+予約日時）
++CREATE UNIQUE INDEX IF NOT EXISTS idx_reservations_unique
++  ON reservations (name, appointment_date);
++
++-- 更新日時の自動更新
++CREATE OR REPLACE FUNCTION update_updated_at()
++RETURNS TRIGGER AS $$
++BEGIN
++  NEW.updated_at = NOW();
++  RETURN NEW;
++END;
++$$ LANGUAGE plpgsql;
++
++CREATE TRIGGER trg_reservations_updated_at
++  BEFORE UPDATE ON reservations
++  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
++
++-- RLS (Row Level Security) を有効にして anon アクセスを許可
++ALTER TABLE reservations ENABLE ROW LEVEL SECURITY;
++
++CREATE POLICY "Allow all for anon" ON reservations
++  FOR ALL
++  USING (true)
++  WITH CHECK (true);
++
++-- インデックス
++CREATE INDEX IF NOT EXISTS idx_reservations_appointment ON reservations (appointment_date DESC);
++CREATE INDEX IF NOT EXISTS idx_reservations_clinic ON reservations (clinic);
++CREATE INDEX IF NOT EXISTS idx_reservations_status ON reservations (visited, contracted);
+-- 
+2.43.0
+
