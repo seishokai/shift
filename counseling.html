@@ -12,7 +12,13 @@ body{font-family:"Yu Gothic","游ゴシック",YuGothic,"Hiragino Sans",sans-ser
 .nav a{color:#C5A55A;text-decoration:none;padding:8px 16px;font-size:15px;display:inline-block;transition:opacity 0.3s}
 .nav a:hover{opacity:0.7}
 section{padding:60px 20px;max-width:1100px;margin:0 auto}
-.hero{background:#000;color:#fff;text-align:center;padding:100px 20px;min-height:80vh;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:100%}
+.hero{background:#000;color:#fff;text-align:center;padding:100px 20px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:100%}
+.hero .fade{opacity:0;transform:translateY(20px);animation:fadeUp 1.2s ease forwards}
+.hero .fade:nth-child(1){animation-delay:0.8s}
+.hero .fade:nth-child(2){animation-delay:1.8s}
+.hero .fade:nth-child(3){animation-delay:2.8s}
+.hero .fade:nth-child(4){animation-delay:3.6s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
 .hero h1{font-size:clamp(28px,5vw,48px);font-weight:300;letter-spacing:0.1em;margin-bottom:20px}
 .hero .sub{font-size:clamp(16px,3vw,22px);color:#C5A55A;letter-spacing:0.15em;margin-top:10px}
 .hero .tagline{font-size:clamp(18px,3.5vw,28px);margin-top:30px;font-weight:400}
@@ -116,10 +122,10 @@ table.price-table tr:hover{background:#f9f9f9}
 
 <!-- Hero -->
 <div class="hero" id="hero">
-<p class="sub">― No-Prep Laminate Veneer ―</p>
-<h1>美しさのために歯を削る時代は<br>終わりました。</h1>
-<p class="tagline">削らないラミネートベニア</p>
-<p style="margin-top:20px;color:#888;font-size:16px">2つの最先端技術で、理想の笑顔を</p>
+<p class="sub fade">― No-Prep Laminate Veneer ―</p>
+<h1 class="fade">美しさのために歯を削る時代は<br>終わりました。</h1>
+<p class="tagline fade">削らないラミネートベニア</p>
+<p class="fade" style="margin-top:20px;color:#888;font-size:18px">2つの最先端技術で、理想の笑顔を</p>
 </div>
 
 <!-- Concerns -->
