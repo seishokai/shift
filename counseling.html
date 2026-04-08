@@ -95,12 +95,28 @@ table.compare tr:hover{background:#222}
 @media(max-width:768px){.flow-branches{grid-template-columns:1fr}}
 .flow-branch{background:#1a1a1a;border:1px solid #333;padding:15px;border-radius:8px;text-align:center;font-size:16px}
 .flow-branch .label{color:#C5A55A;font-weight:600;margin-bottom:8px}
-table.price-table{width:100%;border-collapse:collapse;margin:20px 0}
-table.price-table th{background:#C5A55A;color:#000;padding:14px;font-weight:600;font-size:17px}
-table.price-table td{padding:14px;border-bottom:1px solid #eee;text-align:center;font-size:17px}
-table.price-table tr:hover{background:#f9f9f9}
-.dark table.price-table td{border-bottom-color:#333}
-.dark table.price-table tr:hover{background:#1a1a1a}
+.price-block{margin-bottom:60px}
+.price-block h3{text-align:center;font-size:24px;margin-bottom:8px}
+.price-hero{text-align:center;padding:30px 20px;margin-bottom:20px}
+.price-hero .label{font-size:14px;color:#888;margin-bottom:6px}
+.price-hero .amount{font-size:clamp(36px,6vw,52px);font-weight:700;color:#222;letter-spacing:-0.02em}
+.price-hero .amount small{font-size:16px;font-weight:400;color:#888;margin-left:4px}
+.price-hero .tax{font-size:14px;color:#999;margin-top:4px}
+.price-tabs{display:flex;justify-content:center;gap:0;margin-bottom:0;border-bottom:2px solid #C5A55A}
+.price-tab{padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;background:#f5f5f5;border:1px solid #ddd;border-bottom:none;color:#888;transition:all 0.3s;border-radius:8px 8px 0 0;margin-bottom:-2px}
+.price-tab.active{background:#fff;color:#222;border-color:#C5A55A;border-bottom:2px solid #fff;z-index:1}
+.price-tab:hover:not(.active){background:#eee}
+.price-panel{display:none;border:1px solid #ddd;border-top:none;border-radius:0 0 12px 12px;overflow:hidden}
+.price-panel.active{display:block}
+.ptbl{width:100%;border-collapse:collapse}
+.ptbl th{background:#1a1a1a;color:#C5A55A;padding:12px 14px;font-size:14px;font-weight:600;text-align:center;border-bottom:1px solid #333}
+.ptbl td{padding:14px;text-align:center;border-bottom:1px solid #eee;font-size:15px;color:#333}
+.ptbl tr:hover{background:#fafafa}
+.ptbl td:first-child{font-weight:600;color:#222}
+.ptbl .sale{color:#C5A55A;font-weight:700;font-size:13px}
+.ptbl .price-main{font-size:17px;font-weight:700;color:#222}
+.ptbl .per-tooth{font-size:13px;color:#888}
+@media(max-width:768px){.price-tab{padding:10px 14px;font-size:13px}}
 .warranty-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:30px}
 @media(max-width:768px){.warranty-grid{grid-template-columns:1fr}}
 .warranty-card{border:1px solid #333;border-radius:12px;padding:25px}
@@ -553,38 +569,122 @@ table.price-table tr:hover{background:#f9f9f9}
 <section id="price">
 <div class="section-title"><h2>料金表</h2></div>
 
-<h3 style="color:#C5A55A;margin-bottom:20px;text-align:center">La Briller ラブリエ</h3>
-<div style="overflow-x:auto">
-<table class="price-table">
-<tr><th>本数</th><th>定価（税込）</th><th>本数割（税込）</th><th>1本あたり</th></tr>
-<tr><td>上下20本</td><td>¥2,640,000</td><td>¥2,178,000</td><td>¥108,900</td></tr>
-<tr><td>上下16本</td><td>¥2,112,000</td><td>¥1,742,400</td><td>¥108,900</td></tr>
-<tr><td>上下14本</td><td>¥1,848,000</td><td>¥1,617,000</td><td>¥115,500</td></tr>
-<tr><td>上10本</td><td>¥1,320,000</td><td>¥1,155,000</td><td>¥115,500</td></tr>
-<tr><td>上8本</td><td>¥1,056,000</td><td>¥1,012,000</td><td>¥126,500</td></tr>
-<tr><td>上6本</td><td>¥792,000</td><td>¥759,000</td><td>¥126,500</td></tr>
-<tr><td>上2本</td><td>¥264,000</td><td>―</td><td>¥132,000</td></tr>
-</table>
+<!-- La Briller -->
+<div class="price-block">
+<h3 style="color:#C5A55A">La Briller ラブリエ</h3>
+<div class="price-hero">
+<div class="label">定価</div>
+<div class="amount">¥132,000<small>税込 / 1本</small></div>
 </div>
-<p style="text-align:center;color:#888;font-size:15px;margin-top:10px">※ガミースマイルOPE: ¥150,000（税抜）/ Zrクラウン: 1本¥86,000（税抜）</p>
 
-<h3 style="color:#C5A55A;margin:40px 0 20px;text-align:center">Blackfilm ブラックフィルム</h3>
-<div style="overflow-x:auto">
-<table class="price-table">
-<tr><th>本数</th><th>定価（税抜）</th><th>本数割（税抜）</th><th>1本あたり</th></tr>
-<tr><td>20本</td><td>¥5,500,000</td><td>カウンセリング時にご案内</td><td>¥275,000</td></tr>
-<tr><td>18本</td><td>¥4,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>16本</td><td>¥4,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>14本</td><td>¥3,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>12本</td><td>¥3,200,000</td><td>カウンセリング時にご案内</td><td>¥266,667</td></tr>
-<tr><td>10本</td><td>¥2,000,000</td><td>カウンセリング時にご案内</td><td>¥200,000</td></tr>
-<tr><td>8本</td><td>¥2,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>6本</td><td>¥1,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>4本</td><td>¥1,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>2本</td><td>¥500,000</td><td>―</td><td>¥250,000</td></tr>
+<div class="price-tabs">
+<div class="price-tab active" onclick="showPriceTab(this,'lov-set')">本数セット</div>
+<div class="price-tab" onclick="showPriceTab(this,'lov-nose')">鼻下モニター</div>
+<div class="price-tab" onclick="showPriceTab(this,'lov-face')">顔モニター</div>
+</div>
+
+<div class="price-panel active" id="lov-set">
+<table class="ptbl">
+<tr><th>本数</th><th>1本単価</th><th></th><th>セット価格（税込）</th></tr>
+<tr><td>20本</td><td class="price-main">¥108,900</td><td class="sale">17%OFF</td><td class="price-main">¥2,178,000</td></tr>
+<tr><td>16本</td><td class="price-main">¥108,900</td><td class="sale">17%OFF</td><td class="price-main">¥1,742,400</td></tr>
+<tr><td>14本</td><td class="price-main">¥115,500</td><td class="sale">12%OFF</td><td class="price-main">¥1,617,000</td></tr>
+<tr><td>10本</td><td class="price-main">¥115,500</td><td class="sale">12%OFF</td><td class="price-main">¥1,155,000</td></tr>
+<tr><td>8本</td><td class="price-main">¥126,500</td><td class="sale">4%OFF</td><td class="price-main">¥1,012,000</td></tr>
+<tr><td>6本</td><td class="price-main">¥126,500</td><td class="sale">4%OFF</td><td class="price-main">¥759,000</td></tr>
+<tr><td>2本</td><td class="price-main">¥132,000</td><td></td><td class="price-main">¥264,000</td></tr>
 </table>
 </div>
-<p style="text-align:center;color:#888;font-size:15px;margin-top:10px">※モニター価格・各種割引についてはカウンセリング時にご案内いたします。</p>
+
+<div class="price-panel" id="lov-nose">
+<table class="ptbl">
+<tr><th>本数</th><th>1本単価</th><th></th><th>モニター価格（税込）</th></tr>
+<tr><td>20本</td><td class="price-main">¥99,000</td><td class="sale">25%OFF</td><td class="price-main">¥1,980,000</td></tr>
+<tr><td>16本</td><td class="price-main">¥99,000</td><td class="sale">25%OFF</td><td class="price-main">¥1,584,000</td></tr>
+<tr><td>14本</td><td class="price-main">¥105,600</td><td class="sale">20%OFF</td><td class="price-main">¥1,478,400</td></tr>
+<tr><td>10本</td><td class="price-main">¥105,600</td><td class="sale">20%OFF</td><td class="price-main">¥1,056,000</td></tr>
+<tr><td>8本</td><td class="price-main">¥115,500</td><td class="sale">12%OFF</td><td class="price-main">¥924,000</td></tr>
+<tr><td>6本</td><td class="price-main">¥115,500</td><td class="sale">12%OFF</td><td class="price-main">¥693,000</td></tr>
+</table>
+</div>
+
+<div class="price-panel" id="lov-face">
+<table class="ptbl">
+<tr><th>本数</th><th>1本単価</th><th></th><th>モニター価格（税込）</th></tr>
+<tr><td>20本</td><td class="price-main">¥88,000</td><td class="sale">33%OFF</td><td class="price-main">¥1,760,000</td></tr>
+<tr><td>16本</td><td class="price-main">¥88,000</td><td class="sale">33%OFF</td><td class="price-main">¥1,408,000</td></tr>
+<tr><td>14本</td><td class="price-main">¥93,500</td><td class="sale">29%OFF</td><td class="price-main">¥1,309,000</td></tr>
+<tr><td>10本</td><td class="price-main">¥93,500</td><td class="sale">29%OFF</td><td class="price-main">¥935,000</td></tr>
+<tr><td>8本</td><td class="price-main">¥102,300</td><td class="sale">22%OFF</td><td class="price-main">¥818,400</td></tr>
+<tr><td>6本</td><td class="price-main">¥102,300</td><td class="sale">22%OFF</td><td class="price-main">¥613,800</td></tr>
+</table>
+</div>
+
+<p style="text-align:center;color:#888;font-size:13px;margin-top:12px">※ガミースマイルOPE: ¥150,000（税抜）/ Zrクラウン: 1本¥86,000（税抜）</p>
+</div>
+
+<!-- Blackfilm -->
+<div class="price-block">
+<h3 style="color:#C5A55A">Blackfilm ブラックフィルム</h3>
+<div class="price-hero">
+<div class="label">定価</div>
+<div class="amount">¥250,000<small>税抜 / 1本</small></div>
+<div class="tax">税込 ¥275,000</div>
+</div>
+
+<div class="price-tabs">
+<div class="price-tab active" onclick="showPriceTab(this,'bf-set')">本数セット</div>
+<div class="price-tab" onclick="showPriceTab(this,'bf-nose')">鼻下モニター</div>
+<div class="price-tab" onclick="showPriceTab(this,'bf-face')">顔モニター</div>
+</div>
+
+<div class="price-panel active" id="bf-set">
+<table class="ptbl">
+<tr><th>本数</th><th>1本単価（税抜）</th><th></th><th>セット価格（税抜）</th></tr>
+<tr><td>20本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥4,000,000</td></tr>
+<tr><td>18本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥3,600,000</td></tr>
+<tr><td>16本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥3,200,000</td></tr>
+<tr><td>14本</td><td class="price-main">¥220,000</td><td class="sale">12%OFF</td><td class="price-main">¥3,080,000</td></tr>
+<tr><td>12本</td><td class="price-main">¥220,000</td><td class="sale">12%OFF</td><td class="price-main">¥2,640,000</td></tr>
+<tr><td>10本</td><td class="price-main">¥230,000</td><td class="sale">8%OFF</td><td class="price-main">¥2,300,000</td></tr>
+<tr><td>8本</td><td class="price-main">¥230,000</td><td class="sale">8%OFF</td><td class="price-main">¥1,840,000</td></tr>
+<tr><td>6本</td><td class="price-main">¥240,000</td><td class="sale">4%OFF</td><td class="price-main">¥1,440,000</td></tr>
+<tr><td>4本</td><td class="price-main">¥250,000</td><td></td><td class="price-main">¥1,000,000</td></tr>
+<tr><td>2本</td><td class="price-main">¥250,000</td><td></td><td class="price-main">¥500,000</td></tr>
+</table>
+</div>
+
+<div class="price-panel" id="bf-nose">
+<table class="ptbl">
+<tr><th>本数</th><th>1本単価（税抜）</th><th></th><th>モニター価格（税抜）</th></tr>
+<tr><td>20本</td><td class="price-main">¥170,000</td><td class="sale">32%OFF</td><td class="price-main">¥3,400,000</td></tr>
+<tr><td>18本</td><td class="price-main">¥170,000</td><td class="sale">32%OFF</td><td class="price-main">¥3,060,000</td></tr>
+<tr><td>16本</td><td class="price-main">¥175,000</td><td class="sale">30%OFF</td><td class="price-main">¥2,800,000</td></tr>
+<tr><td>14本</td><td class="price-main">¥185,000</td><td class="sale">26%OFF</td><td class="price-main">¥2,590,000</td></tr>
+<tr><td>12本</td><td class="price-main">¥190,000</td><td class="sale">24%OFF</td><td class="price-main">¥2,280,000</td></tr>
+<tr><td>10本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥2,000,000</td></tr>
+<tr><td>8本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥1,600,000</td></tr>
+<tr><td>6本</td><td class="price-main">¥210,000</td><td class="sale">16%OFF</td><td class="price-main">¥1,260,000</td></tr>
+</table>
+</div>
+
+<div class="price-panel" id="bf-face">
+<table class="ptbl">
+<tr><th>本数</th><th>1本単価（税抜）</th><th></th><th>モニター価格（税抜）</th></tr>
+<tr><td>20本</td><td class="price-main">¥150,000</td><td class="sale">40%OFF</td><td class="price-main">¥3,000,000</td></tr>
+<tr><td>18本</td><td class="price-main">¥150,000</td><td class="sale">40%OFF</td><td class="price-main">¥2,700,000</td></tr>
+<tr><td>16本</td><td class="price-main">¥155,000</td><td class="sale">38%OFF</td><td class="price-main">¥2,480,000</td></tr>
+<tr><td>14本</td><td class="price-main">¥165,000</td><td class="sale">34%OFF</td><td class="price-main">¥2,310,000</td></tr>
+<tr><td>12本</td><td class="price-main">¥170,000</td><td class="sale">32%OFF</td><td class="price-main">¥2,040,000</td></tr>
+<tr><td>10本</td><td class="price-main">¥180,000</td><td class="sale">28%OFF</td><td class="price-main">¥1,800,000</td></tr>
+<tr><td>8本</td><td class="price-main">¥185,000</td><td class="sale">26%OFF</td><td class="price-main">¥1,480,000</td></tr>
+<tr><td>6本</td><td class="price-main">¥195,000</td><td class="sale">22%OFF</td><td class="price-main">¥1,170,000</td></tr>
+</table>
+</div>
+
+<p style="text-align:center;color:#888;font-size:13px;margin-top:12px">※モニター価格の詳細はカウンセリング時にご案内いたします。</p>
+</div>
+
 </section>
 <!-- Warranty -->
 <div class="dark" id="warranty">
@@ -709,6 +809,13 @@ var bfCases=[
 var uploadedCases=[];
 var ssCases,ssIdx,ssImgIdx;
 
+function showPriceTab(el,panelId){
+var parent=el.parentElement.parentElement;
+parent.querySelectorAll('.price-tab').forEach(function(t){t.classList.remove('active')});
+parent.querySelectorAll('.price-panel').forEach(function(p){p.classList.remove('active')});
+el.classList.add('active');
+document.getElementById(panelId).classList.add('active');
+}
 function showCases(type){
 document.getElementById('cases-lovelier').style.display=type==='lovelier'?'block':'none';
 document.getElementById('cases-blackfilm').style.display=type==='blackfilm'?'block':'none';
