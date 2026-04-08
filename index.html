@@ -989,9 +989,12 @@ function renderA(){
     var allEx=CLINICS.filter(function(c){return c.id!=='yagoto';}).map(function(c){return c.id;});
     var isAllOn=allEx.every(function(id){return window._clinicClosedSel.has(id);});
     var delOn=!!window._clinicClosedDelMode;
+    var undoN=window._closedUndoStack?window._closedUndoStack.length:0;
+    var redoN=window._closedRedoStack?window._closedRedoStack.length:0;
     var bh='<span style="font-weight:700;color:#b8691a;">休診編集:</span>';
+    bh+='<button onclick="closedUndo()" style="padding:4px 8px;border-radius:12px;border:1.5px solid '+(undoN?'#2d6a9f':'#ddd')+';background:'+(undoN?'#e8f4fd':'#f5f5f5')+';color:'+(undoN?'#2d6a9f':'#ccc')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;" '+(undoN?'':'disabled')+'>← 戻る('+undoN+')</button>';
+    bh+='<button onclick="closedRedo()" style="padding:4px 8px;border-radius:12px;border:1.5px solid '+(redoN?'#2d6a9f':'#ddd')+';background:'+(redoN?'#e8f4fd':'#f5f5f5')+';color:'+(redoN?'#2d6a9f':'#ccc')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;" '+(redoN?'':'disabled')+'>進む('+redoN+')</button>';
     bh+='<button onclick="clinicClosedToggleDel()" style="padding:4px 10px;border-radius:12px;border:1.5px solid '+(delOn?'#b83030':'var(--border)')+';background:'+(delOn?'#b83030':'#fdf0ee')+';color:'+(delOn?'#fff':'#b83030')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">休診取消</button>';
-    bh+='<button onclick="clinicClosedClearMonth()" style="padding:4px 8px;border-radius:12px;border:1.5px solid #b83030;background:#fdf0ee;color:#b83030;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">月クリア</button>';
     bh+='<button onclick="clinicClosedPickAll()" style="padding:4px 10px;border-radius:12px;border:1.5px solid '+(isAllOn?'#c0392b':'var(--border)')+';background:'+(isAllOn?'#c0392b':'var(--card)')+';color:'+(isAllOn?'#fff':'var(--ink2)')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">八事以外</button>';
     CLINICS.forEach(function(c){
       var cc=getCC(c.id),on=window._clinicClosedSel.has(c.id);
@@ -1008,6 +1011,7 @@ function renderA(){
         var clinicId2=td.dataset.editClinic;
         /* 休診取消モード：クリックしたセルの休診を解除 */
         if(window._clinicClosedDelMode){
+          closedSnapshot();
           if(CLOSED_DATES[clinicId2]){
             var idx2=CLOSED_DATES[clinicId2].indexOf(dateStr2);
             if(idx2>=0){CLOSED_DATES[clinicId2].splice(idx2,1);renderA();renderC();showSb('休診取消','ok');}
@@ -1016,6 +1020,7 @@ function renderA(){
         }
         /* 通常モード：選択中の医院の休診をトグル */
         if(!window._clinicClosedSel||!window._clinicClosedSel.size)return;
+        closedSnapshot();
         window._clinicClosedSel.forEach(function(cid){
           if(!CLOSED_DATES[cid])CLOSED_DATES[cid]=[];
           var idx=CLOSED_DATES[cid].indexOf(dateStr2);
@@ -1028,14 +1033,33 @@ function renderA(){
   }
 }
 
-function clinicClosedClearMonth(){
-  if(!confirm(curY+'年'+(curM+1)+'月の休診日(CLOSED_DATES)を全削除しますか？'))return;
-  var ym=curY+'-'+String(curM+1).padStart(2,'0');
-  Object.keys(CLOSED_DATES).forEach(function(cid){
-    CLOSED_DATES[cid]=CLOSED_DATES[cid].filter(function(d){return d.slice(0,7)!==ym;});
-  });
-  renderA();renderC();
-  showSb((curM+1)+'月の休診日をクリア','ok');
+/* Undo/Redo for CLOSED_DATES */
+window._closedUndoStack=[];
+window._closedRedoStack=[];
+function closedSnapshot(){
+  var snap={};
+  Object.keys(CLOSED_DATES).forEach(function(k){snap[k]=CLOSED_DATES[k].slice();});
+  window._closedUndoStack.push(JSON.stringify(snap));
+  if(window._closedUndoStack.length>50)window._closedUndoStack.shift();
+  window._closedRedoStack=[];
+}
+function closedUndo(){
+  if(!window._closedUndoStack.length)return;
+  var cur={};Object.keys(CLOSED_DATES).forEach(function(k){cur[k]=CLOSED_DATES[k].slice();});
+  window._closedRedoStack.push(JSON.stringify(cur));
+  var prev=JSON.parse(window._closedUndoStack.pop());
+  Object.keys(CLOSED_DATES).forEach(function(k){delete CLOSED_DATES[k];});
+  Object.keys(prev).forEach(function(k){CLOSED_DATES[k]=prev[k];});
+  renderA();renderC();showSb('戻しました','ok');
+}
+function closedRedo(){
+  if(!window._closedRedoStack.length)return;
+  var cur={};Object.keys(CLOSED_DATES).forEach(function(k){cur[k]=CLOSED_DATES[k].slice();});
+  window._closedUndoStack.push(JSON.stringify(cur));
+  var next=JSON.parse(window._closedRedoStack.pop());
+  Object.keys(CLOSED_DATES).forEach(function(k){delete CLOSED_DATES[k];});
+  Object.keys(next).forEach(function(k){CLOSED_DATES[k]=next[k];});
+  renderA();renderC();showSb('進めました','ok');
 }
 function clinicClosedToggleDel(){
   window._clinicClosedDelMode=!window._clinicClosedDelMode;
@@ -2652,6 +2676,7 @@ function kyuHPickClinic(cid){
   renderKyuH();
 }
 function toggleKyuH(ds,cid){
+  closedSnapshot();
   if(!CLOSED_DATES[cid])CLOSED_DATES[cid]=[];
   var idx=CLOSED_DATES[cid].indexOf(ds);
   if(idx>=0)CLOSED_DATES[cid].splice(idx,1);
