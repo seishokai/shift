@@ -1366,9 +1366,16 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
           globalSnapshot();
           if(!shifts[dateStr2])shifts[dateStr2]=[];
           var idx4=shifts[dateStr2].findIndex(function(s){return s.docId===docId2;});
-          var entry4={docId:docId2,clinicId:window._shiftPaintClinic,memo:''};
-          if(idx4>=0)shifts[dateStr2][idx4]=entry4;else shifts[dateStr2].push(entry4);
-          dbSave(dateStr2,docId2,window._shiftPaintClinic,'');
+          /* 同じ医院が既にあれば削除（トグル） */
+          if(idx4>=0&&shifts[dateStr2][idx4].clinicId===window._shiftPaintClinic){
+            shifts[dateStr2].splice(idx4,1);
+            if(!shifts[dateStr2].length)delete shifts[dateStr2];
+            dbDel(dateStr2,docId2);
+          } else {
+            var entry4={docId:docId2,clinicId:window._shiftPaintClinic,memo:''};
+            if(idx4>=0)shifts[dateStr2][idx4]=entry4;else shifts[dateStr2].push(entry4);
+            dbSave(dateStr2,docId2,window._shiftPaintClinic,'');
+          }
           renderAllView(targetId);renderA();renderC();
         }
         return;
