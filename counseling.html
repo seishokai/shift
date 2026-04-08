@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>削らないラミネートベニア カウンセリング資料</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Yu Gothic","游ゴシック",YuGothic,"Hiragino Sans",sans-serif;color:#222;background:#fff;line-height:1.8}
+.gold{color:#C5A55A}
+.nav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,0.95);padding:8px 0;overflow-x:auto;white-space:nowrap;backdrop-filter:blur(10px)}
+.nav a{color:#C5A55A;text-decoration:none;padding:8px 16px;font-size:13px;display:inline-block;transition:opacity 0.3s}
+.nav a:hover{opacity:0.7}
+section{padding:60px 20px;max-width:1100px;margin:0 auto}
+.hero{background:#000;color:#fff;text-align:center;padding:100px 20px;min-height:80vh;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:100%}
+.hero h1{font-size:clamp(24px,5vw,42px);font-weight:300;letter-spacing:0.1em;margin-bottom:20px}
+.hero .sub{font-size:clamp(14px,3vw,20px);color:#C5A55A;letter-spacing:0.15em;margin-top:10px}
+.hero .tagline{font-size:clamp(16px,3.5vw,24px);margin-top:30px;font-weight:400}
+.section-title{text-align:center;margin-bottom:40px}
+.section-title h2{font-size:clamp(20px,4vw,32px);font-weight:300;letter-spacing:0.08em;padding-bottom:15px;border-bottom:2px solid #C5A55A;display:inline-block}
+.dark{background:#111;color:#fff;max-width:100%;padding:60px 20px}
+.dark .section-title h2{border-bottom-color:#C5A55A}
+.concerns{display:grid;gap:20px;max-width:700px;margin:0 auto}
+.concern-item{padding:20px 25px;border-left:3px solid #C5A55A;background:#f9f9f9;font-size:18px}
+.dark .concern-item{background:#1a1a1a}
+.comparison-img{text-align:center;margin:30px 0}
+.comparison-img img{max-width:100%;border-radius:8px}
+.two-options{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:40px}
+@media(max-width:768px){.two-options{grid-template-columns:1fr}}
+.option-card{border:1px solid #ddd;border-radius:12px;padding:30px;text-align:center;transition:transform 0.3s,box-shadow 0.3s}
+.option-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,0.1)}
+.option-card h3{font-size:24px;margin-bottom:10px;color:#C5A55A}
+.option-card .origin{font-size:14px;color:#888;margin-bottom:15px}
+.option-card p{font-size:15px;line-height:1.7}
+table.compare{width:100%;border-collapse:collapse;margin-top:30px}
+table.compare th,table.compare td{padding:14px 16px;text-align:left;border-bottom:1px solid #333;font-size:14px}
+table.compare th{background:#C5A55A;color:#000;font-weight:600;white-space:nowrap}
+table.compare td:first-child{font-weight:600;color:#C5A55A;white-space:nowrap;width:120px}
+table.compare tr:nth-child(even){background:#1a1a1a}
+table.compare tr:hover{background:#222}
+.detail-section{margin-bottom:60px}
+.detail-section h3{font-size:22px;color:#C5A55A;margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid #eee}
+.dark .detail-section h3{border-bottom-color:#333}
+.detail-section ul{list-style:none;padding:0}
+.detail-section li{padding:8px 0 8px 20px;position:relative;font-size:15px}
+.detail-section li:before{content:"◆";color:#C5A55A;position:absolute;left:0;font-size:10px;top:12px}
+.case-tabs{display:flex;justify-content:center;gap:10px;margin-bottom:30px;flex-wrap:wrap}
+.case-tab{padding:12px 30px;border:2px solid #C5A55A;background:transparent;color:#C5A55A;cursor:pointer;font-size:15px;border-radius:30px;transition:all 0.3s}
+.case-tab.active,.case-tab:hover{background:#C5A55A;color:#000}
+.cases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px}
+.case-card{border:1px solid #eee;border-radius:12px;overflow:hidden;transition:transform 0.3s}
+.case-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.08)}
+.case-card img{width:100%;height:220px;object-fit:cover;cursor:pointer}
+.case-card .info{padding:15px}
+.case-card .complaint{font-size:14px;color:#666;margin-bottom:8px}
+.case-card .price{font-size:16px;font-weight:600;color:#C5A55A}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px;margin-top:30px}
+.gallery img{width:100%;height:200px;object-fit:cover;border-radius:8px;cursor:pointer;transition:transform 0.3s}
+.gallery img:hover{transform:scale(1.03)}
+.flow-chart{max-width:700px;margin:30px auto}
+.flow-step{background:#f5f5f5;padding:20px;border-radius:10px;margin-bottom:15px;position:relative}
+.flow-step:not(:last-child):after{content:"▼";display:block;text-align:center;color:#C5A55A;font-size:20px;margin-top:10px;position:absolute;bottom:-18px;left:50%;transform:translateX(-50%)}
+.flow-step h4{color:#C5A55A;margin-bottom:8px}
+.dark .flow-step{background:#1a1a1a}
+.flow-branches{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:20px 0}
+@media(max-width:768px){.flow-branches{grid-template-columns:1fr}}
+.flow-branch{background:#1a1a1a;border:1px solid #333;padding:15px;border-radius:8px;text-align:center;font-size:14px}
+.flow-branch .label{color:#C5A55A;font-weight:600;margin-bottom:8px}
+table.price-table{width:100%;border-collapse:collapse;margin:20px 0}
+table.price-table th{background:#C5A55A;color:#000;padding:12px;font-weight:600}
+table.price-table td{padding:12px;border-bottom:1px solid #eee;text-align:center}
+table.price-table tr:hover{background:#f9f9f9}
+.dark table.price-table td{border-bottom-color:#333}
+.dark table.price-table tr:hover{background:#1a1a1a}
+.warranty-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:30px}
+@media(max-width:768px){.warranty-grid{grid-template-columns:1fr}}
+.warranty-card{border:1px solid #333;border-radius:12px;padding:25px}
+.warranty-card h4{color:#C5A55A;font-size:20px;margin-bottom:15px;text-align:center}
+.faq-item{border-bottom:1px solid #eee;padding:20px 0}
+.dark .faq-item{border-bottom-color:#333}
+.faq-q{font-weight:600;font-size:16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.faq-q:before{content:"Q";background:#C5A55A;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.faq-a{padding-left:38px;color:#666;font-size:15px}
+.dark .faq-a{color:#aaa}
+.lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:1000;justify-content:center;align-items:center;cursor:pointer}
+.lightbox.active{display:flex}
+.lightbox img{max-width:90%;max-height:90%;object-fit:contain}
+.set-day{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin:20px 0}
+@media(max-width:768px){.set-day{grid-template-columns:1fr}}
+.set-half{background:#1a1a1a;padding:20px;border-radius:10px}
+.set-half h4{color:#C5A55A;margin-bottom:15px;font-size:18px}
+.set-half ol{padding-left:20px}
+.set-half li{margin-bottom:8px;font-size:14px}
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav">
+<a href="#hero">TOP</a>
+<a href="#concerns">お悩み</a>
+<a href="#about">治療について</a>
+<a href="#compare">比較表</a>
+<a href="#lovelier">ラブリエ</a>
+<a href="#blackfilm">ブラックフィルム</a>
+<a href="#cases">症例</a>
+<a href="#flow">治療の流れ</a>
+<a href="#price">料金</a>
+<a href="#warranty">保証</a>
+<a href="#faq">FAQ</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero" id="hero">
+<p class="sub">― No-Prep Laminate Veneer ―</p>
+<h1>美しさのために歯を削る時代は<br>終わりました。</h1>
+<p class="tagline">削らないラミネートベニア</p>
+<p style="margin-top:20px;color:#888;font-size:16px">2つの最先端技術で、理想の笑顔を</p>
+</div>
+
+<!-- Concerns -->
+<section id="concerns">
+<div class="section-title"><h2>こんなお悩みありませんか？</h2></div>
+<div class="concerns">
+<div class="concern-item">自分の歯を絶対に削りたくない</div>
+<div class="concern-item">矯正をしたけど何か物足りない...</div>
+<div class="concern-item">今90点の歯を120点の理想の歯に</div>
+<div class="concern-item">完璧の美しさを求めたい</div>
+<div class="concern-item">最短で最高の治療を実現したい</div>
+</div>
+</section>
+
+<!-- About Treatment -->
+<div class="dark" id="about">
+<section>
+<div class="section-title"><h2>削らないラミネートベニアとは</h2></div>
+<p style="text-align:center;font-size:16px;margin-bottom:30px;color:#ccc">
+従来の審美治療では、写真のように歯を大きく削る必要がありました。<br>
+削るほど美しい歯を製作しやすくなりますが、歯へのダメージはどんどん大きくなります。<br>
+人生80年といわれる時代に、不用意に「削る」ことは正しいのでしょうか？
+</p>
+<div class="comparison-img">
+<img src="./15.jpg" alt="各セラミック治療と削り方の比較" style="max-width:800px">
+</div>
+<p style="text-align:center;margin-top:20px;font-size:15px;color:#aaa">
+セラミッククラウン → ラミネートベニア → <span class="gold" style="font-weight:600">削らないラミネートベニア</span><br>
+削る量が少ないほど、歯の健康を守れます。
+</p>
+</section>
+</div>
+
+<!-- Two Options -->
+<section id="options">
+<div class="section-title"><h2>2つの選択肢</h2></div>
+<p style="text-align:center;margin-bottom:30px;color:#666">当院では2種類の削らないラミネートベニアをご用意しています</p>
+<div class="two-options">
+<div class="option-card">
+<h3>La Briller ラブリエ</h3>
+<p class="origin">日本発 ― ジルコニアベニア</p>
+<p>人工ダイヤモンドであるジルコニアを使用。<br>最薄<strong>0.04mm</strong>という驚異的な薄さと高強度を両立。<br>日本で唯一のジルコニアベニアです。</p>
+</div>
+<div class="option-card">
+<h3>Blackfilm ブラックフィルム</h3>
+<p class="origin">韓国発 ― セラミックベニア</p>
+<p>歯科技工士による完全手作業で製作。<br><strong>0.1mm</strong>の薄さで圧倒的な審美性を実現。<br>韓国で80,000件以上の実績を誇ります。</p>
+</div>
+</div>
+</section>
+<!-- Comparison Table -->
+<div class="dark" id="compare">
+<section>
+<div class="section-title"><h2>徹底比較</h2></div>
+<div style="overflow-x:auto">
+<table class="compare">
+<tr><th style="width:120px">項目</th><th>La Briller ラブリエ</th><th>Blackfilm ブラックフィルム</th></tr>
+<tr><td>素材</td><td>ジルコニア（人工ダイヤモンド）</td><td>セラミック</td></tr>
+<tr><td>発祥</td><td>日本（日本唯一のジルコニアベニア）</td><td>韓国（キム院長開発）</td></tr>
+<tr><td>薄さ</td><td>最薄 <strong>0.04mm</strong></td><td><strong>0.1mm</strong></td></tr>
+<tr><td>製作方法</td><td>―</td><td>歯科技工士による完全手作業（機械不使用）</td></tr>
+<tr><td>審美性</td><td>劣化しない白さ・自然な仕上がり</td><td>圧倒的な審美性・スマイルデザイン（顔分析）</td></tr>
+<tr><td>強度</td><td>高強度（人工ダイヤモンド素材）</td><td>セラミック</td></tr>
+<tr><td>保証</td><td>3年（10年オプションあり）</td><td><strong>10年</strong>（破損・脱離・変色）</td></tr>
+<tr><td>セット</td><td>―</td><td>1日かけて患者・Dr・技工士の3者で調整</td></tr>
+<tr><td>臨床実績</td><td>日本唯一のジルコニアベニア</td><td>韓国で80,000件以上（2016年〜）</td></tr>
+<tr><td>品質検査</td><td>―</td><td>厚み・透明度・色再現性・誤差率検査</td></tr>
+<tr><td>メンテナンス</td><td>半年に1度の定期検診</td><td>1年に1度の噛み合わせメンテナンス</td></tr>
+</table>
+</div>
+</section>
+</div>
+
+<!-- La Briller Details -->
+<section id="lovelier">
+<div class="section-title"><h2>La Briller ラブリエ 詳細</h2></div>
+
+<div class="detail-section">
+<h3>特徴</h3>
+<ul>
+<li>歯を削らないので、無痛かつ歯へのダメージがない</li>
+<li>最薄0.04mmという薄さで、出っ歯に見えるリスクを最小限に</li>
+<li>人工ダイヤモンドであるジルコニアで製作 ― 薄くても高強度</li>
+<li>劣化することのない白さと、理想の歯の形を実現</li>
+<li>世界でも唯一無二の技術</li>
+</ul>
+</div>
+
+<div class="detail-section">
+<h3>デメリット</h3>
+<ul>
+<li>歯のガタツキに応じて、矯正治療が必要となるケースがあります</li>
+<li>永久接着後の修正が難しい（接着前に十分確認してください）</li>
+<li>除去費用: 1歯 30,000円（税別）</li>
+<li>ご満足のいく結果のために複数回の修正や来院が必要になる場合があります</li>
+</ul>
+</div>
+
+<div class="detail-section">
+<h3>長持ちのコツ</h3>
+<ul>
+<li>丁寧な歯磨きに加え、デンタルフロスをご使用ください</li>
+<li>歯ぎしり・食いしばりがある方はナイトガードの使用が必要です</li>
+<li>日頃から歯茎のケアをお心がけください（歯周病予防）</li>
+<li>他院でスケーリングを受ける際は、ラブリエ装着を必ず伝えてください</li>
+</ul>
+</div>
+</section>
+
+<!-- Blackfilm Details -->
+<div class="dark" id="blackfilm">
+<section>
+<div class="section-title"><h2>Blackfilm ブラックフィルム 詳細</h2></div>
+
+<div class="detail-section">
+<h3>特徴</h3>
+<ul>
+<li>エナメル質を削ることなく0.1mmで実現する最高峰の技術力</li>
+<li>歯科技工士による精巧な手作業で製作（機械では製作しません）</li>
+<li>スマイルデザイン: お顔の比率・目・歪み・唇の動きなどから決定</li>
+<li>セット日は1日かけて患者様・ドクター・技工士の3者で調整</li>
+<li>厚み・透明度・色再現性・誤差率の厳格な品質検査</li>
+<li>ジルコニアベニアでは出せない圧倒的な審美性</li>
+</ul>
+</div>
+
+<div class="detail-section">
+<h3>開発者の想い</h3>
+<p style="color:#ccc;font-size:15px;line-height:2">
+ブラックフィルム開発者のキム院長（2D Dental Clinic）は「美しくあること・健康であること」を1番に求めて研究を重ねました。<br>
+「セラミックは削らないといけない」という悪印象を変えるためにブラックフィルムを開発し、世に発信。<br>
+矯正歯科医だったキム院長が0.1mmにこだわったからこそ生まれた治療です。
+</p>
+</div>
+
+<div class="detail-section">
+<h3>長期経過・実績</h3>
+<ul>
+<li>韓国で2016年から80,000件以上の臨床実績</li>
+<li>10年近い成績が多くなっている</li>
+<li>韓国内トップブランドとしての地位を確立</li>
+<li>削らないラミネートベニアの先駆者</li>
+</ul>
+</div>
+
+<div class="detail-section">
+<h3>歯の整形</h3>
+<ul>
+<li>歯のスペース、軸の改善、古いレジン除去でより綺麗に仕上がる</li>
+<li>正中軸の改善が可能</li>
+<li>歪みを緩やかにすることも可能</li>
+</ul>
+</div>
+</section>
+</div>
+<!-- Cases Section -->
+<section id="cases">
+<div class="section-title"><h2>症例写真</h2></div>
+
+<div class="case-tabs">
+<button class="case-tab active" onclick="showCases('lovelier')">La Briller ラブリエ</button>
+<button class="case-tab" onclick="showCases('blackfilm')">Blackfilm ブラックフィルム</button>
+</div>
+
+<!-- Lovelier Cases -->
+<div id="cases-lovelier">
+<div class="cases-grid">
+
+<div class="case-card">
+<img src="./lovelier_img/slide15_00.jpg" alt="Case1 Before" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case 1: 歯のガタツキをなくしたい / 歯を白くしたい / 出っ歯NG</div>
+<div class="price">上下16本 ¥1,264,000（税抜）/ 1本 ¥79,000</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide16_00.jpg" alt="Case1 After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case 1: 薄さ0.1mm以下 ― 前歯の突出感なし</div>
+<div class="price">全顔モニター価格</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide17_00.jpg" alt="Case2" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case 2: 2番目の歯の隙間 / 歯の黄ばみ</div>
+<div class="price">上8本 ¥920,000（税抜）/ 1本 ¥115,000</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide18_00.jpg" alt="Case3" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case 3: すきっ歯が気になる / 歯が大きく見えるのはNG</div>
+<div class="price">上6本 ¥690,000（税抜）/ 1本 ¥115,000</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide19_00.jpg" alt="Case4" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case 4: 歯のガタツキ治したい / 笑った時に歯が見えるようにしたい</div>
+<div class="price">上16本 ¥1,584,000（税抜）/ 1本 ¥99,000</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide20_00.jpg" alt="Case5" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case 5: すきっ歯 / 歯が大きく見えるのはNG / 歯を白くしたい</div>
+<div class="price">上8本 ¥816,000（税抜）/ 1本 ¥102,000</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide22_00.png" alt="Case6" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case 6: ガミースマイル / 奥歯まで全て綺麗にしたい</div>
+<div class="price">上下20本+Zrクラウン4本+ガミーOPE 計¥2,474,000（税抜）</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide24_00.jpg" alt="Case追加" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">歯の黄ばみ・隙間</div>
+<div class="price">上顎8本 ¥1,012,000（税込）</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide24_02.jpg" alt="Case追加" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">歯の色味・隙間</div>
+<div class="price">上顎10本 ¥1,155,000（税込）</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide25_00.jpg" alt="Case追加" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">矯正後のブラックトライアングル</div>
+<div class="price">上下16本 ¥1,742,400（税込）</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide25_02.jpg" alt="Case追加" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">歯の色味・ガタツキ</div>
+<div class="price">上下14本 ¥1,617,000（税込）</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide27_00.jpg" alt="Case追加" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">前歯2本の出っ歯・隙間</div>
+<div class="price">上顎2本 ¥264,000（税込）</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./lovelier_img/slide28_00.jpg" alt="Case追加" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">矮小歯・隙間</div>
+<div class="price">右上1番2番 ¥264,000（税込）</div>
+</div>
+</div>
+
+</div>
+</div>
+<!-- Blackfilm Cases -->
+<div id="cases-blackfilm" style="display:none">
+<div class="cases-grid">
+
+<div class="case-card">
+<img src="./20.jpg" alt="すき歯の悩み Before" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: すき歯の悩み（20代女性）<br>主訴: すきっ歯を直したい</div>
+<div class="price">ダイレクトボンディングとジルコニアベニアで検討していた</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./30.jpg" alt="すき歯 After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: すき歯の悩み ― Before / After</div>
+<div class="price">劇的な変化</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./32.jpg" alt="絶対に削りたくない" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 絶対に削りたくない（30代男性・経営者）<br>主訴: 削るセラミックは絶対にいやだ</div>
+<div class="price">ご家族からも強く反対されている</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./35.jpg" alt="削りたくない Before/After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 絶対に削りたくない ― Before / After</div>
+<div class="price">4パネル比較</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./40.jpg" alt="韓国アイドルスマイル" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 韓国アイドルみたいなスマイル（20代女性・医療従事者）<br>他医院の修正もあり、完璧な歯の形・色へ</div>
+<div class="price">完璧な形・色を実現</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./42.jpg" alt="韓国アイドル After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 韓国アイドルスマイル ― Before / After</div>
+<div class="price">劇的な変化</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./44.jpg" alt="ホワイトスポット" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: ホワイトスポットを改善したい（30代男性・経営者）<br>長年ホワイトスポットに悩んでいた</div>
+<div class="price">ホワイトスポット改善</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./47.jpg" alt="真っ白の歯" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 真っ白の歯になりたい（30代男性・経営者）<br>誰がどう見ても圧倒的な白さを目指したい</div>
+<div class="price">圧倒的な白さを実現</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./48.jpg" alt="真っ白 Before/After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 真っ白の歯 ― Before / After</div>
+<div class="price">劇的な変化</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./50.jpg" alt="ナチュラル追求" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: ナチュラルを追求したい（40代男性・会社員）<br>できる限り歯を削らずに健康面を重視した自然な歯に</div>
+<div class="price">長年の悩みを削らずに解決</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./51.jpg" alt="重度ケース" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 重度の損傷からの回復</div>
+<div class="price">Before</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./52.jpg" alt="重度ケース After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 重度の損傷 ― Before / After</div>
+<div class="price">劇的な改善</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./55.jpg" alt="歯の形を整えたい" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 歯並びは綺麗、形を整えたい（30代女性・歯科医療従事者）<br>結婚式前で最短を希望</div>
+<div class="price">最短での治療を実現</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./57.jpg" alt="費用を抑えたい" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 費用を抑えたい（30代女性）<br>お金は節約したい、でも完璧にしたい</div>
+<div class="price">デンタルローンを活用し最小限の治療を実現</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./64.jpg" alt="芸能人級の白さ" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 芸能人級の白さに（30代女性）<br>ホワイトニングよりも白く、最短3週間で</div>
+<div class="price">短期間で実現</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./65.jpg" alt="芸能人級 Before/After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 芸能人級の白さ ― Before / After</div>
+<div class="price">劇的な変化</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./68.jpg" alt="2本だけ" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 2本だけでも整えたい（40代男性・アメリカ在住）<br>すきっ歯を削らないで自然にしたい</div>
+<div class="price">2本だけでも対応可能</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./69.jpg" alt="2本 Before/After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 2本だけ ― Before / After</div>
+<div class="price">自然な仕上がり</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./70.jpg" alt="矯正したくない削りたくもない" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 矯正はしたくない、削りたくもない（20代女性・妊娠中）<br>子供がおなかにいるので体に負担をかけたくない</div>
+<div class="price">体に負担をかけない治療</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./71.jpg" alt="矯正したくない After" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 矯正はしたくない ― Before / After</div>
+<div class="price">劇的な改善</div>
+</div>
+</div>
+
+<div class="case-card">
+<img src="./28.jpg" alt="矯正後の悩み" onclick="openLightbox(this)">
+<div class="info">
+<div class="complaint">Case: 矯正後の悩み（20代女性・歯科医師）<br>ブラックトライアングル、形・色を完璧にしたい</div>
+<div class="price">削るベニアは絶対にいや</div>
+</div>
+</div>
+
+</div>
+
+<h3 style="text-align:center;margin:40px 0 20px;color:#C5A55A">Before / After ギャラリー</h3>
+<div class="gallery">
+<img src="./29.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./31.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./36.jpg" alt="After" onclick="openLightbox(this)">
+<img src="./38.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./39.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./43.jpg" alt="After" onclick="openLightbox(this)">
+<img src="./46.jpg" alt="After" onclick="openLightbox(this)">
+<img src="./49.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./54.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./58.jpg" alt="After" onclick="openLightbox(this)">
+<img src="./59.jpg" alt="After" onclick="openLightbox(this)">
+<img src="./60.jpg" alt="After" onclick="openLightbox(this)">
+<img src="./61.jpg" alt="After" onclick="openLightbox(this)">
+<img src="./63.jpg" alt="After" onclick="openLightbox(this)">
+<img src="./67.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./73.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./75.jpg" alt="B/A" onclick="openLightbox(this)">
+<img src="./77.jpg" alt="Korea cases" onclick="openLightbox(this)">
+<img src="./78.jpg" alt="Korea cases" onclick="openLightbox(this)">
+</div>
+
+</div>
+</section>
+<!-- Treatment Flow -->
+<div class="dark" id="flow">
+<section>
+<div class="section-title"><h2>治療の流れ</h2></div>
+
+<div class="flow-chart">
+<div class="flow-step"><h4>Step 1: 初診相談</h4><p>お悩みやご希望をお伺いし、お口の状態を確認します。</p></div>
+
+<div style="text-align:center;color:#C5A55A;font-size:20px;margin:20px 0">▼</div>
+
+<div class="flow-step"><h4>Step 2: 歯並び判定</h4><p>歯並びの状態に応じて、最適な治療プランをご提案します。</p></div>
+
+<div class="flow-branches">
+<div class="flow-branch"><div class="label">歯並び問題なし<br>or 少しがたつきあり</div><p>→ そのまま型取りへ</p></div>
+<div class="flow-branch"><div class="label">中度のがたつき</div><p>→ 部分矯正 → 型取り</p></div>
+<div class="flow-branch"><div class="label">重度のがたつき</div><p>→ 全顎矯正 → 型取り</p></div>
+</div>
+
+<div style="text-align:center;color:#C5A55A;font-size:20px;margin:20px 0">▼</div>
+
+<div class="flow-step"><h4>Step 3: 型取り</h4>
+<p>【ブラックフィルムの場合】所要時間: 1〜2時間</p>
+<ol style="padding-left:20px;margin-top:10px">
+<li>上下のブラックフィルムを装着する部分の型取り</li>
+<li>噛み合わせの型取り</li>
+<li>歯の色見の確認・撮影</li>
+<li>歯の形と歯列の形態の相談</li>
+</ol>
+</div>
+
+<div style="text-align:center;color:#C5A55A;font-size:20px;margin:20px 0">▼</div>
+
+<div class="flow-step"><h4>Step 4: セット（装着日）</h4>
+<p>※基本的に1日かかります</p>
+<div class="set-day">
+<div class="set-half">
+<h4>午前の流れ</h4>
+<ol>
+<li>仮付けをして色や形を確認する</li>
+<li>ドクター・技工士・患者様の3者が納得いくまで調整（3回程度）</li>
+<li>技工士の調整（1時間ほど休憩）</li>
+</ol>
+</div>
+<div class="set-half">
+<h4>午後の流れ</h4>
+<ol start="4">
+<li>ブラックフィルムのセット（2時間ほど）</li>
+<li>セット後の最終調整</li>
+<li>写真撮影・保証内容の説明</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+
+</section>
+</div>
+
+<!-- Pricing -->
+<section id="price">
+<div class="section-title"><h2>料金表</h2></div>
+
+<h3 style="color:#C5A55A;margin-bottom:20px;text-align:center">La Briller ラブリエ</h3>
+<p style="text-align:center;color:#666;margin-bottom:20px">※モニター価格の目安です。症例により異なります。</p>
+<div style="overflow-x:auto">
+<table class="price-table">
+<tr><th>本数</th><th>費用（税抜）</th><th>1本あたり</th></tr>
+<tr><td>上下20本</td><td>¥1,980,000</td><td>¥99,000</td></tr>
+<tr><td>上下16本</td><td>¥1,264,000〜¥1,584,000</td><td>¥79,000〜¥99,000</td></tr>
+<tr><td>上8〜10本</td><td>¥816,000〜¥1,155,000</td><td>¥102,000〜¥115,000</td></tr>
+<tr><td>上6本</td><td>¥690,000</td><td>¥115,000</td></tr>
+<tr><td>上2本</td><td>¥264,000</td><td>¥132,000</td></tr>
+</table>
+</div>
+<p style="text-align:center;color:#888;font-size:13px;margin-top:10px">※ガミースマイルOPE: ¥150,000（税抜）/ Zrクラウン: 1本¥86,000（税抜）</p>
+
+<h3 style="color:#C5A55A;margin:40px 0 20px;text-align:center">Blackfilm ブラックフィルム</h3>
+<p style="text-align:center;color:#666;margin-bottom:20px">※通常価格です。</p>
+<div style="overflow-x:auto">
+<table class="price-table">
+<tr><th>本数</th><th>定価（税抜）</th></tr>
+<tr><td>20本</td><td>¥5,500,000</td></tr>
+<tr><td>18本</td><td>¥4,500,000</td></tr>
+<tr><td>16本</td><td>¥4,000,000</td></tr>
+<tr><td>14本</td><td>¥3,500,000</td></tr>
+<tr><td>12本</td><td>¥3,200,000</td></tr>
+<tr><td>10本</td><td>¥2,000,000</td></tr>
+<tr><td>8本</td><td>¥2,000,000</td></tr>
+<tr><td>6本</td><td>¥1,500,000</td></tr>
+<tr><td>4本</td><td>¥1,000,000</td></tr>
+<tr><td>2本</td><td>¥500,000</td></tr>
+</table>
+</div>
+<p style="text-align:center;color:#888;font-size:13px;margin-top:10px">※モニター価格・各種割引についてはカウンセリング時にご案内いたします。</p>
+</section>
+<!-- Warranty -->
+<div class="dark" id="warranty">
+<section>
+<div class="section-title"><h2>保証・メンテナンス</h2></div>
+<div class="warranty-grid">
+
+<div class="warranty-card">
+<h4>La Briller ラブリエ</h4>
+<ul style="list-style:none;padding:0">
+<li style="padding:8px 0;border-bottom:1px solid #333"><strong style="color:#C5A55A">保証期間:</strong> 3年間</li>
+<li style="padding:8px 0;border-bottom:1px solid #333"><strong style="color:#C5A55A">10年オプション:</strong> 1歯につき22,000円</li>
+<li style="padding:8px 0;border-bottom:1px solid #333"><strong style="color:#C5A55A">条件:</strong> 保証書への署名 / 半年に1度の定期検診</li>
+<li style="padding:8px 0;border-bottom:1px solid #333"><strong style="color:#C5A55A">対象:</strong> 自然な状態での破損</li>
+<li style="padding:8px 0"><strong style="color:#C5A55A">対象外:</strong> 事故・外傷 / 過度な咬合圧 / 他院での修理 / 審美的要望による再製作</li>
+</ul>
+</div>
+
+<div class="warranty-card">
+<h4>Blackfilm ブラックフィルム</h4>
+<ul style="list-style:none;padding:0">
+<li style="padding:8px 0;border-bottom:1px solid #333"><strong style="color:#C5A55A">保証期間:</strong> <span style="font-size:20px;font-weight:700">10年</span></li>
+<li style="padding:8px 0;border-bottom:1px solid #333"><strong style="color:#C5A55A">対象:</strong> 破損・脱離・変色など</li>
+<li style="padding:8px 0;border-bottom:1px solid #333"><strong style="color:#C5A55A">メンテナンス:</strong> 1年に1度の噛み合わせチェック</li>
+<li style="padding:8px 0;border-bottom:1px solid #333"><strong style="color:#C5A55A">品質保証:</strong> 歯科医師・技工士の署名入り保証書付き</li>
+<li style="padding:8px 0"><strong style="color:#C5A55A">実績:</strong> 韓国で80,000件以上の臨床実績に裏付けられた信頼</li>
+</ul>
+</div>
+
+</div>
+</section>
+</div>
+
+<!-- FAQ -->
+<section id="faq">
+<div class="section-title"><h2>よくある質問</h2></div>
+
+<div class="faq-item">
+<div class="faq-q">痛みはありますか？</div>
+<div class="faq-a">どちらも歯を削らないので、基本的に無痛です。麻酔も不要なケースがほとんどです。</div>
+</div>
+
+<div class="faq-item">
+<div class="faq-q">治療期間はどのくらいですか？</div>
+<div class="faq-a">症例により異なりますが、型取りからセットまで数週間〜数ヶ月です。矯正が必要な場合はその分の期間が追加されます。最短3週間で実現した症例もあります。</div>
+</div>
+
+<div class="faq-item">
+<div class="faq-q">食事制限はありますか？</div>
+<div class="faq-a">セット後は通常通りお食事いただけます。ただし極端に硬いもの（氷、硬い飴など）はお控えください。</div>
+</div>
+
+<div class="faq-item">
+<div class="faq-q">ラブリエとブラックフィルム、どちらを選べばいいですか？</div>
+<div class="faq-a">カウンセリングで歯の状態やご希望をお伺いし、最適な治療法をご提案いたします。それぞれに特徴がありますので、比較表を参考にしながらご相談ください。</div>
+</div>
+
+<div class="faq-item">
+<div class="faq-q">矯正は必要ですか？</div>
+<div class="faq-a">歯並びの状態によります。がたつきが大きい場合は、より良い仕上がりのために矯正をおすすめすることがあります。軽度であればそのまま装着可能です。</div>
+</div>
+
+<div class="faq-item">
+<div class="faq-q">外れることはありますか？</div>
+<div class="faq-a">永久接着を行いますので、通常の使用では外れることはありません。万一の場合も保証制度がございます。</div>
+</div>
+
+<div class="faq-item">
+<div class="faq-q">元に戻せますか？</div>
+<div class="faq-a">歯を削っていないため、除去すれば元の歯に戻すことが可能です。ただしラブリエの場合、除去費用が1歯30,000円（税別）かかります。</div>
+</div>
+
+<div class="faq-item">
+<div class="faq-q">ホワイトニングとの違いは？</div>
+<div class="faq-a">ホワイトニングは歯そのものを漂白しますが、効果は一時的です。ラミネートベニアは色・形・歯並びを同時に改善でき、長期的に安定した白さを維持できます。</div>
+</div>
+</section>
+
+<!-- Footer -->
+<div style="background:#000;color:#666;text-align:center;padding:40px 20px;font-size:13px">
+<p style="color:#C5A55A;font-size:18px;margin-bottom:15px">削らないラミネートベニア</p>
+<p>La Briller ラブリエ ／ Blackfilm ブラックフィルム</p>
+<p style="margin-top:10px">※本資料の内容は治療の一般的な説明です。個々の状態により治療法・費用は異なります。</p>
+<p>※詳しくはカウンセリングにてご相談ください。</p>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+<img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+function showCases(type){
+document.getElementById('cases-lovelier').style.display=type==='lovelier'?'block':'none';
+document.getElementById('cases-blackfilm').style.display=type==='blackfilm'?'block':'none';
+document.querySelectorAll('.case-tab').forEach(function(t){t.classList.remove('active')});
+event.target.classList.add('active');
+}
+function openLightbox(el){
+document.getElementById('lightbox-img').src=el.src;
+document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox(){
+document.getElementById('lightbox').classList.remove('active');
+}
+document.querySelectorAll('.nav a').forEach(function(a){
+a.addEventListener('click',function(e){
+e.preventDefault();
+var target=document.querySelector(this.getAttribute('href'));
+if(target)target.scrollIntoView({behavior:'smooth'});
+});
+});
+</script>
+</body>
+</html>
