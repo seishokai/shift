@@ -1074,6 +1074,14 @@ function loadClosedDates(){
   }catch(e){}
 }
 
+/* シフトペイントモード */
+window._shiftPaintClinic=null;
+function shiftPaint(cid){
+  window._shiftPaintClinic=cid;
+  closeInlineEdit();
+  renderAllView('allViewWrap');renderAllView('allViewWrapView');
+}
+
 /* グローバルUndo/Redo（シフト＋休診日） */
 window._undoStack=[];
 window._redoStack=[];
@@ -1255,7 +1263,21 @@ h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;
     h+=dateCell2+'</tr>';
   }
   h+='</tbody></table>';
-el.innerHTML='<div style="overflow:auto;height:calc(100vh - 112px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
+  /* シフトペイントバー（管理者のみ） */
+  var paintBar='';
+  if(isAdmin){
+    var pc=window._shiftPaintClinic;
+    paintBar='<div style="padding:4px 8px;background:#e8f4fd;border-bottom:1px solid #b0cfe8;display:flex;flex-wrap:wrap;gap:3px;align-items:center;position:sticky;top:0;z-index:25;">';
+    paintBar+='<span style="font-size:10px;font-weight:700;color:#2d6a9f;">シフト入力:</span>';
+    paintBar+='<button onclick="shiftPaint(\'__del__\')" style="padding:3px 8px;border-radius:10px;border:1.5px solid '+(pc==='__del__'?'#b83030':'var(--border)')+';background:'+(pc==='__del__'?'#b83030':'#fdf0ee')+';color:'+(pc==='__del__'?'#fff':'#b83030')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">削除</button>';
+    ALL.forEach(function(c){
+      var cc=getCC(c.id);var on=pc===c.id;
+      paintBar+='<button onclick="shiftPaint(\''+c.id+'\')" style="padding:3px 6px;border-radius:10px;border:1.5px solid '+(on?cc.c:'var(--border)')+';background:'+(on?cc.c:'var(--card)')+';color:'+(on?'#fff':cc.c)+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">'+c.n+'</button>';
+    });
+    paintBar+='<button onclick="shiftPaint(null)" style="padding:3px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);color:var(--ink3);font-family:inherit;font-size:10px;cursor:pointer;">解除</button>';
+    paintBar+='</div>';
+  }
+el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?'140':'112')+'px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
 
   el.querySelectorAll('[data-open-doc]').forEach(function(th){
     th.addEventListener('click',function(){
@@ -1324,8 +1346,33 @@ el.innerHTML='<div style="overflow:auto;height:calc(100vh - 112px);-webkit-overf
         renderAllView(targetId);renderA();renderC();
         ev.preventDefault();return;
       }
-      /* 通常クリック：インライン編集 */
+      /* 通常クリック：ペイントモードまたはインライン編集 */
       var docId2=td.dataset.editDoc,dateStr2=td.dataset.editDate;
+      if(window._shiftPaintClinic){
+        /* ペイントモード：選択中の医院をセルに塗る */
+        if(window._shiftPaintClinic==='__del__'){
+          /* 削除モード */
+          if(shifts[dateStr2]){
+            var old=shifts[dateStr2].find(function(s){return s.docId===docId2;});
+            if(old){
+              globalSnapshot();
+              shifts[dateStr2]=shifts[dateStr2].filter(function(s){return s.docId!==docId2;});
+              if(!shifts[dateStr2].length)delete shifts[dateStr2];
+              dbDel(dateStr2,docId2);
+              renderAllView(targetId);renderA();renderC();
+            }
+          }
+        } else {
+          globalSnapshot();
+          if(!shifts[dateStr2])shifts[dateStr2]=[];
+          var idx4=shifts[dateStr2].findIndex(function(s){return s.docId===docId2;});
+          var entry4={docId:docId2,clinicId:window._shiftPaintClinic,memo:''};
+          if(idx4>=0)shifts[dateStr2][idx4]=entry4;else shifts[dateStr2].push(entry4);
+          dbSave(dateStr2,docId2,window._shiftPaintClinic,'');
+          renderAllView(targetId);renderA();renderC();
+        }
+        return;
+      }
       openInlineEdit(td,docId2,dateStr2);
     });
 
@@ -1337,13 +1384,22 @@ el.innerHTML='<div style="overflow:auto;height:calc(100vh - 112px);-webkit-overf
       var key=dateStr+'_'+docId;
       if(balSelDates.has(key))return;
       balSelDates.add(key);
-      /* ドラッグ中は削除（既存あれば）か追加（qpop不要でデフォルト医院選択） */
-      var hasSh2=shifts[dateStr]&&shifts[dateStr].find(function(s){return s.docId===docId;});
-      if(hasSh2){
-        shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
-        if(!shifts[dateStr].length)delete shifts[dateStr];
-        dbDel(dateStr,docId);
+      /* ドラッグ中：ペイントモードなら塗る、なければ削除 */
+      if(window._shiftPaintClinic&&window._shiftPaintClinic!=='__del__'){
+        if(!shifts[dateStr])shifts[dateStr]=[];
+        var idx5=shifts[dateStr].findIndex(function(s){return s.docId===docId;});
+        var e5={docId:docId,clinicId:window._shiftPaintClinic,memo:''};
+        if(idx5>=0)shifts[dateStr][idx5]=e5;else shifts[dateStr].push(e5);
+        dbSave(dateStr,docId,window._shiftPaintClinic,'');
         renderAllView(targetId);renderA();renderC();
+      } else {
+        var hasSh2=shifts[dateStr]&&shifts[dateStr].find(function(s){return s.docId===docId;});
+        if(hasSh2){
+          shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
+          if(!shifts[dateStr].length)delete shifts[dateStr];
+          dbDel(dateStr,docId);
+          renderAllView(targetId);renderA();renderC();
+        }
       }
     });
 
