@@ -2511,7 +2511,7 @@ function renderKyuH(){
     var col=isSelected?"#fff":isSun?"#c0392b":isSat?"#1a5276":"var(--ink)";
     // この日に休診の医院を色ドットで表示
     var dots=CLINICS.filter(function(c){
-      return CLOSED_DATES[c.id]&&CLOSED_DATES[c.id].indexOf(ds2)>=0;
+      return isClosed(ds2,c.id);
     }).map(function(c){
       var cc=getCC(c.id);
       return "<span style=\"display:inline-block;padding:1px 4px;border-radius:3px;background:"+cc.b+";color:"+cc.c+";font-size:11px;font-weight:700;line-height:1.5;\">"+c.n+"</span>";
