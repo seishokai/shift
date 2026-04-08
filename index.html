@@ -2701,12 +2701,6 @@ function kyuHPickAll(){
   renderKyuHClinicBtns();
   renderKyuH();
 }
-function kyuHPickClinic(cid){
-  window._kyuHSelClinic=(window._kyuHSelClinic===cid)?null:cid;
-  window._kyuHSelDate=null;
-  renderKyuHClinicBtns();
-  renderKyuH();
-}
 function toggleKyuH(ds,cid){
   globalSnapshot();
   if(!CLOSED_DATES[cid])CLOSED_DATES[cid]=[];
