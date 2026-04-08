@@ -988,7 +988,10 @@ function renderA(){
     if(!window._clinicClosedSel)window._clinicClosedSel=new Set();
     var allEx=CLINICS.filter(function(c){return c.id!=='yagoto';}).map(function(c){return c.id;});
     var isAllOn=allEx.every(function(id){return window._clinicClosedSel.has(id);});
-    var bh='<span style="font-weight:700;color:#b8691a;">休診編集:</span><button onclick="clinicClosedClearMonth()" style="padding:4px 8px;border-radius:12px;border:1.5px solid #b83030;background:#fdf0ee;color:#b83030;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">月クリア</button>';
+    var delOn=!!window._clinicClosedDelMode;
+    var bh='<span style="font-weight:700;color:#b8691a;">休診編集:</span>';
+    bh+='<button onclick="clinicClosedToggleDel()" style="padding:4px 10px;border-radius:12px;border:1.5px solid '+(delOn?'#b83030':'var(--border)')+';background:'+(delOn?'#b83030':'#fdf0ee')+';color:'+(delOn?'#fff':'#b83030')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">休診取消</button>';
+    bh+='<button onclick="clinicClosedClearMonth()" style="padding:4px 8px;border-radius:12px;border:1.5px solid #b83030;background:#fdf0ee;color:#b83030;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">月クリア</button>';
     bh+='<button onclick="clinicClosedPickAll()" style="padding:4px 10px;border-radius:12px;border:1.5px solid '+(isAllOn?'#c0392b':'var(--border)')+';background:'+(isAllOn?'#c0392b':'var(--card)')+';color:'+(isAllOn?'#fff':'var(--ink2)')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">八事以外</button>';
     CLINICS.forEach(function(c){
       var cc=getCC(c.id),on=window._clinicClosedSel.has(c.id);
@@ -997,12 +1000,22 @@ function renderA(){
     cBar.innerHTML=bh;
   } else if(cBar){cBar.style.display='none';}
 
-  /* セルクリックで休診トグル */
+  /* セルクリックで休診トグル or 取消 */
   if(isAdmin){
     el.querySelectorAll('[data-edit-clinic]').forEach(function(td){
       td.addEventListener('click',function(){
-        if(!window._clinicClosedSel||!window._clinicClosedSel.size)return;
         var dateStr2=td.dataset.editDate;
+        var clinicId2=td.dataset.editClinic;
+        /* 休診取消モード：クリックしたセルの休診を解除 */
+        if(window._clinicClosedDelMode){
+          if(CLOSED_DATES[clinicId2]){
+            var idx2=CLOSED_DATES[clinicId2].indexOf(dateStr2);
+            if(idx2>=0){CLOSED_DATES[clinicId2].splice(idx2,1);renderA();renderC();showSb('休診取消','ok');}
+          }
+          return;
+        }
+        /* 通常モード：選択中の医院の休診をトグル */
+        if(!window._clinicClosedSel||!window._clinicClosedSel.size)return;
         window._clinicClosedSel.forEach(function(cid){
           if(!CLOSED_DATES[cid])CLOSED_DATES[cid]=[];
           var idx=CLOSED_DATES[cid].indexOf(dateStr2);
@@ -1023,6 +1036,11 @@ function clinicClosedClearMonth(){
   });
   renderA();renderC();
   showSb((curM+1)+'月の休診日をクリア','ok');
+}
+function clinicClosedToggleDel(){
+  window._clinicClosedDelMode=!window._clinicClosedDelMode;
+  if(window._clinicClosedDelMode)window._clinicClosedSel=new Set();
+  renderA();
 }
 function clinicClosedPick(cid){
   if(!window._clinicClosedSel)window._clinicClosedSel=new Set();
