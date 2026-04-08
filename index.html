@@ -2708,11 +2708,22 @@ function kyuHPickClinic(cid){
   renderKyuH();
 }
 function toggleKyuH(ds,cid){
-  closedSnapshot();
+  globalSnapshot();
   if(!CLOSED_DATES[cid])CLOSED_DATES[cid]=[];
   var idx=CLOSED_DATES[cid].indexOf(ds);
-  if(idx>=0)CLOSED_DATES[cid].splice(idx,1);
-  else CLOSED_DATES[cid].push(ds);
+  if(idx>=0){
+    /* CLOSED_DATESから削除 */
+    CLOSED_DATES[cid].splice(idx,1);
+  } else if(isClosed(ds,cid)){
+    /* 曜日定休/祝日定休 → 営業例外として登録 */
+    if(!CLOSED_DATES[cid+'_open'])CLOSED_DATES[cid+'_open']=[];
+    var oi=CLOSED_DATES[cid+'_open'].indexOf(ds);
+    if(oi>=0)CLOSED_DATES[cid+'_open'].splice(oi,1); /* 例外解除（再び休診に） */
+    else CLOSED_DATES[cid+'_open'].push(ds); /* 営業にする */
+  } else {
+    /* 通常追加 */
+    CLOSED_DATES[cid].push(ds);
+  }
   renderKyuH();
   renderAll();
 }
