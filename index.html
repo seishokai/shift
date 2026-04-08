@@ -15,7 +15,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .cc-chiryu{--cc:#0a6b8a;--cb:#e0f2f8;}.cc-komaki{--cc:#d81b60;--cb:#fce4ec;}
 .cc-yagoto{--cc:#8b4513;--cb:#f9ece2;}.cc-omori{--cc:#1f6b4e;--cb:#e4f4ed;}
 .cc-kyoto{--cc:#6b3a87;--cb:#f2ecf8;}.cc-ginza{--cc:#7d6608;--cb:#f8f3e2;}
-.cc-houmon{--cc:#2c6e8a;--cb:#e6eef5;}.cc-yasumi{--cc:#999;--cb:#f2f2f0;}.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
+.cc-houmon{--cc:#2c6e8a;--cb:#e6eef5;}.cc-toin{--cc:#b85c00;--cb:#fff3e0;}.cc-yasumi{--cc:#999;--cb:#f2f2f0;}.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
 .cc-yukyu{--cc:#c0392b;--cb:#f0f0ee;}.cc-daikyu{--cc:#1a5276;--cb:#e8f4fd;}
 .cc-daishutsu{--cc:#555;--cb:#f0f0ee;}.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
 /* HEADER */
@@ -667,6 +667,7 @@ var CLINICS = [
   {id:'yagoto',n:'八事',cc:'cc-yagoto'},{id:'omori',n:'大森',cc:'cc-omori'},
   {id:'kyoto',n:'京都',cc:'cc-kyoto'},{id:'ginza',n:'銀座',cc:'cc-ginza'},
   {id:'houmon',n:'訪問',cc:'cc-houmon'},
+  {id:'toin',n:'東員',cc:'cc-toin'},
 ];
 var STATUSES = [
   {id:'yasumi',n:'休み',cc:'cc-yasumi'},{id:'yukyu',n:'有給',cc:'cc-yukyu'},
@@ -690,9 +691,9 @@ let doctors = [
   {id:'d34',n:'青木',r:'C',memo:''},{id:'d35',n:'岩田',r:'C',memo:''},
 ];
 
-let CLOSED = {komaki:[2],chiryu:[3],kyoto:[4],omori:[4],chaya:[4]};
+let CLOSED = {komaki:[2],chiryu:[3],kyoto:[4],omori:[4],chaya:[4],toin:[0]};
 /* 祝日に休診の医院 */
-var HOL_CLOSED = ['esca','r','wiz','omori'];
+var HOL_CLOSED = ['esca','r','wiz','omori','toin'];
 /* 隔週日曜に休診の医院（第1・3日曜 ※要確認） */
 var BIWEEKLY_SUN_CLOSED = ['esca','r','wiz','omori'];
 
