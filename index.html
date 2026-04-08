@@ -754,8 +754,8 @@ function isClosed(dateStr,cid){
   if(cid&&CLOSED[cid]&&CLOSED[cid].includes(w))return true;
   /* 隔週日曜チェック（第1・3日曜） */
   if(w===0&&cid&&BIWEEKLY_SUN_CLOSED.indexOf(cid)>=0){
-    var weekNum=Math.ceil(d.getDate()/7); /* 第何週か */
-    if(weekNum%2===1)return true; /* 第1,3,5週の日曜 */
+    var weekNum=Math.ceil(d.getDate()/7);
+    if(weekNum%2===1)return true;
   }
   /* 祝日チェック（指定医院のみ） */
   if(HOL.has(dateStr)&&cid&&HOL_CLOSED.indexOf(cid)>=0)return true;
