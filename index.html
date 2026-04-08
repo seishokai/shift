@@ -762,7 +762,8 @@ function sbReq(path,opts){
   opts=opts||{};opts.headers=Object.assign({},SB_H,opts.headers||{});
   return fetch(SB_URL+path,opts).then(function(r){
     if(!r.ok)return r.text().then(function(t){throw new Error(t);});
-    return r.status===204?null:r.json();
+    if(r.status===204||r.headers.get('content-length')==='0')return null;
+    return r.text().then(function(t){return t?JSON.parse(t):null;});
   });
 }
 function loadDB(){
