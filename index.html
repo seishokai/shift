@@ -270,6 +270,8 @@ thead .date-th{top:0;}
     <button class="hdr-tab" id="htab3" style="display:none;">集計</button><button class="hdr-tab" id="htab9" style="display:none;">🏥 休診日</button>
   </div>
   <div style="flex:1;"></div>
+  <button class="hdr-btn" id="undoBtn" style="display:none;font-size:11px;" onclick="globalUndo()">← 戻る</button>
+  <button class="hdr-btn" id="redoBtn" style="display:none;font-size:11px;" onclick="globalRedo()">進む →</button>
   <button class="hdr-btn" id="printBtn" style="font-size:13px;">🖨</button>
   <button class="hdr-btn" id="aiShiftBtn" style="display:none;background:#7b2d8b;color:#fff;border-color:#7b2d8b;font-size:12px;">🤖 AI</button>
   <button class="hdr-btn" id="setBtn" style="display:none;">⚙️</button>
@@ -875,6 +877,9 @@ function setAdmin(v){
   if(aiBtn)aiBtn.style.display=v?'':'none';
   var t9=document.getElementById('htab9');if(t9)t9.style.display=v?'':'none';
   var ghBtn=document.getElementById('ghUploadBtn');if(ghBtn)ghBtn.style.display=v?'':'none';
+  /* 戻る/進むボタン */
+  var ub=document.getElementById('undoBtn');if(ub)ub.style.display=v?'':'none';
+  var rb=document.getElementById('redoBtn');if(rb)rb.style.display=v?'':'none';
   /* チャットボタンは管理者のみ */
   var fab=document.getElementById('chatFab');if(fab)fab.style.display=v?'':'none';
   var cp=document.getElementById('chatPanel');if(cp&&!v)cp.classList.remove('open');
@@ -989,8 +994,8 @@ function renderA(){
     var allEx=CLINICS.filter(function(c){return c.id!=='yagoto';}).map(function(c){return c.id;});
     var isAllOn=allEx.every(function(id){return window._clinicClosedSel.has(id);});
     var delOn=!!window._clinicClosedDelMode;
-    var undoN=window._closedUndoStack?window._closedUndoStack.length:0;
-    var redoN=window._closedRedoStack?window._closedRedoStack.length:0;
+    var undoN=window._undoStack?window._undoStack.length:0;
+    var redoN=window._redoStack?window._redoStack.length:0;
     var bh='<span style="font-weight:700;color:#b8691a;">休診編集:</span>';
     bh+='<button onclick="closedUndo()" style="padding:4px 8px;border-radius:12px;border:1.5px solid '+(undoN?'#2d6a9f':'#ddd')+';background:'+(undoN?'#e8f4fd':'#f5f5f5')+';color:'+(undoN?'#2d6a9f':'#ccc')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;" '+(undoN?'':'disabled')+'>← 戻る('+undoN+')</button>';
     bh+='<button onclick="closedRedo()" style="padding:4px 8px;border-radius:12px;border:1.5px solid '+(redoN?'#2d6a9f':'#ddd')+';background:'+(redoN?'#e8f4fd':'#f5f5f5')+';color:'+(redoN?'#2d6a9f':'#ccc')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;" '+(redoN?'':'disabled')+'>進む('+redoN+')</button>';
@@ -1033,34 +1038,44 @@ function renderA(){
   }
 }
 
-/* Undo/Redo for CLOSED_DATES */
-window._closedUndoStack=[];
-window._closedRedoStack=[];
-function closedSnapshot(){
-  var snap={};
-  Object.keys(CLOSED_DATES).forEach(function(k){snap[k]=CLOSED_DATES[k].slice();});
-  window._closedUndoStack.push(JSON.stringify(snap));
-  if(window._closedUndoStack.length>50)window._closedUndoStack.shift();
-  window._closedRedoStack=[];
+/* グローバルUndo/Redo（シフト＋休診日） */
+window._undoStack=[];
+window._redoStack=[];
+function globalSnapshot(){
+  var snap={s:JSON.parse(JSON.stringify(shifts)),c:{}};
+  Object.keys(CLOSED_DATES).forEach(function(k){snap.c[k]=CLOSED_DATES[k].slice();});
+  window._undoStack.push(JSON.stringify(snap));
+  if(window._undoStack.length>50)window._undoStack.shift();
+  window._redoStack=[];
 }
-function closedUndo(){
-  if(!window._closedUndoStack.length)return;
-  var cur={};Object.keys(CLOSED_DATES).forEach(function(k){cur[k]=CLOSED_DATES[k].slice();});
-  window._closedRedoStack.push(JSON.stringify(cur));
-  var prev=JSON.parse(window._closedUndoStack.pop());
+var closedSnapshot=globalSnapshot; /* 後方互換 */
+function globalUndo(){
+  if(!window._undoStack.length)return;
+  var cur={s:JSON.parse(JSON.stringify(shifts)),c:{}};
+  Object.keys(CLOSED_DATES).forEach(function(k){cur.c[k]=CLOSED_DATES[k].slice();});
+  window._redoStack.push(JSON.stringify(cur));
+  var prev=JSON.parse(window._undoStack.pop());
+  /* shifts復元 */
+  Object.keys(shifts).forEach(function(k){delete shifts[k];});
+  Object.keys(prev.s).forEach(function(k){shifts[k]=prev.s[k];});
+  /* CLOSED_DATES復元 */
   Object.keys(CLOSED_DATES).forEach(function(k){delete CLOSED_DATES[k];});
-  Object.keys(prev).forEach(function(k){CLOSED_DATES[k]=prev[k];});
-  renderA();renderC();showSb('戻しました','ok');
+  Object.keys(prev.c).forEach(function(k){CLOSED_DATES[k]=prev.c[k];});
+  renderAll();showSb('戻しました','ok');
 }
-function closedRedo(){
-  if(!window._closedRedoStack.length)return;
-  var cur={};Object.keys(CLOSED_DATES).forEach(function(k){cur[k]=CLOSED_DATES[k].slice();});
-  window._closedUndoStack.push(JSON.stringify(cur));
-  var next=JSON.parse(window._closedRedoStack.pop());
+function globalRedo(){
+  if(!window._redoStack.length)return;
+  var cur={s:JSON.parse(JSON.stringify(shifts)),c:{}};
+  Object.keys(CLOSED_DATES).forEach(function(k){cur.c[k]=CLOSED_DATES[k].slice();});
+  window._undoStack.push(JSON.stringify(cur));
+  var next=JSON.parse(window._redoStack.pop());
+  Object.keys(shifts).forEach(function(k){delete shifts[k];});
+  Object.keys(next.s).forEach(function(k){shifts[k]=next.s[k];});
   Object.keys(CLOSED_DATES).forEach(function(k){delete CLOSED_DATES[k];});
-  Object.keys(next).forEach(function(k){CLOSED_DATES[k]=next[k];});
-  renderA();renderC();showSb('進めました','ok');
+  Object.keys(next.c).forEach(function(k){CLOSED_DATES[k]=next.c[k];});
+  renderAll();showSb('進めました','ok');
 }
+var closedUndo=globalUndo,closedRedo=globalRedo;
 function clinicClosedToggleDel(){
   window._clinicClosedDelMode=!window._clinicClosedDelMode;
   if(window._clinicClosedDelMode)window._clinicClosedSel=new Set();
@@ -1789,6 +1804,7 @@ function openInlineEdit(td,docId,dateStr){
 function closeInlineEdit(){document.getElementById('inlineEdit').classList.remove('on');ieDocId=null;ieDateStr=null;}
 function inlineSave(cid){
   if(!ieDocId||!ieDateStr||!cid)return;
+  globalSnapshot();
   if(!shifts[ieDateStr])shifts[ieDateStr]=[];
   var idx=shifts[ieDateStr].findIndex(function(s){return s.docId===ieDocId;});
   var e={docId:ieDocId,clinicId:cid,memo:''};
@@ -1799,6 +1815,7 @@ function inlineSave(cid){
 }
 function inlineDelete(){
   if(!ieDocId||!ieDateStr)return;
+  globalSnapshot();
   if(shifts[ieDateStr]){
     shifts[ieDateStr]=shifts[ieDateStr].filter(function(s){return s.docId!==ieDocId;});
     if(!shifts[ieDateStr].length)delete shifts[ieDateStr];
@@ -1812,6 +1829,7 @@ function quickSave(dateStrArg, docIdArg, cid){
   var targetDate=dateStrArg||qpopDate;
   var targetDoc=docIdArg||selDocId;
   if(!targetDate||!targetDoc||!cid)return;
+  globalSnapshot();
   var chk=document.getElementById('daishutsuChk');
   var memo=(chk&&chk.checked)?'代出':'';
   if(!shifts[targetDate])shifts[targetDate]=[];
