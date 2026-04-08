@@ -793,22 +793,23 @@ var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
   showSb('保存中...');
-  /* まずUPSERT試行、失敗したらDELETE→INSERT */
-  return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
-    body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+  /* 確実にDELETE→INSERT（順番保証） */
+  return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
+    method:'DELETE',headers:Object.assign({},SB_H)
   }).then(function(){
+    return fetch(SB_URL+'/rest/v1/shifts',{
+      method:'POST',
+      headers:Object.assign({},SB_H,{Prefer:'return=minimal'}),
+      body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+    });
+  }).then(function(r){
     _pendingSaves--;
+    if(!r.ok)throw new Error(r.status);
     if(_pendingSaves<=0){_pendingSaves=0;showSb('保存完了','ok');}
-  }).catch(function(){
-    /* UPSERT失敗→DELETE後にINSERT */
-    return sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'}).then(function(){
-      return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'return=minimal'},
-        body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
-      });
-    }).then(function(){
-      _pendingSaves--;
-      if(_pendingSaves<=0){_pendingSaves=0;showSb('保存完了','ok');}
-    }).catch(function(){_pendingSaves--;showSb('保存失敗','e');});
+  }).catch(function(e){
+    _pendingSaves--;
+    console.warn('保存失敗:',e);
+    showSb('保存失敗','e');
   });
 }
 function dbDel(dateStr,docId){
