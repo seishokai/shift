@@ -2530,11 +2530,13 @@ function renderKyuH(){
   // 医院ボタン更新（選択日があれば表示）
   renderKyuHClinicBtns();
 }
-window._kyuHSelClinic=null;
+window._kyuHSelClinics=new Set();
 function kyuHSelectDate(ds){
-  /* 医院が選択されていれば即トグル */
-  if(window._kyuHSelClinic){
-    toggleKyuH(ds,window._kyuHSelClinic);
+  /* 医院が選択されていれば即トグル（複数医院対応） */
+  if(window._kyuHSelClinics.size>0){
+    window._kyuHSelClinics.forEach(function(cid){
+      toggleKyuH(ds,cid);
+    });
     return;
   }
   window._kyuHSelDate=(window._kyuHSelDate===ds)?null:ds;
@@ -2543,16 +2545,30 @@ function kyuHSelectDate(ds){
 function renderKyuHClinicBtns(){
   var el=document.getElementById("kyuHClinicBtns");
   if(!el)return;
-  /* 常に医院ボタンを表示（先に医院を選択→日付タップで一括入力） */
-  el.innerHTML=CLINICS.map(function(c){
+  /* 「八事以外」ボタン + 各医院ボタン */
+  var allExYagoto=CLINICS.filter(function(c){return c.id!=='yagoto';}).map(function(c){return c.id;});
+  var isAllOn=allExYagoto.every(function(id){return window._kyuHSelClinics.has(id);});
+  var h="<button onclick=\"kyuHPickAll()\" style=\"padding:6px 12px;border-radius:16px;border:2px solid "+(isAllOn?"#c0392b":"var(--border)")+";background:"+(isAllOn?"#c0392b":"var(--card)")+";color:"+(isAllOn?"#fff":"var(--ink2)")+";font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;\">八事以外</button>";
+  h+=CLINICS.map(function(c){
     var cc=getCC(c.id);
-    var on=window._kyuHSelClinic===c.id;
+    var on=window._kyuHSelClinics.has(c.id);
     return "<button onclick=\"kyuHPickClinic('"+c.id+"')\" style=\"padding:6px 12px;border-radius:16px;border:2px solid "+(on?cc.c:"var(--border)")+";background:"+(on?cc.c:"var(--card)")+";color:"+(on?"#fff":"var(--ink2)")+";font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;\">"+c.n+"</button>";
   }).join("");
+  el.innerHTML=h;
 }
 function kyuHPickClinic(cid){
-  window._kyuHSelClinic=(window._kyuHSelClinic===cid)?null:cid;
+  if(window._kyuHSelClinics.has(cid))window._kyuHSelClinics.delete(cid);
+  else window._kyuHSelClinics.add(cid);
   window._kyuHSelDate=null;
+  renderKyuHClinicBtns();
+  renderKyuH();
+}
+function kyuHPickAll(){
+  /* 八事以外を全選択/全解除 */
+  var allExYagoto=CLINICS.filter(function(c){return c.id!=='yagoto';}).map(function(c){return c.id;});
+  var isAllOn=allExYagoto.every(function(id){return window._kyuHSelClinics.has(id);});
+  if(isAllOn){window._kyuHSelClinics.clear();}
+  else{allExYagoto.forEach(function(id){window._kyuHSelClinics.add(id);});}
   renderKyuHClinicBtns();
   renderKyuH();
 }
