@@ -793,20 +793,22 @@ var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
   showSb('保存中...');
+  /* まずUPSERT試行、失敗したらDELETE→INSERT */
   return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
     body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
   }).then(function(){
     _pendingSaves--;
     if(_pendingSaves<=0){_pendingSaves=0;showSb('保存完了','ok');}
-  }).catch(function(e){
-    _pendingSaves--;
-    console.warn('DB保存失敗:',e);
-    showSb('再試行...','w');
-    return new Promise(function(resolve){setTimeout(resolve,500);}).then(function(){
-      return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},
+  }).catch(function(){
+    /* UPSERT失敗→DELETE後にINSERT */
+    return sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'}).then(function(){
+      return sbReq('/rest/v1/shifts',{method:'POST',headers:{Prefer:'return=minimal'},
         body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
       });
-    }).then(function(){showSb('保存完了','ok');}).catch(function(){showSb('保存失敗','e');});
+    }).then(function(){
+      _pendingSaves--;
+      if(_pendingSaves<=0){_pendingSaves=0;showSb('保存完了','ok');}
+    }).catch(function(){_pendingSaves--;showSb('保存失敗','e');});
   });
 }
 function dbDel(dateStr,docId){
@@ -1013,7 +1015,11 @@ function renderA(){
   /* セルクリックで休診トグル or 取消 */
   if(isAdmin){
     el.querySelectorAll('[data-edit-clinic]').forEach(function(td){
-      td.addEventListener('click',function(){
+      td.addEventListener('click',function(ev){
+        /* 休診編集モード中はシフト編集を無効化 */
+        if(window._clinicClosedDelMode||(window._clinicClosedSel&&window._clinicClosedSel.size>0)){
+          ev.stopPropagation();ev.preventDefault();
+        }
         var dateStr2=td.dataset.editDate;
         var clinicId2=td.dataset.editClinic;
         /* 休診取消モード：クリックしたセルの休診を解除 */
