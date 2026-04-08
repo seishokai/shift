@@ -1052,6 +1052,21 @@ function renderA(){
   }
 }
 
+/* CLOSED_DATESの永続化 */
+function saveClosedDates(){
+  try{localStorage.setItem('seishokai_closed_dates',JSON.stringify(CLOSED_DATES));}catch(e){}
+}
+function loadClosedDates(){
+  try{
+    var s=localStorage.getItem('seishokai_closed_dates');
+    if(s){
+      var saved=JSON.parse(s);
+      /* 保存済みデータをマージ（保存済みを優先） */
+      Object.keys(saved).forEach(function(k){CLOSED_DATES[k]=saved[k];});
+    }
+  }catch(e){}
+}
+
 /* グローバルUndo/Redo（シフト＋休診日） */
 window._undoStack=[];
 window._redoStack=[];
@@ -1061,6 +1076,8 @@ function globalSnapshot(){
   window._undoStack.push(JSON.stringify(snap));
   if(window._undoStack.length>50)window._undoStack.shift();
   window._redoStack=[];
+  /* 変更時に自動保存 */
+  saveClosedDates();
 }
 var closedSnapshot=globalSnapshot; /* 後方互換 */
 function globalUndo(){
@@ -1075,7 +1092,7 @@ function globalUndo(){
   /* CLOSED_DATES復元 */
   Object.keys(CLOSED_DATES).forEach(function(k){delete CLOSED_DATES[k];});
   Object.keys(prev.c).forEach(function(k){CLOSED_DATES[k]=prev.c[k];});
-  renderAll();showSb('戻しました','ok');
+  renderAll();saveClosedDates();showSb('戻しました','ok');
 }
 function globalRedo(){
   if(!window._redoStack.length)return;
@@ -1087,7 +1104,7 @@ function globalRedo(){
   Object.keys(next.s).forEach(function(k){shifts[k]=next.s[k];});
   Object.keys(CLOSED_DATES).forEach(function(k){delete CLOSED_DATES[k];});
   Object.keys(next.c).forEach(function(k){CLOSED_DATES[k]=next.c[k];});
-  renderAll();showSb('進めました','ok');
+  renderAll();saveClosedDates();showSb('進めました','ok');
 }
 var closedUndo=globalUndo,closedRedo=globalRedo;
 function clinicClosedToggleDel(){
@@ -4487,6 +4504,7 @@ document.addEventListener('DOMContentLoaded',function(){
   /* vE,vG は初期非表示 */
   ['vE','vG'].forEach(function(id){var v=document.getElementById(id);if(v)v.style.display='none';});
   renderAll();
+  loadClosedDates();
   loadDB().then(function(){renderAll();scheduleAutoBackup();loadKyumiLogFromDB().then(function(){if(curTab===3)renderD();});});
 });
 /* ---- チャット機能 ---- */
