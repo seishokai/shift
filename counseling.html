@@ -47,16 +47,21 @@ table.compare tr:hover{background:#222}
 .case-tabs{display:flex;justify-content:center;gap:10px;margin-bottom:30px;flex-wrap:wrap}
 .case-tab{padding:12px 30px;border:2px solid #C5A55A;background:transparent;color:#C5A55A;cursor:pointer;font-size:17px;border-radius:30px;transition:all 0.3s}
 .case-tab.active,.case-tab:hover{background:#C5A55A;color:#000}
-.cases-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px}
-.case-card{border:1px solid #eee;border-radius:12px;overflow:hidden;transition:transform 0.3s}
-.case-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.08)}
-.case-card img{width:100%;height:220px;object-fit:cover;cursor:pointer}
-.case-card .info{padding:15px}
-.case-card .complaint{font-size:16px;color:#666;margin-bottom:8px}
-.case-card .price{font-size:18px;font-weight:600;color:#C5A55A}
-.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:15px;margin-top:30px}
-.gallery img{width:100%;height:200px;object-fit:cover;border-radius:8px;cursor:pointer;transition:transform 0.3s}
-.gallery img:hover{transform:scale(1.03)}
+.carousel-case{margin-bottom:40px;border:1px solid #eee;border-radius:16px;overflow:hidden;background:#fafafa}
+.carousel-header{padding:20px 25px 10px;text-align:center}
+.carousel-header h3{font-size:20px;color:#C5A55A;margin-bottom:6px}
+.carousel-header p{font-size:16px;color:#666}
+.carousel-track-wrap{position:relative;display:flex;align-items:center;padding:10px 0 20px}
+.carousel-track{display:flex;overflow-x:auto;scroll-behavior:smooth;gap:12px;padding:0 50px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.carousel-track::-webkit-scrollbar{display:none}
+.carousel-track img{min-width:320px;max-width:420px;height:280px;object-fit:cover;border-radius:10px;cursor:pointer;flex-shrink:0;transition:transform 0.3s}
+.carousel-track img:hover{transform:scale(1.03)}
+@media(max-width:768px){.carousel-track img{min-width:260px;max-width:300px;height:220px}}
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;background:rgba(0,0,0,0.6);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.3s}
+.carousel-btn:hover{background:rgba(0,0,0,0.85)}
+.carousel-btn.prev{left:6px}
+.carousel-btn.next{right:6px}
+.dark .carousel-case{background:#1a1a1a;border-color:#333}
 .flow-chart{max-width:700px;margin:30px auto}
 .flow-step{background:#f5f5f5;padding:20px;border-radius:10px;margin-bottom:15px;position:relative}
 .flow-step:not(:last-child):after{content:"▼";display:block;text-align:center;color:#C5A55A;font-size:20px;margin-top:10px;position:absolute;bottom:-18px;left:50%;transform:translateX(-50%)}
@@ -281,309 +286,389 @@ table.price-table tr:hover{background:#f9f9f9}
 
 <!-- Lovelier Cases -->
 <div id="cases-lovelier">
-<div class="cases-grid">
 
-<div class="case-card">
-<img src="./lovelier_img/slide15_00.jpg" alt="Case1 Before" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case 1: 歯のガタツキをなくしたい / 歯を白くしたい / 出っ歯NG</div>
-<div class="price">上下16本 ¥1,264,000（税抜）/ 1本 ¥79,000</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 1: 歯のガタツキをなくしたい / 歯を白くしたい / 出っ歯NG</h3>
+<p>上下16本 ¥1,264,000（税抜）/ 1本 ¥79,000</p>
 </div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide15_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide15_01.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide15_02.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide15_03.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide15_04.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide15_05.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide16_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide16_01.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide16_02.jpg" onclick="openLightbox(this)">
 </div>
-
-<div class="case-card">
-<img src="./lovelier_img/slide16_00.jpg" alt="Case1 After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case 1: 薄さ0.1mm以下 ― 前歯の突出感なし</div>
-<div class="price">全顔モニター価格</div>
-</div>
-</div>
-
-<div class="case-card">
-<img src="./lovelier_img/slide17_00.jpg" alt="Case2" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case 2: 2番目の歯の隙間 / 歯の黄ばみ</div>
-<div class="price">上8本 ¥920,000（税抜）/ 1本 ¥115,000</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide18_00.jpg" alt="Case3" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case 3: すきっ歯が気になる / 歯が大きく見えるのはNG</div>
-<div class="price">上6本 ¥690,000（税抜）/ 1本 ¥115,000</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 2: 2番目の歯の隙間 / 歯の黄ばみ</h3>
+<p>上8本 ¥920,000（税抜）/ 1本 ¥115,000</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide17_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide17_01.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide17_02.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide17_03.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide19_00.jpg" alt="Case4" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case 4: 歯のガタツキ治したい / 笑った時に歯が見えるようにしたい</div>
-<div class="price">上16本 ¥1,584,000（税抜）/ 1本 ¥99,000</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 3: すきっ歯が気になる / 歯が大きく見えるのはNG</h3>
+<p>上6本 ¥690,000（税抜）/ 1本 ¥115,000</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide18_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide18_01.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide18_02.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide20_00.jpg" alt="Case5" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case 5: すきっ歯 / 歯が大きく見えるのはNG / 歯を白くしたい</div>
-<div class="price">上8本 ¥816,000（税抜）/ 1本 ¥102,000</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 4: 歯のガタツキ治したい / 笑った時に歯が見えるようにしたい</h3>
+<p>上16本 ¥1,584,000（税抜）/ 1本 ¥99,000</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide19_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide19_01.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide19_02.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide22_00.png" alt="Case6" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case 6: ガミースマイル / 奥歯まで全て綺麗にしたい</div>
-<div class="price">上下20本+Zrクラウン4本+ガミーOPE 計¥2,474,000（税抜）</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 5: すきっ歯 / 歯を白くしたい</h3>
+<p>上8本 ¥816,000（税抜）/ 1本 ¥102,000</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide20_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide20_01.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide24_00.jpg" alt="Case追加" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">歯の黄ばみ・隙間</div>
-<div class="price">上顎8本 ¥1,012,000（税込）</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 6: ガミースマイル / 奥歯まで全て綺麗にしたい</h3>
+<p>上下20本+Zrクラウン4本+ガミーOPE 計¥2,474,000（税抜）</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide22_00.png" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide22_01.png" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide24_02.jpg" alt="Case追加" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">歯の色味・隙間</div>
-<div class="price">上顎10本 ¥1,155,000（税込）</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 7: 歯の黄ばみ・隙間 / 歯の色味</h3>
+<p>上顎8〜10本 ¥1,012,000〜¥1,155,000（税込）</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide24_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide24_01.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide24_02.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide24_03.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide24_04.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide25_00.jpg" alt="Case追加" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">矯正後のブラックトライアングル</div>
-<div class="price">上下16本 ¥1,742,400（税込）</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 8: 矯正後のブラックトライアングル / 歯の色味・ガタツキ</h3>
+<p>上下14〜16本 ¥1,617,000〜¥1,742,400（税込）</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide25_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide25_01.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide25_02.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide25_03.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide25_02.jpg" alt="Case追加" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">歯の色味・ガタツキ</div>
-<div class="price">上下14本 ¥1,617,000（税込）</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 9: 前歯2本の出っ歯・隙間</h3>
+<p>上顎2本 ¥264,000（税込）</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide27_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide27_01.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide27_02.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide27_03.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide27_00.jpg" alt="Case追加" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">前歯2本の出っ歯・隙間</div>
-<div class="price">上顎2本 ¥264,000（税込）</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 10: 矮小歯・隙間</h3>
+<p>右上1番2番 ¥264,000（税込）</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./lovelier_img/slide28_00.jpg" onclick="openLightbox(this)">
+<img src="./lovelier_img/slide28_01.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./lovelier_img/slide28_00.jpg" alt="Case追加" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">矮小歯・隙間</div>
-<div class="price">右上1番2番 ¥264,000（税込）</div>
-</div>
 </div>
 
-</div>
-</div>
 <!-- Blackfilm Cases -->
 <div id="cases-blackfilm" style="display:none">
-<div class="cases-grid">
 
-<div class="case-card">
-<img src="./20.jpg" alt="すき歯の悩み Before" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: すき歯の悩み（20代女性）<br>主訴: すきっ歯を直したい</div>
-<div class="price">ダイレクトボンディングとジルコニアベニアで検討していた</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 1: すき歯の悩み（20代女性）</h3>
+<p>主訴: すきっ歯を直したい</p>
 </div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./20.jpg" onclick="openLightbox(this)">
+<img src="./29.jpg" onclick="openLightbox(this)">
+<img src="./30.jpg" onclick="openLightbox(this)">
+<img src="./31.jpg" onclick="openLightbox(this)">
 </div>
-
-<div class="case-card">
-<img src="./30.jpg" alt="すき歯 After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: すき歯の悩み ― Before / After</div>
-<div class="price">劇的な変化</div>
-</div>
-</div>
-
-<div class="case-card">
-<img src="./32.jpg" alt="絶対に削りたくない" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 絶対に削りたくない（30代男性・経営者）<br>主訴: 削るセラミックは絶対にいやだ</div>
-<div class="price">ご家族からも強く反対されている</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./35.jpg" alt="削りたくない Before/After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 絶対に削りたくない ― Before / After</div>
-<div class="price">4パネル比較</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 2: 絶対に削りたくない（30代男性・経営者）</h3>
+<p>主訴: 削るセラミックは絶対にいやだ</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./32.jpg" onclick="openLightbox(this)">
+<img src="./33.jpg" onclick="openLightbox(this)">
+<img src="./34.jpg" onclick="openLightbox(this)">
+<img src="./35.jpg" onclick="openLightbox(this)">
+<img src="./36.jpg" onclick="openLightbox(this)">
+<img src="./38.jpg" onclick="openLightbox(this)">
+<img src="./39.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./40.jpg" alt="韓国アイドルスマイル" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 韓国アイドルみたいなスマイル（20代女性・医療従事者）<br>他医院の修正もあり、完璧な歯の形・色へ</div>
-<div class="price">完璧な形・色を実現</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 3: 矯正後の悩み（20代女性・歯科医師）</h3>
+<p>主訴: ブラックトライアングル、形・色を完璧にしたい</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./28.jpg" onclick="openLightbox(this)">
+<img src="./40.jpg" onclick="openLightbox(this)">
+<img src="./42.jpg" onclick="openLightbox(this)">
+<img src="./43.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./42.jpg" alt="韓国アイドル After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 韓国アイドルスマイル ― Before / After</div>
-<div class="price">劇的な変化</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 4: ホワイトスポットを改善したい（30代男性・経営者）</h3>
+<p>主訴: 長年ホワイトスポットに悩んでいた</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./44.jpg" onclick="openLightbox(this)">
+<img src="./45.jpg" onclick="openLightbox(this)">
+<img src="./46.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./44.jpg" alt="ホワイトスポット" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: ホワイトスポットを改善したい（30代男性・経営者）<br>長年ホワイトスポットに悩んでいた</div>
-<div class="price">ホワイトスポット改善</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 5: 真っ白の歯になりたい（30代男性・経営者）</h3>
+<p>主訴: 誰がどう見ても圧倒的な白さを目指したい</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./47.jpg" onclick="openLightbox(this)">
+<img src="./48.jpg" onclick="openLightbox(this)">
+<img src="./49.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./47.jpg" alt="真っ白の歯" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 真っ白の歯になりたい（30代男性・経営者）<br>誰がどう見ても圧倒的な白さを目指したい</div>
-<div class="price">圧倒的な白さを実現</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 6: 重度の損傷からの回復</h3>
+<p>重度の歯の損傷を削らずに改善</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./51.jpg" onclick="openLightbox(this)">
+<img src="./52.jpg" onclick="openLightbox(this)">
+<img src="./54.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./48.jpg" alt="真っ白 Before/After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 真っ白の歯 ― Before / After</div>
-<div class="price">劇的な変化</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 7: 歯並びは綺麗、形を整えたい（30代女性）</h3>
+<p>結婚式前で最短を希望</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./55.jpg" onclick="openLightbox(this)">
+<img src="./58.jpg" onclick="openLightbox(this)">
+<img src="./59.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./50.jpg" alt="ナチュラル追求" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: ナチュラルを追求したい（40代男性・会社員）<br>できる限り歯を削らずに健康面を重視した自然な歯に</div>
-<div class="price">長年の悩みを削らずに解決</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 8: 費用を抑えたい（30代女性）</h3>
+<p>デンタルローンを活用し最小限の治療を実現</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./57.jpg" onclick="openLightbox(this)">
+<img src="./60.jpg" onclick="openLightbox(this)">
+<img src="./61.jpg" onclick="openLightbox(this)">
+<img src="./63.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./51.jpg" alt="重度ケース" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 重度の損傷からの回復</div>
-<div class="price">Before</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 9: 芸能人級の白さに（30代女性）</h3>
+<p>ホワイトニングよりも白く、最短3週間で</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./64.jpg" onclick="openLightbox(this)">
+<img src="./65.jpg" onclick="openLightbox(this)">
+<img src="./67.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./52.jpg" alt="重度ケース After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 重度の損傷 ― Before / After</div>
-<div class="price">劇的な改善</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 10: 2本だけでも整えたい（40代男性・アメリカ在住）</h3>
+<p>すきっ歯を削らないで自然にしたい</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./68.jpg" onclick="openLightbox(this)">
+<img src="./69.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./55.jpg" alt="歯の形を整えたい" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 歯並びは綺麗、形を整えたい（30代女性・歯科医療従事者）<br>結婚式前で最短を希望</div>
-<div class="price">最短での治療を実現</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 11: 矯正はしたくない、削りたくもない（20代女性）</h3>
+<p>妊娠中で体に負担をかけたくない</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./70.jpg" onclick="openLightbox(this)">
+<img src="./71.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./57.jpg" alt="費用を抑えたい" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 費用を抑えたい（30代女性）<br>お金は節約したい、でも完璧にしたい</div>
-<div class="price">デンタルローンを活用し最小限の治療を実現</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>Case 12: 他院治療後にブラックフィルム追加</h3>
+<p>他院での治療部位に追加施術</p>
+</div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./73.jpg" onclick="openLightbox(this)">
+<img src="./75.jpg" onclick="openLightbox(this)">
+</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
 </div>
 
-<div class="case-card">
-<img src="./64.jpg" alt="芸能人級の白さ" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 芸能人級の白さに（30代女性）<br>ホワイトニングよりも白く、最短3週間で</div>
-<div class="price">短期間で実現</div>
+<div class="carousel-case">
+<div class="carousel-header">
+<h3>韓国症例集</h3>
+<p>歯の延長・叢生・スマイルライン・ホワイトスポット・隙間など</p>
 </div>
+<div class="carousel-track-wrap">
+<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
+<div class="carousel-track">
+<img src="./77.jpg" onclick="openLightbox(this)">
+<img src="./78.jpg" onclick="openLightbox(this)">
 </div>
-
-<div class="case-card">
-<img src="./65.jpg" alt="芸能人級 Before/After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 芸能人級の白さ ― Before / After</div>
-<div class="price">劇的な変化</div>
+<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
 </div>
-</div>
-
-<div class="case-card">
-<img src="./68.jpg" alt="2本だけ" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 2本だけでも整えたい（40代男性・アメリカ在住）<br>すきっ歯を削らないで自然にしたい</div>
-<div class="price">2本だけでも対応可能</div>
-</div>
-</div>
-
-<div class="case-card">
-<img src="./69.jpg" alt="2本 Before/After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 2本だけ ― Before / After</div>
-<div class="price">自然な仕上がり</div>
-</div>
-</div>
-
-<div class="case-card">
-<img src="./70.jpg" alt="矯正したくない削りたくもない" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 矯正はしたくない、削りたくもない（20代女性・妊娠中）<br>子供がおなかにいるので体に負担をかけたくない</div>
-<div class="price">体に負担をかけない治療</div>
-</div>
-</div>
-
-<div class="case-card">
-<img src="./71.jpg" alt="矯正したくない After" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 矯正はしたくない ― Before / After</div>
-<div class="price">劇的な改善</div>
-</div>
-</div>
-
-<div class="case-card">
-<img src="./28.jpg" alt="矯正後の悩み" onclick="openLightbox(this)">
-<div class="info">
-<div class="complaint">Case: 矯正後の悩み（20代女性・歯科医師）<br>ブラックトライアングル、形・色を完璧にしたい</div>
-<div class="price">削るベニアは絶対にいや</div>
-</div>
-</div>
-
-</div>
-
-<h3 style="text-align:center;margin:40px 0 20px;color:#C5A55A">Before / After ギャラリー</h3>
-<div class="gallery">
-<img src="./29.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./31.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./36.jpg" alt="After" onclick="openLightbox(this)">
-<img src="./38.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./39.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./43.jpg" alt="After" onclick="openLightbox(this)">
-<img src="./46.jpg" alt="After" onclick="openLightbox(this)">
-<img src="./49.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./54.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./58.jpg" alt="After" onclick="openLightbox(this)">
-<img src="./59.jpg" alt="After" onclick="openLightbox(this)">
-<img src="./60.jpg" alt="After" onclick="openLightbox(this)">
-<img src="./61.jpg" alt="After" onclick="openLightbox(this)">
-<img src="./63.jpg" alt="After" onclick="openLightbox(this)">
-<img src="./67.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./73.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./75.jpg" alt="B/A" onclick="openLightbox(this)">
-<img src="./77.jpg" alt="Korea cases" onclick="openLightbox(this)">
-<img src="./78.jpg" alt="Korea cases" onclick="openLightbox(this)">
 </div>
 
 </div>
@@ -651,34 +736,34 @@ table.price-table tr:hover{background:#f9f9f9}
 <div class="section-title"><h2>料金表</h2></div>
 
 <h3 style="color:#C5A55A;margin-bottom:20px;text-align:center">La Briller ラブリエ</h3>
-<p style="text-align:center;color:#666;margin-bottom:20px">※モニター価格の目安です。症例により異なります。</p>
 <div style="overflow-x:auto">
 <table class="price-table">
-<tr><th>本数</th><th>費用（税抜）</th><th>1本あたり</th></tr>
-<tr><td>上下20本</td><td>¥1,980,000</td><td>¥99,000</td></tr>
-<tr><td>上下16本</td><td>¥1,264,000〜¥1,584,000</td><td>¥79,000〜¥99,000</td></tr>
-<tr><td>上8〜10本</td><td>¥816,000〜¥1,155,000</td><td>¥102,000〜¥115,000</td></tr>
-<tr><td>上6本</td><td>¥690,000</td><td>¥115,000</td></tr>
-<tr><td>上2本</td><td>¥264,000</td><td>¥132,000</td></tr>
+<tr><th>本数</th><th>定価（税込）</th><th>本数割（税込）</th><th>1本あたり</th></tr>
+<tr><td>上下20本</td><td>¥2,640,000</td><td>¥2,178,000</td><td>¥108,900</td></tr>
+<tr><td>上下16本</td><td>¥2,112,000</td><td>¥1,742,400</td><td>¥108,900</td></tr>
+<tr><td>上下14本</td><td>¥1,848,000</td><td>¥1,617,000</td><td>¥115,500</td></tr>
+<tr><td>上10本</td><td>¥1,320,000</td><td>¥1,155,000</td><td>¥115,500</td></tr>
+<tr><td>上8本</td><td>¥1,056,000</td><td>¥1,012,000</td><td>¥126,500</td></tr>
+<tr><td>上6本</td><td>¥792,000</td><td>¥759,000</td><td>¥126,500</td></tr>
+<tr><td>上2本</td><td>¥264,000</td><td>―</td><td>¥132,000</td></tr>
 </table>
 </div>
 <p style="text-align:center;color:#888;font-size:15px;margin-top:10px">※ガミースマイルOPE: ¥150,000（税抜）/ Zrクラウン: 1本¥86,000（税抜）</p>
 
 <h3 style="color:#C5A55A;margin:40px 0 20px;text-align:center">Blackfilm ブラックフィルム</h3>
-<p style="text-align:center;color:#666;margin-bottom:20px">※通常価格です。</p>
 <div style="overflow-x:auto">
 <table class="price-table">
-<tr><th>本数</th><th>定価（税抜）</th></tr>
-<tr><td>20本</td><td>¥5,500,000</td></tr>
-<tr><td>18本</td><td>¥4,500,000</td></tr>
-<tr><td>16本</td><td>¥4,000,000</td></tr>
-<tr><td>14本</td><td>¥3,500,000</td></tr>
-<tr><td>12本</td><td>¥3,200,000</td></tr>
-<tr><td>10本</td><td>¥2,000,000</td></tr>
-<tr><td>8本</td><td>¥2,000,000</td></tr>
-<tr><td>6本</td><td>¥1,500,000</td></tr>
-<tr><td>4本</td><td>¥1,000,000</td></tr>
-<tr><td>2本</td><td>¥500,000</td></tr>
+<tr><th>本数</th><th>定価（税抜）</th><th>本数割（税抜）</th><th>1本あたり</th></tr>
+<tr><td>20本</td><td>¥5,500,000</td><td>カウンセリング時にご案内</td><td>¥275,000</td></tr>
+<tr><td>18本</td><td>¥4,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
+<tr><td>16本</td><td>¥4,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
+<tr><td>14本</td><td>¥3,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
+<tr><td>12本</td><td>¥3,200,000</td><td>カウンセリング時にご案内</td><td>¥266,667</td></tr>
+<tr><td>10本</td><td>¥2,000,000</td><td>カウンセリング時にご案内</td><td>¥200,000</td></tr>
+<tr><td>8本</td><td>¥2,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
+<tr><td>6本</td><td>¥1,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
+<tr><td>4本</td><td>¥1,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
+<tr><td>2本</td><td>¥500,000</td><td>―</td><td>¥250,000</td></tr>
 </table>
 </div>
 <p style="text-align:center;color:#888;font-size:15px;margin-top:10px">※モニター価格・各種割引についてはカウンセリング時にご案内いたします。</p>
@@ -779,6 +864,11 @@ document.getElementById('cases-lovelier').style.display=type==='lovelier'?'block
 document.getElementById('cases-blackfilm').style.display=type==='blackfilm'?'block':'none';
 document.querySelectorAll('.case-tab').forEach(function(t){t.classList.remove('active')});
 event.target.classList.add('active');
+}
+function slideCarousel(btn,dir){
+var track=btn.parentElement.querySelector('.carousel-track');
+var scrollAmt=track.querySelector('img').offsetWidth+12;
+track.scrollBy({left:dir*scrollAmt,behavior:'smooth'});
 }
 function openLightbox(el){
 document.getElementById('lightbox-img').src=el.src;
