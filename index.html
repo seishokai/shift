@@ -748,11 +748,8 @@ function isClosed(dateStr,cid){
   if(cid&&CLOSED_DATES[cid]&&CLOSED_DATES[cid].includes(dateStr))return true;
   /* 曜日ベースの休診チェック */
   if(cid&&CLOSED[cid]&&CLOSED[cid].includes(w))return true;
-  /* 八事は祝日も営業 */
-  if(cid==='hachiji')return w===0;
-  /* 日曜は全院休み */
-  if(w===0)return true;
-  /* 祝日休み */
+  /* 祝日休み（八事は祝日も営業） */
+  if(cid==='yagoto')return false;
   if(HOL.has(dateStr))return true;
   return false;
 }
