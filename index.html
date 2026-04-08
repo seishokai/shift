@@ -900,7 +900,7 @@ function chgMonth(d){
 /* ---- TABS ---- */
 function setTab(n){
   curTab=n;
-  if(n===9){['vA','vB','vC','vD','vE','vF','vG'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var vHEl=document.getElementById('vH');if(vHEl)vHEl.style.display='';document.querySelectorAll('.hdr-tab').forEach(function(t){t.classList.remove('on');});var t9el=document.getElementById('htab9');if(t9el)t9el.classList.add('on');initKyuH();curTab=9;return;}
+  if(n===9){['vA','vB','vC','vD','vE','vF','vG'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var vHEl=document.getElementById('vH');if(vHEl)vHEl.style.display='';document.querySelectorAll('.hdr-tab').forEach(function(t){t.classList.remove('on');});var t9el=document.getElementById('htab9');if(t9el)t9el.classList.add('on');var mnb9=document.querySelector('.month-nav-bar');if(mnb9)mnb9.style.display='';initKyuH();curTab=9;var lbl9=curY+'年'+(curM+1)+'月';['mLbl'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl9;});return;}
   var vHEl2=document.getElementById('vH');if(vHEl2)vHEl2.style.display='none';
   var viewIds=['vA','vB','vC','vD','vE','vF','vG'];
   [0,1,2,3,4,5,6].forEach(function(i){
