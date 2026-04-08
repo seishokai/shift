@@ -751,6 +751,8 @@ function dow(d){return new Date(curY,curM,d).getDay();}
 function isToday(d){return today.getFullYear()===curY&&today.getMonth()===curM&&today.getDate()===d;}
 function isClosed(dateStr,cid){
   var d=new Date(dateStr),w=d.getDay();
+  /* 営業例外チェック（休診取消で個別に営業にした日） */
+  if(cid&&CLOSED_DATES[cid+'_open']&&CLOSED_DATES[cid+'_open'].includes(dateStr))return false;
   /* 日付ベースの休診日チェック */
   if(cid&&CLOSED_DATES[cid]&&CLOSED_DATES[cid].includes(dateStr))return true;
   /* 曜日ベースの休診チェック */
@@ -1016,11 +1018,23 @@ function renderA(){
         var clinicId2=td.dataset.editClinic;
         /* 休診取消モード：クリックしたセルの休診を解除 */
         if(window._clinicClosedDelMode){
-          closedSnapshot();
+          globalSnapshot();
+          /* CLOSED_DATESの個別休診日を削除 */
+          var removed=false;
           if(CLOSED_DATES[clinicId2]){
             var idx2=CLOSED_DATES[clinicId2].indexOf(dateStr2);
-            if(idx2>=0){CLOSED_DATES[clinicId2].splice(idx2,1);renderA();renderC();showSb('休診取消','ok');}
+            if(idx2>=0){CLOSED_DATES[clinicId2].splice(idx2,1);removed=true;}
           }
+          /* 曜日定休/隔週日曜/祝日定休の場合、CLOSED_DATESに「営業」例外を追加 */
+          if(!removed&&isClosed(dateStr2,clinicId2)){
+            if(!CLOSED_DATES[clinicId2+'_open'])CLOSED_DATES[clinicId2+'_open']=[];
+            if(CLOSED_DATES[clinicId2+'_open'].indexOf(dateStr2)<0){
+              CLOSED_DATES[clinicId2+'_open'].push(dateStr2);
+              removed=true;
+            }
+          }
+          if(removed){renderA();renderC();showSb('休診取消','ok');}
+          else{showSb('この日は休診ではありません','w');}
           return;
         }
         /* 通常モード：選択中の医院の休診をトグル */
