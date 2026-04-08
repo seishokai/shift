@@ -691,6 +691,10 @@ let doctors = [
 ];
 
 let CLOSED = {komaki:[2],chiryu:[3],kyoto:[4],omori:[4],chaya:[4]};
+/* 祝日に休診の医院 */
+var HOL_CLOSED = ['esca','r','wiz','omori'];
+/* 隔週日曜に休診の医院（第1・3日曜 ※要確認） */
+var BIWEEKLY_SUN_CLOSED = ['esca','r','wiz','omori'];
 
 /* 医院別休診日 (祝日+曜日定休。日曜はisClosed関数側で処理) */
 const CLOSED_DATES = {
@@ -748,9 +752,13 @@ function isClosed(dateStr,cid){
   if(cid&&CLOSED_DATES[cid]&&CLOSED_DATES[cid].includes(dateStr))return true;
   /* 曜日ベースの休診チェック */
   if(cid&&CLOSED[cid]&&CLOSED[cid].includes(w))return true;
-  /* 祝日休み（八事は祝日も営業） */
-  if(cid==='yagoto')return false;
-  if(HOL.has(dateStr))return true;
+  /* 隔週日曜チェック（第1・3日曜） */
+  if(w===0&&cid&&BIWEEKLY_SUN_CLOSED.indexOf(cid)>=0){
+    var weekNum=Math.ceil(d.getDate()/7); /* 第何週か */
+    if(weekNum%2===1)return true; /* 第1,3,5週の日曜 */
+  }
+  /* 祝日チェック（指定医院のみ） */
+  if(HOL.has(dateStr)&&cid&&HOL_CLOSED.indexOf(cid)>=0)return true;
   return false;
 }
 
