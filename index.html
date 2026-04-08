@@ -879,6 +879,8 @@ function setAdmin(v){
 /* ---- MONTH ---- */
 function chgMonth(d){
   curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}
+  /* 休診日カレンダーも同期 */
+  window._kyuHY=curY;window._kyuHM=curM+1;
   renderAll();
 }
 
