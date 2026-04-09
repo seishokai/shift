@@ -574,7 +574,8 @@ function renderClinicSide(){
       h+='<span style="color:#bbb;font-size:10px;">休診</span>';
     } else {
       h+='<span style="background:'+(assigned.length?col.c:'#eee')+';color:'+(assigned.length?'#fff':'#bbb')+';font-size:10px;font-weight:800;border-radius:4px;padding:1px 5px;min-width:20px;text-align:center;">'+assigned.length+'</span>';
-      h+='<span style="font-size:10px;color:'+col.c+';font-weight:600;">'+assigned.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});return doc?doc.n:'';}).join(' ')+'</span>';
+      var sorted=assigned.slice().sort(function(a,b){var da=doctors.find(function(d){return d.id===a.docId;}),db=doctors.find(function(d){return d.id===b.docId;});var dirA=da&&da.dir===cid?0:da&&da.dir?1:2,dirB=db&&db.dir===cid?0:db&&db.dir?1:2;return dirA-dirB;});
+      h+='<span style="font-size:10px;color:'+col.c+';font-weight:600;">'+sorted.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});if(!doc)return'';var isDir=doc.dir===cid;return isDir?'<b>'+doc.n+'</b>':doc.n;}).join(' ')+'</span>';
     }
     h+='</div>';
   }
