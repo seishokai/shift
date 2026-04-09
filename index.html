@@ -778,34 +778,50 @@ function sbReq(path,opts){
 }
 function loadDB(){
   showSb('読み込み中...');
-  return sbReq('/rest/v1/shifts?select=*&limit=5000').then(function(rows){
+  return fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{
+    headers:Object.assign({},SB_H)
+  }).then(function(r){
+    if(!r.ok)throw new Error('DB読み込みエラー: '+r.status);
+    return r.json();
+  }).then(function(rows){
     shifts={};Object.assign(shifts,EXCEL_DATA);
-    rows.forEach(function(row){
-      if(!shifts[row.date_str])shifts[row.date_str]=[];
-      var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
-      var e={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
-      if(idx>=0)shifts[row.date_str][idx]=e;else shifts[row.date_str].push(e);
-    });
-    showSb('');
-  }).catch(function(){Object.assign(shifts,EXCEL_DATA);showSb('オフライン','w');});
+    if(rows&&rows.length){
+      rows.forEach(function(row){
+        if(!shifts[row.date_str])shifts[row.date_str]=[];
+        var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
+        var e={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
+        if(idx>=0)shifts[row.date_str][idx]=e;else shifts[row.date_str].push(e);
+      });
+      showSb(rows.length+'件読込','ok');
+    } else {
+      showSb('');
+    }
+  }).catch(function(e){
+    console.warn('DB読み込み失敗:',e);
+    Object.assign(shifts,EXCEL_DATA);
+    showSb('オフライン - DBに接続できません','e');
+  });
 }
 var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
   showSb('保存中...');
-  /* 確実にDELETE→INSERT（順番保証） */
+  /* DELETE→INSERT（順番保証） */
   return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
     method:'DELETE',headers:Object.assign({},SB_H)
-  }).then(function(){
+  }).then(function(r1){
+    if(r1&&!r1.ok)console.warn('DELETE status:',r1.status);
     return fetch(SB_URL+'/rest/v1/shifts',{
       method:'POST',
       headers:Object.assign({},SB_H,{Prefer:'return=minimal'}),
       body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
     });
-  }).then(function(r){
+  }).then(function(r2){
     _pendingSaves--;
-    if(!r.ok)throw new Error(r.status);
-    if(_pendingSaves<=0){_pendingSaves=0;showSb('保存完了','ok');}
+    if(r2&&!r2.ok){
+      return r2.text().then(function(t){console.warn('INSERT失敗:',r2.status,t);showSb('保存失敗:'+r2.status,'e');});
+    }
+    if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}
   }).catch(function(e){
     _pendingSaves--;
     console.warn('保存失敗:',e);
@@ -1267,17 +1283,33 @@ h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;
   var paintBar='';
   if(isAdmin){
     var pc=window._shiftPaintClinic;
-    paintBar='<div style="padding:4px 8px;background:#e8f4fd;border-bottom:1px solid #b0cfe8;display:flex;flex-wrap:wrap;gap:3px;align-items:center;position:sticky;top:0;z-index:25;">';
-    paintBar+='<span style="font-size:10px;font-weight:700;color:#2d6a9f;">シフト入力:</span>';
-    paintBar+='<button onclick="shiftPaint(\'__del__\')" style="padding:3px 8px;border-radius:10px;border:1.5px solid '+(pc==='__del__'?'#b83030':'var(--border)')+';background:'+(pc==='__del__'?'#b83030':'#fdf0ee')+';color:'+(pc==='__del__'?'#fff':'#b83030')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">削除</button>';
-    ALL.forEach(function(c){
+    var pcName=pc==='__del__'?'削除モード':pc?cname(pc)+'を塗る':'セルクリックで編集';
+    var pcColor=pc==='__del__'?'#b83030':pc?getCC(pc).c:'#999';
+    paintBar='<div style="padding:4px 8px;background:#e8f4fd;border-bottom:1px solid #b0cfe8;position:sticky;top:0;z-index:25;">';
+    /* 選択中の表示 */
+    paintBar+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">';
+    paintBar+='<span style="font-size:10px;font-weight:700;color:#2d6a9f;">選択中:</span>';
+    paintBar+='<span style="padding:3px 12px;border-radius:8px;background:'+pcColor+';color:#fff;font-size:12px;font-weight:800;">'+pcName+'</span>';
+    if(pc)paintBar+='<button onclick="shiftPaint(null)" style="padding:2px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-family:inherit;font-size:10px;color:var(--ink3);cursor:pointer;">解除</button>';
+    paintBar+='</div>';
+    /* 医院ボタン */
+    paintBar+='<div style="display:flex;flex-wrap:wrap;gap:2px;">';
+    paintBar+='<button onclick="shiftPaint(\'__del__\')" style="padding:2px 6px;border-radius:8px;border:1.5px solid '+(pc==='__del__'?'#b83030':'#ddd')+';background:'+(pc==='__del__'?'#b83030':'#fdf0ee')+';color:'+(pc==='__del__'?'#fff':'#b83030')+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">✕削除</button>';
+    CLINICS.forEach(function(c){
       var cc=getCC(c.id);var on=pc===c.id;
-      paintBar+='<button onclick="shiftPaint(\''+c.id+'\')" style="padding:3px 6px;border-radius:10px;border:1.5px solid '+(on?cc.c:'var(--border)')+';background:'+(on?cc.c:'var(--card)')+';color:'+(on?'#fff':cc.c)+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">'+c.n+'</button>';
+      paintBar+='<button onclick="shiftPaint(\''+c.id+'\')" style="padding:2px 6px;border-radius:8px;border:1.5px solid '+(on?cc.c:'#ddd')+';background:'+(on?cc.c:cc.b)+';color:'+(on?'#fff':cc.c)+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">'+c.n+'</button>';
     });
-    paintBar+='<button onclick="shiftPaint(null)" style="padding:3px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);color:var(--ink3);font-family:inherit;font-size:10px;cursor:pointer;">解除</button>';
+    paintBar+='</div>';
+    /* 休み系ボタン */
+    paintBar+='<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px;">';
+    STATUSES.forEach(function(s){
+      var cc=getCC(s.id);var on=pc===s.id;
+      paintBar+='<button onclick="shiftPaint(\''+s.id+'\')" style="padding:2px 6px;border-radius:8px;border:1.5px solid '+(on?cc.c:'#ddd')+';background:'+(on?cc.c:'var(--bg)')+';color:'+(on?'#fff':cc.c)+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">'+s.n+'</button>';
+    });
+    paintBar+='</div>';
     paintBar+='</div>';
   }
-el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?'140':'112')+'px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
+el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?'155':'112')+'px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
 
   el.querySelectorAll('[data-open-doc]').forEach(function(th){
     th.addEventListener('click',function(){
