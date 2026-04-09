@@ -131,8 +131,11 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
     <button onclick="setPaint(null)" style="margin-left:auto;padding:3px 10px;border:none;background:#f0f0ee;color:#333;border-radius:8px;font-size:11px;cursor:pointer;">✕ 閉じる</button>
   </div>
   <div id="bulkPanel" style="display:none;background:#fff;border-bottom:2px solid #e65100;padding:10px 12px;flex-shrink:0;"></div>
-  <div id="shiftScrollArea" style="flex:1;overflow:auto;">
-    <table class="grid" id="shiftTable"></table>
+  <div style="display:flex;flex:1;overflow:hidden;">
+    <div id="shiftScrollArea" style="flex:1;overflow:auto;">
+      <table class="grid" id="shiftTable"></table>
+    </div>
+    <div id="clinicSidePanel" style="display:none;width:280px;flex-shrink:0;overflow-y:auto;border-left:2px solid #ddd;background:#fff;padding:6px;font-size:11px;"></div>
   </div>
 </div>
 
@@ -493,7 +496,7 @@ function cellClick(dateStr,docId){
       if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
       dbSave(dateStr,docId,cid,memo);
     }
-    renderShifts();
+    renderShifts();renderClinicSide();
     return;
   }
   /* ペイント未選択: 既存シフトがあれば削除、なければペイントバー表示 */
@@ -503,7 +506,7 @@ function cellClick(dateStr,docId){
     shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
     if(!shifts[dateStr].length)delete shifts[dateStr];
     dbDel(dateStr,docId);
-    renderShifts();
+    renderShifts();renderClinicSide();
     return;
   }
   document.getElementById('paintBar').style.display='flex';
@@ -513,7 +516,40 @@ function cellClick(dateStr,docId){
 function setPaint(cid){
   paintClinic=cid;
   if(!cid)document.getElementById('paintBar').style.display='none';
-  renderPaintBar();renderShifts();
+  renderPaintBar();renderShifts();renderClinicSide();
+}
+
+function renderClinicSide(){
+  var panel=document.getElementById('clinicSidePanel');
+  if(!paintClinic||paintClinic==='__del__'||paintClinic==='__kibokyu__'){
+    panel.style.display='none';return;
+  }
+  var cid=paintClinic;
+  var restIds4=['yasumi','yukyu','daikyu','daishutsu','kyushutsu','kibou_shutskin'];
+  if(restIds4.indexOf(cid)>=0){panel.style.display='none';return;}
+  panel.style.display='block';
+  var col=getCC(cid);
+  var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'];
+  var h='<div style="font-size:14px;font-weight:800;color:'+col.c+';margin-bottom:6px;text-align:center;">'+cname(cid)+'</div>';
+  for(var d=1;d<=days;d++){
+    var dateStr=ds(curY,curM,d);
+    var w=new Date(curY,curM,d).getDay();
+    var isH=HOL.has(dateStr);
+    var closed=isClosed(dateStr,cid);
+    var assigned=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cid;});
+    var dayCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333';
+    var rowBg=closed?'#f5f5f3':assigned.length>=2?col.b:'#fff';
+    h+='<div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-bottom:1px solid #eee;background:'+rowBg+';">';
+    h+='<span style="font-weight:700;color:'+dayCol+';min-width:32px;font-size:11px;">'+d+DOW[w]+'</span>';
+    if(closed){
+      h+='<span style="color:#bbb;font-size:10px;">休診</span>';
+    } else {
+      h+='<span style="background:'+(assigned.length?col.c:'#eee')+';color:'+(assigned.length?'#fff':'#bbb')+';font-size:10px;font-weight:800;border-radius:4px;padding:1px 5px;min-width:20px;text-align:center;">'+assigned.length+'</span>';
+      h+='<span style="font-size:10px;color:'+col.c+';font-weight:600;">'+assigned.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});return doc?doc.n:'';}).join(' ')+'</span>';
+    }
+    h+='</div>';
+  }
+  panel.innerHTML=h;
 }
 function renderPaintBar(){
   if(!isAdmin)return;
@@ -626,7 +662,7 @@ function doBulk(mode){
     if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
     dbSave(dateStr,bulkDocId,cid,memo);cnt++;
   }
-  saveShifts();renderShifts();
+  saveShifts();renderShifts();renderClinicSide();
   showSb(cnt+'日を一括入力','ok');
 }
 function doBulkClear(){
