@@ -781,12 +781,23 @@ function loadDB(){
   /* localStorageがあれば最優先（編集結果が全て入っている） */
   var localStr;
   try{localStr=localStorage.getItem('seishokai_shifts');}catch(e){}
+  /* メインが壊れていたらバックアップから復旧 */
+  if(!localStr){
+    try{localStr=localStorage.getItem('seishokai_shifts_bak');
+      if(localStr){console.warn('RECOVERY: main localStorage empty, using backup');localStorage.setItem('seishokai_shifts',localStr);}
+    }catch(e){}
+  }
   if(localStr){
     try{
-      shifts=JSON.parse(localStr);
-      showSb('ローカルデータ読込','ok');
-      return Promise.resolve();
-    }catch(e){}
+      var parsed=JSON.parse(localStr);
+      var cnt=_countShiftEntries(parsed);
+      if(cnt>0){
+        shifts=parsed;
+        var ts=localStorage.getItem('seishokai_shifts_ts')||'不明';
+        showSb(cnt+'件読込 (保存:'+ts.slice(5,16).replace('T',' ')+')','ok');
+        return Promise.resolve();
+      }
+    }catch(e){console.warn('localStorage parse failed, falling back to DB');}
   }
   /* localStorageなし → Supabase → EXCEL_DATA の順にフォールバック */
   return fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{
@@ -813,23 +824,29 @@ function loadDB(){
     showSb('オフライン - 初期データ使用','e');
   });
 }
-/* シフトデータのローカルバックアップ */
+/* シフトデータのローカル保存（防弾仕様） */
+function _countShiftEntries(obj){
+  var n=0;Object.keys(obj).forEach(function(k){if(Array.isArray(obj[k]))n+=obj[k].length;});return n;
+}
 function saveShiftsLocal(){
-  try{localStorage.setItem('seishokai_shifts',JSON.stringify(shifts));}catch(e){}
+  try{
+    var cnt=_countShiftEntries(shifts);
+    /* 空データで上書き防止 */
+    if(cnt===0){
+      var existing=localStorage.getItem('seishokai_shifts');
+      if(existing&&_countShiftEntries(JSON.parse(existing))>5){
+        console.warn('SAVE BLOCKED: shifts is empty but localStorage has data. Refusing to overwrite.');
+        return;
+      }
+    }
+    var json=JSON.stringify(shifts);
+    localStorage.setItem('seishokai_shifts',json);
+    /* バックアップも保存（二重保護） */
+    localStorage.setItem('seishokai_shifts_bak',json);
+    localStorage.setItem('seishokai_shifts_ts',new Date().toISOString());
+  }catch(e){console.error('localStorage save failed:',e);}
 }
 var saveShiftsLocalNow=saveShiftsLocal;
-function loadShiftsLocal(){
-  try{
-    var s=localStorage.getItem('seishokai_shifts');
-    if(s){var saved=JSON.parse(s);Object.keys(saved).forEach(function(k){
-      if(!shifts[k])shifts[k]=saved[k];
-      else{saved[k].forEach(function(e){
-        var idx=shifts[k].findIndex(function(x){return x.docId===e.docId;});
-        if(idx>=0)shifts[k][idx]=e;else shifts[k].push(e);
-      });}
-    });}
-  }catch(e){}
-}
 
 var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
@@ -1105,16 +1122,20 @@ function renderA(){
   }
 }
 
-/* CLOSED_DATESの永続化 */
+/* CLOSED_DATESの永続化（防弾仕様） */
 function saveClosedDates(){
-  try{localStorage.setItem('seishokai_closed_dates',JSON.stringify(CLOSED_DATES));}catch(e){}
+  try{
+    var json=JSON.stringify(CLOSED_DATES);
+    localStorage.setItem('seishokai_closed_dates',json);
+    localStorage.setItem('seishokai_closed_dates_bak',json);
+  }catch(e){}
 }
 function loadClosedDates(){
   try{
     var s=localStorage.getItem('seishokai_closed_dates');
+    if(!s)s=localStorage.getItem('seishokai_closed_dates_bak');
     if(s){
       var saved=JSON.parse(s);
-      /* 保存済みデータをマージ（保存済みを優先） */
       Object.keys(saved).forEach(function(k){CLOSED_DATES[k]=saved[k];});
     }
   }catch(e){}
