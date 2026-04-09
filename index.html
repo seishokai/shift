@@ -116,6 +116,7 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
   <div class="hdr-right">
     <button class="undo-btn" onclick="undo()">← 戻す</button>
     <button class="undo-btn" onclick="redo()">進む →</button>
+    <button class="undo-btn" onclick="toggleHighlightEmpty()" id="hdrEmptyBtn" style="display:none;color:#2e7d32;font-weight:700;">空</button>
     <button class="save-btn" onclick="saveAll()" id="saveBtn" style="display:none">保存</button>
     <button class="login-btn" onclick="toggleLogin()" id="loginBtn">ログイン</button>
   </div>
@@ -380,9 +381,9 @@ function redo(){
 
 /* ======= 認証 ======= */
 function toggleLogin(){
-  if(isAdmin){isAdmin=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;renderTab();return;}
+  if(isAdmin){isAdmin=false;highlightEmpty=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('hdrEmptyBtn').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;renderTab();return;}
   var pw=prompt('パスワード');
-  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';renderTab();}
+  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';document.getElementById('hdrEmptyBtn').style.display='';renderTab();}
   else if(pw!==null)alert('パスワードが違います');
 }
 
@@ -611,6 +612,8 @@ function toggleHighlightEmpty(){
   highlightEmpty=!highlightEmpty;
   var btn=document.getElementById('paintEmptyBtn');
   if(btn){btn.style.background=highlightEmpty?'#2e7d32':'#f5f5f3';btn.style.color=highlightEmpty?'#fff':'#2e7d32';btn.style.borderColor=highlightEmpty?'#2e7d32':'#ddd';}
+  var hBtn=document.getElementById('hdrEmptyBtn');
+  if(hBtn){hBtn.style.background=highlightEmpty?'#2e7d32':'';hBtn.style.color=highlightEmpty?'#fff':'#2e7d32';hBtn.style.borderColor=highlightEmpty?'#2e7d32':'';}
   renderShifts();
 }
 function toggleBulkPanel(){
