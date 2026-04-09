@@ -150,64 +150,19 @@ table.compare tr:hover{background:#222}
 .mode-toggle{position:fixed;bottom:20px;right:20px;z-index:500;background:#C5A55A;color:#000;border:none;width:50px;height:50px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.3s}
 .mode-toggle:hover{transform:scale(1.1)}
 /* Slide mode */
-body.slide-mode{overflow:hidden;margin:0;padding:0}
+body.slide-mode{overflow:hidden;height:100vh;margin:0;padding:0}
 body.slide-mode .nav{display:none}
-body.slide-mode .slide-wrap{display:flex;width:max-content;height:100vh;transition:transform 0.5s ease}
-body.slide-mode .slide-section{width:100vw;height:100vh;overflow:hidden;flex-shrink:0;box-sizing:border-box;padding:30px 50px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#fff}
-body.slide-mode .slide-section>*{max-width:1100px;width:100%}
-body.slide-mode .slide-section.dark{background:#111;padding:30px 50px}
-body.slide-mode .slide-section section{padding:10px 0}
-/* スライド時のサイズ調整 - 1画面に収める */
-body.slide-mode .section-title{margin-bottom:15px}
-body.slide-mode .section-title h2{font-size:22px;padding-bottom:8px}
-body.slide-mode .concern-item{padding:10px 15px;font-size:15px}
-body.slide-mode .concerns{gap:10px}
-body.slide-mode .detail-section{margin-bottom:20px}
-body.slide-mode .detail-section h3{font-size:18px;margin-bottom:10px}
-body.slide-mode .detail-section li{font-size:14px;padding:4px 0 4px 18px}
-body.slide-mode .option-card{padding:15px}
-body.slide-mode .option-card h3{font-size:20px}
-body.slide-mode .option-card p{font-size:14px}
-body.slide-mode .two-options{gap:15px;margin-top:15px}
-body.slide-mode table.compare th,body.slide-mode table.compare td{padding:8px 10px;font-size:13px}
-body.slide-mode .flow-step{padding:12px;margin-bottom:8px}
-body.slide-mode .flow-step h4{font-size:15px;margin-bottom:4px}
-body.slide-mode .flow-step p,body.slide-mode .flow-step li{font-size:13px}
-body.slide-mode .flow-branches{gap:8px;margin:10px 0}
-body.slide-mode .flow-branch{padding:8px;font-size:12px}
-body.slide-mode .set-day{gap:15px;margin:10px 0}
-body.slide-mode .set-half{padding:12px}
-body.slide-mode .set-half h4{font-size:15px;margin-bottom:8px}
-body.slide-mode .set-half li{font-size:12px;margin-bottom:4px}
-body.slide-mode .cases-list{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-body.slide-mode .case-thumb img{height:140px}
-body.slide-mode .case-thumb .thumb-info{padding:8px 10px}
-body.slide-mode .case-thumb .thumb-info h4{font-size:14px}
-body.slide-mode .case-thumb .thumb-info p{font-size:12px}
-body.slide-mode .upload-area{padding:15px;font-size:14px;margin-bottom:15px}
-body.slide-mode .price-block{margin-bottom:20px}
-body.slide-mode .price-header{margin-bottom:12px;padding-bottom:8px}
-body.slide-mode .price-header h3{font-size:18px}
-body.slide-mode .ptbl{min-width:700px}
-body.slide-mode .ptbl thead th{padding:6px 4px;font-size:10px}
-body.slide-mode .ptbl tbody td{padding:6px 4px;font-size:11px}
-body.slide-mode .ptbl .num-cell .big{font-size:20px}
-body.slide-mode .ptbl .teika-cell .main{font-size:13px}
-body.slide-mode .ptbl .cell-price{font-size:12px}
-body.slide-mode .warranty-grid{gap:15px;margin-top:15px}
-body.slide-mode .warranty-card{padding:15px}
-body.slide-mode .warranty-card h4{font-size:17px;margin-bottom:8px}
-body.slide-mode .warranty-card li{font-size:13px;padding:5px 0}
-body.slide-mode .faq-item{padding:10px 0}
-body.slide-mode .faq-q{font-size:15px;margin-bottom:5px}
-body.slide-mode .faq-a{font-size:14px}
-body.slide-mode .comparison-img img{max-height:35vh}
-body.slide-mode .hero-bg{display:none}
-body.slide-mode .hero{background:#fff;color:#222;min-height:auto;padding:30px 20px}
-body.slide-mode .hero h1{text-shadow:none;color:#222;font-size:28px}
-body.slide-mode .hero .sub{text-shadow:none;font-size:16px}
-body.slide-mode .hero .tagline{text-shadow:none;color:#222;font-size:20px;margin-top:15px}
-body.slide-mode .hero .fade{opacity:1;transform:none;animation:none}
+body.slide-mode #slide-overlay{display:block}
+#slide-overlay{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:900;background:#fff}
+#slide-overlay .s-page{position:absolute;top:0;left:0;width:100%;height:100%;overflow-y:auto;background:#fff;padding:30px 60px;box-sizing:border-box;display:none;flex-direction:column;align-items:center}
+#slide-overlay .s-page.active{display:flex}
+#slide-overlay .s-page .s-inner{max-width:1000px;width:100%;flex:1;display:flex;flex-direction:column;justify-content:center}
+#slide-overlay .s-page .s-inner>*{margin-bottom:12px}
+#slide-overlay .s-page h2{font-size:24px;text-align:center;margin-bottom:16px;font-weight:300;letter-spacing:0.05em;border-bottom:2px solid #C5A55A;display:inline-block;padding-bottom:8px;align-self:center}
+#slide-overlay .s-page p,#slide-overlay .s-page li{font-size:15px;line-height:1.7}
+#slide-overlay .s-page img{max-height:40vh;object-fit:contain;border-radius:8px}
+#slide-overlay .s-page table{font-size:13px}
+#slide-overlay .s-page table th,#slide-overlay .s-page table td{padding:8px 10px}
 .slide-nav{display:none;position:fixed;z-index:600}
 body.slide-mode .slide-nav{display:flex;align-items:center;justify-content:center}
 .slide-nav.s-prev{left:10px;top:50%}
@@ -1061,87 +1016,77 @@ if(target)target.scrollIntoView({behavior:'smooth'});
 
 // ===== Presentation Mode =====
 var isSlideMode=false;
-var slideWrap=null;
-var slides=[];
+var slidePages=[];
 var curSlide=0;
+
+function buildSlides(){
+  var overlay=document.getElementById('slide-overlay');
+  overlay.innerHTML='';
+  slidePages=[];
+  // Collect sections
+  var body=document.body;
+  var sources=Array.from(body.children).filter(function(el){
+    return el.tagName!=='NAV'&&el.tagName!=='SCRIPT'&&el.tagName!=='BUTTON'&&
+           el.id!=='slide-overlay'&&el.id!=='slideshow'&&
+           !el.classList.contains('mode-toggle')&&!el.classList.contains('slide-nav')&&
+           !el.classList.contains('slide-counter');
+  });
+  sources.forEach(function(el){
+    var page=document.createElement('div');
+    page.className='s-page';
+    var inner=document.createElement('div');
+    inner.className='s-inner';
+    inner.innerHTML=el.innerHTML;
+    // Remove hero-bg from cloned hero
+    var hb=inner.querySelector('.hero-bg');
+    if(hb)hb.remove();
+    // Remove fade animations
+    inner.querySelectorAll('.fade').forEach(function(f){
+      f.style.opacity='1';f.style.transform='none';f.style.animation='none';
+    });
+    page.appendChild(inner);
+    // Match background
+    if(el.classList.contains('dark')||el.classList.contains('hero')){
+      page.style.background='#111';page.style.color='#fff';
+    }
+    overlay.appendChild(page);
+    slidePages.push(page);
+  });
+  if(slidePages.length)slidePages[0].classList.add('active');
+  curSlide=0;
+  updateSlideCounter();
+}
 
 function toggleMode(){
   isSlideMode=!isSlideMode;
   var btn=document.querySelector('.mode-toggle');
   if(isSlideMode){
-    enterSlideMode();
-    btn.innerHTML='&#9660;';
-    btn.title='スクロールモードに戻す';
+    buildSlides();
+    document.body.classList.add('slide-mode');
+    btn.innerHTML='&#9660;';btn.title='スクロールモードに戻す';
   }else{
-    exitSlideMode();
-    btn.innerHTML='&#9654;';
-    btn.title='プレゼンモードに切替';
-  }
-}
-
-function enterSlideMode(){
-  document.body.classList.add('slide-mode');
-  // Wrap sections in slide container
-  if(!slideWrap){
-    slideWrap=document.createElement('div');
-    slideWrap.className='slide-wrap';
-    var sections=document.querySelectorAll('.hero, section, .dark:not(.slide-mode .slide-wrap .dark)');
-    var parent=document.querySelector('.hero').parentNode;
-    var els=Array.from(parent.children).filter(function(el){
-      return el.tagName!=='NAV'&&!el.classList.contains('mode-toggle')&&
-             !el.classList.contains('slide-nav')&&!el.classList.contains('slide-counter')&&
-             !el.classList.contains('slideshow')&&el.tagName!=='SCRIPT'&&
-             el.tagName!=='BUTTON'&&!el.classList.contains('slide-wrap');
-    });
-    els.forEach(function(el){
-      el.classList.add('slide-section');
-      slideWrap.appendChild(el);
-    });
-    parent.appendChild(slideWrap);
-    slides=slideWrap.querySelectorAll('.slide-section');
-  }else{
-    slideWrap.style.display='flex';
-  }
-  curSlide=0;
-  updateSlideCounter();
-  scrollToSlide(0);
-}
-
-function exitSlideMode(){
-  document.body.classList.remove('slide-mode');
-  if(slideWrap){
-    slideWrap.style.display='';
-    var parent=slideWrap.parentNode;
-    while(slideWrap.firstChild){
-      slideWrap.firstChild.classList.remove('slide-section');
-      parent.insertBefore(slideWrap.firstChild,slideWrap);
-    }
-    slideWrap.remove();
-    slideWrap=null;
-    slides=[];
+    document.body.classList.remove('slide-mode');
+    btn.innerHTML='&#9654;';btn.title='プレゼンモードに切替';
   }
 }
 
 function slideNav(dir){
+  if(!slidePages.length)return;
+  slidePages[curSlide].classList.remove('active');
   curSlide+=dir;
   if(curSlide<0)curSlide=0;
-  if(curSlide>=slides.length)curSlide=slides.length-1;
-  scrollToSlide(curSlide);
-}
-
-function scrollToSlide(idx){
-  if(!slides.length||!slideWrap)return;
-  curSlide=idx;
-  slideWrap.style.transform='translateX(-'+idx*100+'vw)';
+  if(curSlide>=slidePages.length)curSlide=slidePages.length-1;
+  slidePages[curSlide].classList.add('active');
   updateSlideCounter();
 }
 
+function scrollToSlide(idx){}
+
 function updateSlideCounter(){
   document.getElementById('slide-cur').textContent=curSlide+1;
-  document.getElementById('slide-total').textContent=slides.length;
+  document.getElementById('slide-total').textContent=slidePages.length;
 }
 
-// Keyboard for slide mode
 document.addEventListener('keydown',function(e){
   if(!isSlideMode)return;
   if(document.getElementById('slideshow').classList.contains('active'))return;
@@ -1150,5 +1095,6 @@ document.addEventListener('keydown',function(e){
   else if(e.key==='Escape'){toggleMode();}
 });
 </script>
+<div id="slide-overlay"></div>
 </body>
 </html>
