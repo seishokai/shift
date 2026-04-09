@@ -1465,22 +1465,25 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
       var key=dateStr+'_'+docId;
       if(balSelDates.has(key))return;
       balSelDates.add(key);
-      /* ドラッグ中：ペイントモードなら塗る、なければ削除 */
-      if(window._shiftPaintClinic&&window._shiftPaintClinic!=='__del__'){
+      /* ドラッグ中：ペイントモードなら塗る、削除モードなら消す */
+      if(window._shiftPaintClinic==='__del__'||!window._shiftPaintClinic){
+        /* 削除 */
+        if(shifts[dateStr]){
+          var has5=shifts[dateStr].find(function(s){return s.docId===docId;});
+          if(has5){
+            shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
+            if(!shifts[dateStr].length)delete shifts[dateStr];
+            dbDel(dateStr,docId);saveShiftsLocal();
+            refreshViews(targetId);
+          }
+        }
+      } else {
         if(!shifts[dateStr])shifts[dateStr]=[];
         var idx5=shifts[dateStr].findIndex(function(s){return s.docId===docId;});
         var e5={docId:docId,clinicId:window._shiftPaintClinic,memo:''};
         if(idx5>=0)shifts[dateStr][idx5]=e5;else shifts[dateStr].push(e5);
         dbSave(dateStr,docId,window._shiftPaintClinic,'');
         refreshViews(targetId);
-      } else {
-        var hasSh2=shifts[dateStr]&&shifts[dateStr].find(function(s){return s.docId===docId;});
-        if(hasSh2){
-          shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
-          if(!shifts[dateStr].length)delete shifts[dateStr];
-          dbDel(dateStr,docId);
-          refreshViews(targetId);
-        }
       }
     });
 
@@ -1506,12 +1509,19 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
       var key=dateStr+'_'+docId;
       if(balSelDates.has(key))return;
       balSelDates.add(key);
-      var hasSh3=shifts[dateStr]&&shifts[dateStr].find(function(s){return s.docId===docId;});
-      if(hasSh3){
-        shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
-        if(!shifts[dateStr].length)delete shifts[dateStr];
-        dbDel(dateStr,docId);
-        refreshViews(targetId);
+      if(window._shiftPaintClinic==='__del__'||!window._shiftPaintClinic){
+        var hasSh3=shifts[dateStr]&&shifts[dateStr].find(function(s){return s.docId===docId;});
+        if(hasSh3){
+          shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
+          if(!shifts[dateStr].length)delete shifts[dateStr];
+          dbDel(dateStr,docId);saveShiftsLocal();refreshViews(targetId);
+        }
+      } else if(window._shiftPaintClinic){
+        if(!shifts[dateStr])shifts[dateStr]=[];
+        var idx6=shifts[dateStr].findIndex(function(s){return s.docId===docId;});
+        var e6={docId:docId,clinicId:window._shiftPaintClinic,memo:''};
+        if(idx6>=0)shifts[dateStr][idx6]=e6;else shifts[dateStr].push(e6);
+        dbSave(dateStr,docId,window._shiftPaintClinic,'');refreshViews(targetId);
       }
     },{passive:true});
     tableEl.addEventListener('touchend',function(){
