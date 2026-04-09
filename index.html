@@ -1789,13 +1789,17 @@ function renderCalGrid(){
     var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===selDocId;});
     var cls=w===0?'sun':w===6?'sat':'';
     /* 祝日のみ薄くする（日曜は通常通り入力可） */
-    var isHol=HOL.has(dateStr)&&!isToday(d)&&dow(d)!==0;
-    if(isHol)cls+=' closed-day';
+    var isHol=HOL.has(dateStr);
+    if(isHol&&!isToday(d)&&dow(d)!==0)cls+=' closed-day';
     if(isToday(d))cls+=' today-day';
     if(multiSelDates.has(dateStr))cls+=' multi-sel';
     if(!sh&&selClinicId&&!isHol)cls+=' sel-clinic';
     h+='<div class="day-cell '+cls+'" data-date="'+dateStr+'">';
-    h+='<span class="day-num">'+d+'</span>';
+    if(isHol){
+      h+='<span class="day-num" style="display:flex;align-items:center;gap:2px;">'+d+'<span style="background:#e05252;color:#fff;font-size:7px;font-weight:700;border-radius:3px;padding:0 3px;line-height:1.4;">祝</span></span>';
+    } else {
+      h+='<span class="day-num">'+d+'</span>';
+    }
     if(sh){
       var c=getCC(sh.clinicId);
       var isKyu=sh.memo==='休出';
