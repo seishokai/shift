@@ -1080,7 +1080,7 @@ function renderA(){
               removed=true;
             }
           }
-          if(removed){renderA();renderC();showSb('休診取消','ok');}
+          if(removed){saveClosedDates();renderA();renderC();showSb('休診取消','ok');}
           else{showSb('この日は休診ではありません','w');}
           return;
         }
@@ -1093,6 +1093,7 @@ function renderA(){
           if(idx>=0)CLOSED_DATES[cid].splice(idx,1);
           else CLOSED_DATES[cid].push(dateStr2);
         });
+        saveClosedDates();
         renderA();renderC();
       });
     });
@@ -2968,6 +2969,7 @@ function toggleKyuH(ds,cid){
     /* 通常追加 */
     CLOSED_DATES[cid].push(ds);
   }
+  saveClosedDates();
   renderKyuH();
   renderAll();
 }
