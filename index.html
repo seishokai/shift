@@ -805,36 +805,17 @@ function loadDB(){
 var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
-  showSb('保存中...');
-  var h=Object.assign({},SB_H);
-  /* PATCH(UPDATE)を試行、失敗したらDELETE→INSERT */
-  return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
-    method:'PATCH',headers:Object.assign({},h,{Prefer:'return=minimal'}),
-    body:JSON.stringify({clinic_id:cid,memo:memo||''})
-  }).then(function(r){
-    if(r.status===404||r.status===406){
-      /* レコードなし→INSERT */
-      return fetch(SB_URL+'/rest/v1/shifts',{
-        method:'POST',headers:Object.assign({},h,{Prefer:'return=minimal'}),
-        body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
-      });
-    }
-    return r;
+  /* DELETE→INSERT 完全順番保証 */
+  var url=SB_URL+'/rest/v1/shifts';
+  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
+  return fetch(url+'?date_str=eq.'+encodeURIComponent(dateStr)+'&doc_id=eq.'+encodeURIComponent(docId),{method:'DELETE',headers:h})
+  .then(function(){
+    return fetch(url,{method:'POST',headers:h,body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})});
   }).then(function(r){
     _pendingSaves--;
-    if(r&&!r.ok&&r.status!==204){
-      /* PATCH成功だが0行更新→INSERT */
-      return fetch(SB_URL+'/rest/v1/shifts',{
-        method:'POST',headers:Object.assign({},h,{Prefer:'return=minimal'}),
-        body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
-      }).then(function(){if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}});
-    }
-    if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}
-  }).catch(function(e){
-    _pendingSaves--;
-    console.error('保存失敗:',e);
-    showSb('保存失敗','e');
-  });
+    if(r.ok||r.status===201){if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}}
+    else{r.text().then(function(t){console.error('INSERT:',r.status,t);showSb('保存失敗','e');});}
+  }).catch(function(e){_pendingSaves--;console.error(e);showSb('通信エラー','e');});
 }
 function dbDel(dateStr,docId){
   showSb('削除中...');
@@ -1102,15 +1083,29 @@ function loadClosedDates(){
 window._shiftPaintClinic=null;
 /* スクロール位置を保持して再描画 */
 function refreshViews(tid){
-  var wrap=document.getElementById(tid||'allViewWrap');
-  var scrollEl=wrap?wrap.querySelector('div[style*="overflow"]'):null;
-  var sx=scrollEl?scrollEl.scrollLeft:0,sy=scrollEl?scrollEl.scrollTop:0;
-  renderAllView(tid||'allViewWrap');renderA();renderC();
-  setTimeout(function(){
-    var wrap2=document.getElementById(tid||'allViewWrap');
-    var se2=wrap2?wrap2.querySelector('div[style*="overflow"]'):null;
-    if(se2){se2.scrollLeft=sx;se2.scrollTop=sy;}
-  },0);
+  var id=tid||'allViewWrap';
+  var wrap=document.getElementById(id);
+  /* スクロール位置を保存（overflow:autoの最初のdiv） */
+  var scrollEls=wrap?wrap.getElementsByTagName('div'):[];
+  var sx=0,sy=0;
+  for(var i=0;i<scrollEls.length;i++){
+    var cs=getComputedStyle(scrollEls[i]);
+    if(cs.overflow==='auto'||cs.overflowX==='auto'||cs.overflowY==='auto'){
+      sx=scrollEls[i].scrollLeft;sy=scrollEls[i].scrollTop;break;
+    }
+  }
+  renderAllView(id);
+  /* スクロール位置を復元 */
+  requestAnimationFrame(function(){
+    var wrap2=document.getElementById(id);
+    var els2=wrap2?wrap2.getElementsByTagName('div'):[];
+    for(var j=0;j<els2.length;j++){
+      var cs2=getComputedStyle(els2[j]);
+      if(cs2.overflow==='auto'||cs2.overflowX==='auto'||cs2.overflowY==='auto'){
+        els2[j].scrollLeft=sx;els2[j].scrollTop=sy;break;
+      }
+    }
+  });
 }
 
 function shiftPaint(cid){
