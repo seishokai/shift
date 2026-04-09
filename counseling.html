@@ -147,7 +147,7 @@ table.compare tr:hover{background:#222}
 .set-half ol{padding-left:20px}
 .set-half li{margin-bottom:8px;font-size:16px}
 /* Presentation mode toggle */
-.mode-toggle{position:fixed;bottom:20px;right:20px;z-index:500;background:#C5A55A;color:#000;border:none;width:50px;height:50px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.3s}
+.mode-toggle{position:fixed;bottom:20px;right:20px;z-index:1100;background:#C5A55A;color:#000;border:none;width:50px;height:50px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.3s}
 .mode-toggle:hover{transform:scale(1.1)}
 /* Slide mode */
 body.slide-mode{overflow:hidden;height:100vh;margin:0;padding:0}
@@ -163,13 +163,13 @@ body.slide-mode #slide-overlay{display:block}
 #slide-overlay .s-page img{max-height:40vh;object-fit:contain;border-radius:8px}
 #slide-overlay .s-page table{font-size:13px}
 #slide-overlay .s-page table th,#slide-overlay .s-page table td{padding:8px 10px}
-.slide-nav{display:none;position:fixed;z-index:600}
+.slide-nav{display:none;position:fixed;z-index:1100}
 body.slide-mode .slide-nav{display:flex;align-items:center;justify-content:center}
-.slide-nav.s-prev{left:10px;top:50%}
-.slide-nav.s-next{right:10px;top:50%}
-.slide-nav button{background:rgba(0,0,0,0.5);color:#fff;border:none;width:48px;height:48px;border-radius:50%;font-size:24px;cursor:pointer;transition:background 0.3s}
+.slide-nav.s-prev{left:15px;top:50%;transform:translateY(-50%)}
+.slide-nav.s-next{right:15px;top:50%;transform:translateY(-50%)}
+.slide-nav button{background:rgba(0,0,0,0.5);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:26px;cursor:pointer;transition:background 0.3s}
 .slide-nav button:hover{background:rgba(197,165,90,0.8)}
-.slide-counter{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:600;background:rgba(0,0,0,0.6);color:#fff;padding:6px 16px;border-radius:20px;font-size:14px}
+.slide-counter{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:1100;background:rgba(0,0,0,0.6);color:#fff;padding:8px 20px;border-radius:20px;font-size:15px}
 body.slide-mode .slide-counter{display:block}
 body.slide-mode .mode-toggle{background:#fff;color:#222}
 </style>
