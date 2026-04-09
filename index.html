@@ -743,7 +743,20 @@ function getCC(id){
   document.body.removeChild(el);
   return ccache[id]=r;
 }
-function cname(id){var p=ALL.find(function(x){return x.id===id;});return p?p.n:id;}
+function cname(id){
+  if(!id)return'';
+  var p=ALL.find(function(x){return x.id===id;});
+  if(p)return p.n;
+  /* IDが見つからない場合の救済マップ */
+  var fallback={yasumi:'休み',yukyu:'有給',daikyu:'代休',daishutsu:'代出',kyushutsu:'休日出勤',kibokyu:'希望休',__kibokyu__:'希望休'};
+  return fallback[id]||fallback[id.toLowerCase()]||id;
+}
+/* シフト表示用：希望休を自動判定 */
+function shiftLabel(sh){
+  if(!sh)return'';
+  if(sh.clinicId==='yasumi'&&sh.memo==='希望')return'希望休';
+  return shiftLabel(sh);
+}
 
 /* ---- DATE ---- */
 function dim(y,m){return new Date(y,m+1,0).getDate();}
@@ -1352,7 +1365,7 @@ function renderAllView(targetId){
           var c=getCC(sh.clinicId);
           var bg=sh.clinicId==='yukyu'?'#eceff1':sh.clinicId==='yasumi'?'#eceff1':sh.clinicId==='daikyu'?'#eceff1':c.c;
           cellBg=bg;
-          var label=cname(sh.clinicId);
+          var label=shiftLabel(sh);
           /* 休み系は薄グレー背景+文字色で区別 */
           var txtCol='#fff';
           if(sh.clinicId==='yukyu'){txtCol='#e53935';} /* 有給=赤文字 */
@@ -1841,7 +1854,7 @@ function renderCalGrid(){
       var isKyu=sh.memo==='休出';
       var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
       var border=isKyu?'border:2px solid #e67e22;':isKibo?'border:2px solid #7b2d8b;':'';
-      var lbl=isKibo?'希望休':cname(sh.clinicId);
+      var lbl=isKibo?'希望休':shiftLabel(sh);
       var shBg=isKibo?'#f3e5f5':c.b;
       var shCol=isKibo?'#7b2d8b':c.c;
       h+='<span class="day-shift" data-del-date="'+dateStr+'" style="background:'+shBg+';color:'+shCol+';'+border+';cursor:pointer;">'+lbl+'</span>';
@@ -2005,7 +2018,7 @@ function renderDocCal(){
     if(sh){
       var isKyu=sh.memo==='休出',isDai=sh.memo==='代出';
       cells+='<div style="text-align:center;margin-bottom:2px;">';
-      cells+='<span style="display:inline-block;background:'+c2.c+';color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;white-space:nowrap;">'+cname(sh.clinicId)+'</span>';
+      cells+='<span style="display:inline-block;background:'+c2.c+';color:#fff;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;white-space:nowrap;">'+shiftLabel(sh)+'</span>';
       cells+='</div>';
       if(isDai)cells+='<div style="text-align:center;font-size:8px;color:#999;font-weight:600;">代出</div>';
       if(isKyu)cells+='<div style="text-align:center;font-size:8px;color:#e67e22;font-weight:700;">休出</div>';
@@ -2175,7 +2188,7 @@ function renderBViewAll(){
       h+='<td class="tc '+cls+(hol?' closed-c':'')+'" onclick="selDocId=\''+doc.id+'\';openQpop(\''+dateStr+'\')" style="'+style+'">';
       if(sh){
         var c=getCC(sh.clinicId);
-        h+='<span class="pill" style="background:'+c.b+';color:'+c.c+';justify-content:center;">'+cname(sh.clinicId)+'</span>';
+        h+='<span class="pill" style="background:'+c.b+';color:'+c.c+';justify-content:center;">'+shiftLabel(sh)+'</span>';
       }
       h+='</td>';
     }
@@ -2452,7 +2465,7 @@ function executePrint(type){
       body+='<tr><td class="name-col '+cls+'">'+d+'('+DOW3[w]+')</td>';
       doctors.forEach(function(doc){
         var sh=(shifts[dateStr2]||[]).find(function(s){return s.docId===doc.id;});
-        if(sh){var c=getCC(sh.clinicId);body+='<td class="'+cls+'"><span class="pill" style="background:'+c.b+';color:'+c.c+'">'+cname(sh.clinicId)+'</span></td>';}
+        if(sh){var c=getCC(sh.clinicId);body+='<td class="'+cls+'"><span class="pill" style="background:'+c.b+';color:'+c.c+'">'+shiftLabel(sh)+'</span></td>';}
         else body+='<td class="'+cls+'"></td>';
       });
       body+='</tr>';
