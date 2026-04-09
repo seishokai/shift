@@ -473,6 +473,7 @@ function renderShifts(){
   renderPaintBar();
 }
 
+var _confirmOverwrite=null; /* {dateStr,docId} 上書き確認待ち */
 function cellClick(dateStr,docId){
   if(!isAdmin)return;
   if(paintClinic){
@@ -482,9 +483,23 @@ function cellClick(dateStr,docId){
     if(restIds2.indexOf(cid)<0&&paintClinic!=='__del__'&&isClosed(dateStr,cid)){
       showSb(cname(cid)+'は休診日です','e');return;
     }
-    snapshot();
     if(!shifts[dateStr])shifts[dateStr]=[];
     var idx=shifts[dateStr].findIndex(function(s){return s.docId===docId;});
+    /* 希望休・有給・代休の上書き保護（2回クリックで上書き） */
+    var protectedIds=['yasumi','yukyu','daikyu'];
+    if(idx>=0&&protectedIds.indexOf(shifts[dateStr][idx].clinicId)>=0&&shifts[dateStr][idx].clinicId!==cid){
+      if(_confirmOverwrite&&_confirmOverwrite.dateStr===dateStr&&_confirmOverwrite.docId===docId){
+        _confirmOverwrite=null; /* 2回目→上書き実行 */
+      } else {
+        _confirmOverwrite={dateStr:dateStr,docId:docId};
+        var existLabel=shiftLabel(shifts[dateStr][idx]);
+        showSb(existLabel+'を上書き？もう1回クリック','e');
+        return;
+      }
+    } else {
+      _confirmOverwrite=null;
+    }
+    snapshot();
     /* 同じ医院なら削除（トグル） */
     var memo=paintClinic==='__kibokyu__'?'希望':'';
     if(idx>=0&&shifts[dateStr][idx].clinicId===cid){
