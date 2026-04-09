@@ -65,8 +65,8 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 /* 個人ビュー */
 .person-sel{padding:6px 12px;border-radius:16px;border:1.5px solid #ddd;background:#fff;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;margin:2px;}
 .person-sel.on{background:#1a1a18;color:#fff;border-color:#1a1a18;}
-.pcal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.pcal-cell{border-radius:8px;min-height:60px;padding:4px;background:#fff;border:1px solid #eee;font-size:10px;}
+.pcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.pcal-cell{border-radius:8px;min-height:80px;padding:5px;background:#fff;border:1px solid #eee;font-size:11px;}
 .pcal-cell.sun{background:#fff5f5;}.pcal-cell.sat{background:#f0f5ff;}
 /* シフト希望 */
 .req-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
@@ -726,17 +726,17 @@ function renderClinicView(){
     var dayCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333';
     var bg=closed?'#f0efed':assigned.length?col.b:'#fff';
     var border=closed?'1px solid #ddd':'1px solid '+(assigned.length?col.c+'40':'#eee');
-    h+='<div style="background:'+bg+';border:'+border+';border-radius:6px;padding:3px;min-height:52px;">';
-    h+='<div style="display:flex;align-items:center;gap:2px;margin-bottom:2px;">';
-    h+='<span style="font-size:12px;font-weight:800;color:'+dayCol+';">'+d+'</span>';
-    if(isH)h+='<span class="hol-badge">祝</span>';
-    if(!closed&&assigned.length)h+='<span style="margin-left:auto;background:'+col.c+';color:#fff;font-size:9px;font-weight:800;border-radius:6px;padding:1px 5px;">'+assigned.length+'</span>';
+    h+='<div style="background:'+bg+';border:'+border+';border-radius:6px;padding:4px;min-height:70px;">';
+    h+='<div style="display:flex;align-items:center;gap:3px;margin-bottom:3px;">';
+    h+='<span style="font-size:14px;font-weight:800;color:'+dayCol+';">'+d+'</span>';
+    if(isH)h+='<span class="hol-badge" style="font-size:8px;padding:1px 4px;">祝</span>';
+    if(!closed&&assigned.length)h+='<span style="margin-left:auto;background:'+col.c+';color:#fff;font-size:11px;font-weight:800;border-radius:8px;padding:2px 7px;">'+assigned.length+'名</span>';
     h+='</div>';
-    if(closed){h+='<div style="font-size:8px;color:#bbb;text-align:center;">休診</div>';}
+    if(closed){h+='<div style="font-size:10px;color:#bbb;text-align:center;">休診</div>';}
     else{
       assigned.forEach(function(s){
         var doc=doctors.find(function(dd){return dd.id===s.docId;});
-        if(doc)h+='<div onclick="goToPerson(\''+s.docId+'\')" style="font-size:8px;font-weight:700;color:'+col.c+';cursor:pointer;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+doc.n+'</div>';
+        if(doc)h+='<div onclick="goToPerson(\''+s.docId+'\')" style="font-size:11px;font-weight:700;color:'+col.c+';cursor:pointer;line-height:1.6;">'+doc.n+'</div>';
       });
     }
     h+='</div>';
@@ -765,7 +765,7 @@ function renderPersonView(){
     var sh=(shifts[ds(curY,curM,d)]||[]).find(function(s){return s.docId===selPerson;});
     if(sh&&!restIds.has(sh.clinicId))workDays++;
   }
-  var h='<h3 style="font-size:16px;font-weight:800;margin-bottom:4px;">'+doc.n+'｜'+(curM+1)+'月</h3>';
+  var h='<h3 style="font-size:18px;font-weight:800;margin-bottom:4px;">'+doc.n+'｜'+(curM+1)+'月</h3>';
   h+='<p style="font-size:12px;color:#666;margin-bottom:10px;">出勤 <b style="color:#2e7d32;font-size:16px;">'+workDays+'</b> 日</p>';
   /* 曜日ヘッダー */
   h+='<div class="pcal">';
@@ -778,12 +778,12 @@ function renderPersonView(){
     var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===selPerson;});
     var cls=w===0||isH?'sun':w===6?'sat':'';
     h+='<div class="pcal-cell '+cls+'">';
-    h+='<div style="font-weight:700;font-size:12px;color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">'+d+(isH?' <span class="hol-badge">祝</span>':'')+'</div>';
+    h+='<div style="font-weight:800;font-size:14px;color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">'+d+(isH?' <span class="hol-badge" style="font-size:8px;padding:1px 4px;">祝</span>':'')+'</div>';
     if(sh){
       var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
       var col=isKibo?{c:'#7b2d8b',b:'#f3e5f5'}:getCC(sh.clinicId);
       var lbl=isKibo?'希望休':shiftLabel(sh);
-      h+='<div style="background:'+col.c+';color:#fff;border-radius:4px;padding:1px 3px;font-size:8px;font-weight:700;text-align:center;margin-top:2px;">'+lbl+'</div>';
+      h+='<div style="background:'+col.c+';color:#fff;border-radius:6px;padding:3px 5px;font-size:12px;font-weight:700;text-align:center;margin-top:3px;">'+lbl+'</div>';
       /* 同僚表示 */
       if(!restIds.has(sh.clinicId)){
         var mates=(shifts[dateStr]||[]).filter(function(s){return s.docId!==selPerson&&s.clinicId===sh.clinicId;});
@@ -791,7 +791,7 @@ function renderPersonView(){
           h+='<div style="margin-top:2px;">';
           mates.forEach(function(m){
             var md=doctors.find(function(dd){return dd.id===m.docId;});
-            h+='<div style="font-size:7px;color:'+col.c+';font-weight:600;line-height:1.4;">'+(md?md.n:'')+'</div>';
+            h+='<div style="font-size:10px;color:'+col.c+';font-weight:600;line-height:1.5;">'+(md?md.n:'')+'</div>';
           });
           h+='</div>';
         }
@@ -861,6 +861,28 @@ function renderReqView(){
   h+='<div style="margin-top:12px;text-align:center;">';
   h+='<button onclick="submitReq()" style="padding:10px 30px;border:none;background:#7b2d8b;color:#fff;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">'+reqSelDates.size+'日分を申請する</button>';
   h+='</div>';
+  /* 申請履歴一覧 */
+  var days2=dim(curY,curM),DOW2=['日','月','火','水','木','金','土'];
+  var reqs=[];
+  for(var d2=1;d2<=days2;d2++){
+    var ds2=ds(curY,curM,d2);
+    var ex=(shifts[ds2]||[]).find(function(s){return s.docId===reqDocId;});
+    if(ex)reqs.push({d:d2,ds:ds2,w:new Date(curY,curM,d2).getDay(),sh:ex});
+  }
+  if(reqs.length){
+    h+='<div style="margin-top:16px;border-top:2px solid #eee;padding-top:12px;">';
+    h+='<h4 style="font-size:13px;font-weight:700;margin-bottom:8px;">現在の登録状況</h4>';
+    h+='<table style="border-collapse:collapse;width:100%;font-size:12px;"><tbody>';
+    reqs.forEach(function(r){
+      var col=getCC(r.sh.clinicId);
+      var lbl=shiftLabel(r.sh);
+      h+='<tr style="border-bottom:1px solid #eee;">';
+      h+='<td style="padding:4px 8px;font-weight:700;color:'+(r.w===0?'#e05252':r.w===6?'#4a7fd4':'#333')+';width:70px;">'+r.d+'('+DOW2[r.w]+')</td>';
+      h+='<td style="padding:4px 8px;"><span style="background:'+col.c+';color:#fff;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;">'+lbl+'</span></td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>';
+  }
   document.getElementById('reqView').innerHTML=h;
 }
 var reqClinicId=null;
