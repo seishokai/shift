@@ -806,7 +806,7 @@ var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
   showSb('保存中...');
-  return fetch(SB_URL+'/rest/v1/shifts',{
+  return fetch(SB_URL+'/rest/v1/shifts?on_conflict=date_str,doc_id',{
     method:'POST',
     headers:Object.assign({},SB_H,{Prefer:'resolution=merge-duplicates,return=minimal'}),
     body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
