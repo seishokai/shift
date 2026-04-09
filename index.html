@@ -596,8 +596,10 @@ function renderClinicView(){
   if(!selClinic){document.getElementById('clinicView').innerHTML='<p style="color:#999;text-align:center;padding:40px;">医院を選んでください</p>';return;}
   var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'];
   var col=getCC(selClinic);
-  var h='<table style="border-collapse:collapse;width:100%;font-size:11px;">';
-  h+='<thead><tr style="background:#edebe6;"><th style="padding:3px 6px;text-align:left;width:50px;">日付</th><th style="padding:3px 4px;width:28px;text-align:center;">人数</th><th style="padding:3px 6px;text-align:left;">出勤メンバー</th></tr></thead><tbody>';
+  var firstDow=new Date(curY,curM,1).getDay();
+  var h='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">';
+  DOW.forEach(function(d,i){h+='<div style="text-align:center;font-size:10px;font-weight:700;padding:4px;color:'+(i===0?'#e05252':i===6?'#4a7fd4':'#999')+';">'+d+'</div>';});
+  for(var i=0;i<firstDow;i++)h+='<div></div>';
   for(var d=1;d<=days;d++){
     var dateStr=ds(curY,curM,d);
     var w=new Date(curY,curM,d).getDay();
@@ -605,18 +607,24 @@ function renderClinicView(){
     var closed=isClosed(dateStr,selClinic);
     var assigned=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===selClinic;});
     var dayCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333';
-    var rowBg=closed?'#f5f5f3':w===0||isH?'#fff5f5':w===6?'#f0f5ff':'#fff';
-    h+='<tr style="background:'+rowBg+';border-bottom:1px solid #eee;">';
-    h+='<td style="padding:3px 6px;font-weight:700;color:'+dayCol+';white-space:nowrap;">'+d+DOW[w]+(isH?'<span class="hol-badge">祝</span>':'')+'</td>';
-    if(closed){
-      h+='<td style="text-align:center;color:#bbb;">-</td><td style="color:#bbb;font-size:10px;">休診</td>';
-    } else {
-      h+='<td style="text-align:center;font-weight:800;color:'+col.c+';">'+assigned.length+'</td>';
-      h+='<td style="padding:2px 4px;">'+assigned.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});return doc?'<span class="doc-chip" style="background:'+col.b+';color:'+col.c+';cursor:pointer;" onclick="goToPerson(\''+s.docId+'\')">'+doc.n+'</span>':'';}).join('')+'</td>';
+    var bg=closed?'#f0efed':assigned.length?col.b:'#fff';
+    var border=closed?'1px solid #ddd':'1px solid '+(assigned.length?col.c+'40':'#eee');
+    h+='<div style="background:'+bg+';border:'+border+';border-radius:6px;padding:3px;min-height:52px;">';
+    h+='<div style="display:flex;align-items:center;gap:2px;margin-bottom:2px;">';
+    h+='<span style="font-size:12px;font-weight:800;color:'+dayCol+';">'+d+'</span>';
+    if(isH)h+='<span class="hol-badge">祝</span>';
+    if(!closed&&assigned.length)h+='<span style="margin-left:auto;background:'+col.c+';color:#fff;font-size:9px;font-weight:800;border-radius:6px;padding:1px 5px;">'+assigned.length+'</span>';
+    h+='</div>';
+    if(closed){h+='<div style="font-size:8px;color:#bbb;text-align:center;">休診</div>';}
+    else{
+      assigned.forEach(function(s){
+        var doc=doctors.find(function(dd){return dd.id===s.docId;});
+        if(doc)h+='<div onclick="goToPerson(\''+s.docId+'\')" style="font-size:8px;font-weight:700;color:'+col.c+';cursor:pointer;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+doc.n+'</div>';
+      });
     }
-    h+='</tr>';
+    h+='</div>';
   }
-  h+='</tbody></table>';
+  h+='</div>';
   document.getElementById('clinicView').innerHTML=h;
 }
 
