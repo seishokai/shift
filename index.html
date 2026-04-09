@@ -411,18 +411,6 @@ function renderShifts(){
   }
   h+='</tr></thead><tbody>';
 
-  /* 訪問チーム行 */
-  var ym=curY+'-'+String(curM+1).padStart(2,'0');
-  var hDays=HOUMON_DAYS[ym]||[];
-  h+='<tr style="background:#e6eef5;"><td class="fix-left-body" style="font-size:10px;font-weight:700;padding:2px 6px;white-space:nowrap;border-right:2px solid #bbb;background:#e6eef5;color:#2c6e8a;">訪問</td>';
-  for(var dd=1;dd<=days;dd++){
-    var dds=ds(curY,curM,dd);
-    var hOn=hDays.indexOf(dds)>=0;
-    var hClick=isAdmin?'onclick="toggleHoumon(\''+dds+'\')"':'';
-    h+='<td style="background:'+(hOn?'#2c6e8a':'transparent')+';color:'+(hOn?'#fff':'#ccc')+';font-size:8px;font-weight:700;cursor:'+(isAdmin?'pointer':'default')+';height:24px;" '+hClick+'>'+(hOn?'訪':'')+'</td>';
-  }
-  h+='</tr>';
-
   doctors.forEach(function(doc){
     var nameClick=isAdmin&&paintClinic?'bulkMenu(\''+doc.id+'\')':'goToPerson(\''+doc.id+'\')';
     var nameBg=bulkDocId===doc.id?'background:#fff3e0;':'';
