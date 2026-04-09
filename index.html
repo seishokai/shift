@@ -823,24 +823,25 @@ var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
   saveShiftsLocal();
-  /* テストで動作確認済みの書き方と完全に同じ */
-  var headers={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
-  /* 1. DELETE */
-  return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
-    method:'DELETE',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}
-  }).then(function(dr){
-    console.log('DEL:',dr.status);
-    /* 2. INSERT */
-    return fetch(SB_URL+'/rest/v1/shifts',{
-      method:'POST',headers:headers,
-      body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
-    });
+  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
+  /* まずINSERT。409ならPATCH(更新) */
+  return fetch(SB_URL+'/rest/v1/shifts',{
+    method:'POST',headers:h,
+    body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+  }).then(function(r){
+    if(r.status===409){
+      /* 既存レコード→PATCHで更新 */
+      return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
+        method:'PATCH',headers:h,
+        body:JSON.stringify({clinic_id:cid,memo:memo||''})
+      });
+    }
+    return r;
   }).then(function(r){
     _pendingSaves--;
-    console.log('INS:',r.status);
-    if(r.ok||r.status===201){if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}}
-    else{r.text().then(function(t){console.error('ERR:',t);showSb('保存失敗','e');});}
-  }).catch(function(e){_pendingSaves--;console.error('NET:',e);showSb('通信エラー','e');});
+    if(r.ok||r.status===201||r.status===204){if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}}
+    else{r.text().then(function(t){console.error('SAVE:',r.status,t);showSb('保存失敗','e');});}
+  }).catch(function(e){_pendingSaves--;console.error(e);showSb('通信エラー','e');});
 }
 function dbDel(dateStr,docId){
   showSb('削除中...');
