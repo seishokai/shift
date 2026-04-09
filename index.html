@@ -1732,6 +1732,10 @@ function renderClinicPickBar(){
     html2+='<button class="clinic-pick-btn" data-cid="'+s.id+'" style="background:'+bg+';color:'+col+';'+border+'font-size:11px;">'+s.n+'</button>';
   });
 
+  /* 希望休ボタン */
+  var kiboOn=(selClinicId==='__kibokyu__');
+  html2+='<button class="clinic-pick-btn" data-cid="__kibokyu__" style="background:'+(kiboOn?'#7b2d8b':'var(--bg)')+';color:'+(kiboOn?'#fff':'#7b2d8b')+';border:'+(kiboOn?'2px solid #7b2d8b':'1.5px solid var(--border)')+';font-size:11px;font-weight:700;">希望休</button>';
+
   document.getElementById('clinicPickRow').innerHTML=html2;
 }
 
@@ -1740,14 +1744,16 @@ function saveToDate(dateStr){
   if(!selDocId||!selClinicId)return;
   if(multiSelDates.has(dateStr))return;
   multiSelDates.add(dateStr);
+  var cid=selClinicId==='__kibokyu__'?'yasumi':selClinicId;
+  var memo=selClinicId==='__kibokyu__'?'希望':'';
   if(!shifts[dateStr])shifts[dateStr]=[];
   var idx=shifts[dateStr].findIndex(function(s){return s.docId===selDocId;});
-  var entry={docId:selDocId,clinicId:selClinicId,memo:''};
+  var entry={docId:selDocId,clinicId:cid,memo:memo};
   if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
   renderCalGrid();
   renderAllView('allViewWrap');
   renderA();renderC();
-  dbSave(dateStr,selDocId,selClinicId,'');
+  dbSave(dateStr,selDocId,cid,memo);
 }
 
 function updateMultiSelBar(){
