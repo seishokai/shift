@@ -938,11 +938,18 @@ function renderReqView(){
     h+='<h4 style="font-size:13px;font-weight:700;margin-bottom:8px;">現在の登録状況</h4>';
     h+='<table style="border-collapse:collapse;width:100%;font-size:12px;"><tbody>';
     reqs.forEach(function(r){
-      var col=getCC(r.sh.clinicId);
+      var isKibo=r.sh.clinicId==='yasumi'&&r.sh.memo==='希望';
+      var bgCol,txtCol='#fff';
+      if(isKibo){bgCol='#7b2d8b';}
+      else if(r.sh.clinicId==='yasumi'){bgCol='#999';}
+      else if(r.sh.clinicId==='yukyu'){bgCol='#e53935';}
+      else if(r.sh.clinicId==='daikyu'){bgCol='#1a5276';}
+      else if(r.sh.clinicId==='daishutsu'){bgCol='#555';}
+      else{bgCol=getCC(r.sh.clinicId).c;}
       var lbl=shiftLabel(r.sh);
       h+='<tr style="border-bottom:1px solid #eee;">';
       h+='<td style="padding:4px 8px;font-weight:700;color:'+(r.w===0?'#e05252':r.w===6?'#4a7fd4':'#333')+';width:70px;">'+r.d+'('+DOW2[r.w]+')</td>';
-      h+='<td style="padding:4px 8px;"><span style="background:'+col.c+';color:#fff;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;">'+lbl+'</span></td>';
+      h+='<td style="padding:4px 8px;"><span style="background:'+bgCol+';color:'+txtCol+';padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;">'+lbl+'</span></td>';
       h+='</tr>';
     });
     h+='</tbody></table></div>';
