@@ -361,24 +361,15 @@ thead .date-th{top:0;}
 <div id="clinicClosedBar" style="display:none;padding:6px 10px;background:#fff3e0;border-bottom:1px solid #f5d88a;flex-wrap:wrap;gap:4px;align-items:center;font-size:10px;"></div>
 <div style="overflow:auto;height:calc(100vh - 112px);-webkit-overflow-scrolling:touch;"><table class="stbl" id="tA" style="border-collapse:collapse;white-space:nowrap;"></table></div></div>
 
-<div id="vH" style="display:none;padding:12px 12px 80px;overflow-y:auto;height:calc(100vh - 112px);">
-  <div id="kyuHLegend" style="display:none;"></div>
+<div id="vH" style="display:none;overflow:auto;height:calc(100vh - 112px);">
   <div style="display:none;"><button id="kyuHPrev">‹</button><span id="kyuHLbl"></span><button id="kyuHNext">›</button></div>
-  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;" id="kyuHDow"></div>
-  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:8px;" id="kyuHCal"></div>
-  <div id="kyuHDatePanel" style="display:none;background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:12px;margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span id="kyuHDateLbl" style="font-size:14px;font-weight:800;color:var(--ink);"></span>
-      <button onclick="window._kyuHSelDate=null;document.getElementById('kyuHDatePanel').style.display='none';renderKyuH();" style="border:none;background:none;font-size:18px;cursor:pointer;color:var(--ink3);padding:0 4px;">✕</button>
-    </div>
-    <div style="font-size:10px;color:var(--ink3);margin-bottom:6px;font-weight:600;">タップで休診ON/OFF切替</div>
-    <div id="kyuHDateBtns" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
-  </div>
-  <div style="margin-bottom:10px;">
-    <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:6px;">一括モード: 医院を選択 → 日付タップで一括ON/OFF</div>
-    <div id="kyuHClinicBtns" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-  </div>
+  <div id="kyuHLegend" style="display:none;"></div>
+  <div style="display:none;" id="kyuHDow"></div>
+  <div style="display:none;" id="kyuHCal"></div>
+  <div style="display:none;" id="kyuHDatePanel"></div>
+  <div style="display:none;" id="kyuHClinicBtns"></div>
   <button id="kyuHSaveBtn" style="display:none;">保存</button>
+  <table id="kyuHTable" class="stbl" style="border-collapse:collapse;white-space:nowrap;"></table>
 </div>
 
 <!-- VIEW D: 集計・有休管理 -->
@@ -2883,106 +2874,45 @@ function renderKyuHLegend(){
 }
 
 function renderKyuH(){
-  var DOW2=["日","月","火","水","木","金","土"];
+  var DOW2=['日','月','火','水','木','金','土'];
   var y=window._kyuHY,m=window._kyuHM;
-  var lbl=document.getElementById("kyuHLbl");
-  if(lbl)lbl.textContent=y+"年"+m+"月";
-  var dowEl=document.getElementById("kyuHDow");
-  if(dowEl)dowEl.innerHTML=DOW2.map(function(d,i){
-    return "<div style=\"text-align:center;font-size:10px;font-weight:700;padding:3px;color:"+(i===0?"#c0392b":i===6?"#1a5276":"var(--ink3)")+"\">"+d+"</div>";
-  }).join("");
-  var cal=document.getElementById("kyuHCal");
-  if(!cal)return;
-  var days=new Date(y,m,0).getDate(),firstDow=new Date(y,m-1,1).getDay();
-  var h="";
-  for(var i=0;i<firstDow;i++)h+="<div></div>";
+  var lbl=document.getElementById('kyuHLbl');
+  if(lbl)lbl.textContent=y+'年'+m+'月';
+  var tbl=document.getElementById('kyuHTable');
+  if(!tbl)return;
+  var days=new Date(y,m,0).getDate();
+  /* ヘッダー: 日付 | 曜日 | 医院1 | 医院2 | ... */
+  var h='<thead><tr><th style="position:sticky;left:0;z-index:6;background:#edebe6;min-width:54px;padding:6px 4px;font-size:11px;border:1px solid var(--border);">日付</th>';
+  CLINICS.forEach(function(c){
+    var cc=getCC(c.id);
+    h+='<th style="padding:4px 6px;font-size:10px;font-weight:700;color:'+cc.c+';background:#edebe6;border:1px solid var(--border);min-width:44px;white-space:nowrap;">'+c.n+'</th>';
+  });
+  h+='</tr></thead><tbody>';
   for(var d=1;d<=days;d++){
-    var ds2=y+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    var ds2=y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     var w=new Date(y,m-1,d).getDay();
-    var isSelected=window._kyuHSelDate===ds2;
-    var isSun=w===0,isSat=w===6,isHol=HOL.has(ds2);
-    var bg=isSelected?"#1a1a18":isHol?"#ffe0e0":isSun?"#fff5f5":isSat?"#f0f5ff":"var(--card)";
-    var col=isSelected?"#fff":isHol?"#c0392b":isSun?"#c0392b":isSat?"#1a5276":"var(--ink)";
-    // この日に休診の医院を色ドットで表示
-    var dots=CLINICS.filter(function(c){
-      return isClosed(ds2,c.id);
-    }).map(function(c){
+    var isHol=HOL.has(ds2);
+    var isSun=w===0,isSat=w===6;
+    var rowBg=isHol?'#fff0f0':isSun?'#fff5f5':isSat?'#f0f5ff':'#fff';
+    var numCol=isSun||isHol?'#e05252':isSat?'#4a7fd4':'var(--ink)';
+    h+='<tr style="background:'+rowBg+';">';
+    h+='<td style="position:sticky;left:0;z-index:5;background:'+rowBg+';border:1px solid var(--border);padding:5px 6px;font-weight:700;font-size:12px;color:'+numCol+';white-space:nowrap;">'+
+      d+'<span style="font-size:10px;font-weight:600;margin-left:2px;color:'+(isSun||isHol?'#e05252':isSat?'#4a7fd4':'var(--ink3)')+'">'+DOW2[w]+'</span>'+
+      (isHol?'<span style="background:#e05252;color:#fff;font-size:7px;font-weight:700;border-radius:3px;padding:0 3px;margin-left:2px;">祝</span>':'')+'</td>';
+    CLINICS.forEach(function(c){
+      var closed=isClosed(ds2,c.id);
       var cc=getCC(c.id);
-      return "<span style=\"display:inline-block;padding:1px 4px;border-radius:3px;background:"+cc.b+";color:"+cc.c+";font-size:11px;font-weight:700;line-height:1.5;\">"+c.n+"</span>";
-    }).join("");
-    h+="<div onclick=\"kyuHSelectDate('"+ds2+"')\" style=\"text-align:center;padding:4px 2px 2px;border-radius:8px;border:2px solid "+(isSelected?"#1a1a18":"var(--border)")+";background:"+bg+";color:"+col+";font-size:12px;cursor:pointer;min-height:62px;display:flex;flex-direction:column;align-items:center;gap:3px;\">"+
-      "<span style=\"font-weight:700;font-size:13px;"+(isHol?"background:#c0392b;color:#fff;padding:1px 6px;border-radius:4px;":"")+"\">"+ d+(isHol?" 祝":"")+"</span>"+
-      "<span style=\"display:flex;flex-wrap:wrap;gap:2px;justify-content:center;max-width:100%\">"+dots+"</span>"+
-    "</div>";
+      var cellBg=closed?cc.c:'transparent';
+      var cellCol=closed?'#fff':'var(--ink3)';
+      h+='<td onclick="toggleKyuH(\''+ds2+'\',\''+c.id+'\');renderKyuH();" style="border:1px solid var(--border);text-align:center;padding:4px 2px;cursor:pointer;background:'+cellBg+';color:'+cellCol+';font-size:10px;font-weight:700;user-select:none;">'+
+        (closed?'休':'')+'</td>';
+    });
+    h+='</tr>';
   }
-  cal.innerHTML=h;
-  // 医院ボタン更新（選択日があれば表示）
-  renderKyuHClinicBtns();
+  h+='</tbody>';
+  tbl.innerHTML=h;
 }
 window._kyuHSelClinics=new Set();
-function kyuHSelectDate(ds){
-  if(window._kyuHSelClinics.size>0){
-    window._kyuHSelClinics.forEach(function(cid){
-      toggleKyuH(ds,cid);
-    });
-    return;
-  }
-  /* 日付クリック → その日の休診パネルを表示 */
-  window._kyuHSelDate=(window._kyuHSelDate===ds)?null:ds;
-  renderKyuH();
-  renderKyuHDatePanel();
-}
-function renderKyuHDatePanel(){
-  var panel=document.getElementById('kyuHDatePanel');
-  if(!panel)return;
-  if(!window._kyuHSelDate){panel.style.display='none';return;}
-  panel.style.display='block';
-  var ds=window._kyuHSelDate;
-  var dt=new Date(ds);
-  var DOW3=['日','月','火','水','木','金','土'];
-  document.getElementById('kyuHDateLbl').textContent=
-    (dt.getMonth()+1)+'/'+(dt.getDate())+'（'+DOW3[dt.getDay()]+'）の休診設定';
-  var h='';
-  CLINICS.forEach(function(c){
-    var closed=isClosed(ds,c.id);
-    var cc=getCC(c.id);
-    var bg=closed?cc.c:'var(--bg)';
-    var col=closed?'#fff':cc.c;
-    var border=closed?cc.c:'var(--border)';
-    h+='<button onclick="toggleKyuH(\''+ds+'\',\''+c.id+'\');renderKyuHDatePanel();" style="padding:8px 14px;border-radius:12px;border:2px solid '+border+';background:'+bg+';color:'+col+';font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;min-width:60px;">'+
-      (closed?'🔴 ':'')+c.n+'</button>';
-  });
-  document.getElementById('kyuHDateBtns').innerHTML=h;
-}
-function renderKyuHClinicBtns(){
-  var el=document.getElementById("kyuHClinicBtns");
-  if(!el)return;
-  var allExYagoto=CLINICS.filter(function(c){return c.id!=='yagoto';}).map(function(c){return c.id;});
-  var isAllOn=allExYagoto.every(function(id){return window._kyuHSelClinics.has(id);});
-  var h="<button onclick=\"kyuHPickAll()\" style=\"padding:6px 12px;border-radius:16px;border:2px solid "+(isAllOn?"#c0392b":"var(--border)")+";background:"+(isAllOn?"#c0392b":"var(--card)")+";color:"+(isAllOn?"#fff":"var(--ink2)")+";font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;\">八事以外</button>";
-  h+=CLINICS.map(function(c){
-    var cc=getCC(c.id);
-    var on=window._kyuHSelClinics.has(c.id);
-    return "<button onclick=\"kyuHPickClinic('"+c.id+"')\" style=\"padding:6px 12px;border-radius:16px;border:2px solid "+(on?cc.c:"var(--border)")+";background:"+(on?cc.c:"var(--card)")+";color:"+(on?"#fff":"var(--ink2)")+";font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;\">"+c.n+"</button>";
-  }).join("");
-  el.innerHTML=h;
-}
-function kyuHPickClinic(cid){
-  if(window._kyuHSelClinics.has(cid))window._kyuHSelClinics.delete(cid);
-  else window._kyuHSelClinics.add(cid);
-  window._kyuHSelDate=null;
-  renderKyuHClinicBtns();
-  renderKyuH();
-}
-function kyuHPickAll(){
-  /* 八事以外を全選択/全解除 */
-  var allExYagoto=CLINICS.filter(function(c){return c.id!=='yagoto';}).map(function(c){return c.id;});
-  var isAllOn=allExYagoto.every(function(id){return window._kyuHSelClinics.has(id);});
-  if(isAllOn){window._kyuHSelClinics.clear();}
-  else{allExYagoto.forEach(function(id){window._kyuHSelClinics.add(id);});}
-  renderKyuHClinicBtns();
-  renderKyuH();
-}
 function toggleKyuH(ds,cid){
   globalSnapshot();
   if(!CLOSED_DATES[cid])CLOSED_DATES[cid]=[];
