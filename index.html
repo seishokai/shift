@@ -778,32 +778,39 @@ function sbReq(path,opts){
 }
 function loadDB(){
   showSb('読み込み中...');
+  /* localStorageがあれば最優先（編集結果が全て入っている） */
+  var localStr;
+  try{localStr=localStorage.getItem('seishokai_shifts');}catch(e){}
+  if(localStr){
+    try{
+      shifts=JSON.parse(localStr);
+      showSb('ローカルデータ読込','ok');
+      return Promise.resolve();
+    }catch(e){}
+  }
+  /* localStorageなし → Supabase → EXCEL_DATA の順にフォールバック */
   return fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{
     headers:Object.assign({},SB_H)
   }).then(function(r){
     if(!r.ok)throw new Error('DB読み込みエラー: '+r.status);
     return r.json();
   }).then(function(rows){
-    /* EXCEL_DATA→Supabase→localStorage の順でマージ（後が優先） */
-    shifts={};Object.assign(shifts,EXCEL_DATA);
+    shifts={};
     if(rows&&rows.length){
       rows.forEach(function(row){
         if(!shifts[row.date_str])shifts[row.date_str]=[];
-        var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
-        var e={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
-        if(idx>=0)shifts[row.date_str][idx]=e;else shifts[row.date_str].push(e);
+        shifts[row.date_str].push({docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''});
       });
       showSb(rows.length+'件読込','ok');
     } else {
-      showSb('');
+      Object.assign(shifts,EXCEL_DATA);
+      showSb('初期データ読込','ok');
     }
-    /* localStorageを最後に上書き（最新の編集が最優先） */
-    loadShiftsLocal();
+    saveShiftsLocal();
   }).catch(function(e){
     console.warn('DB読み込み失敗:',e);
-    Object.assign(shifts,EXCEL_DATA);
-    loadShiftsLocal();
-    showSb('オフライン - DBに接続できません','e');
+    shifts={};Object.assign(shifts,EXCEL_DATA);
+    showSb('オフライン - 初期データ使用','e');
   });
 }
 /* シフトデータのローカルバックアップ */
@@ -4701,7 +4708,6 @@ document.addEventListener('DOMContentLoaded',function(){
   ['vE','vG'].forEach(function(id){var v=document.getElementById(id);if(v)v.style.display='none';});
   renderAll();
   loadClosedDates();
-  loadShiftsLocal();
   loadDB().then(function(){renderAll();scheduleAutoBackup();loadKyumiLogFromDB().then(function(){if(curTab===3)renderD();});});
 });
 /* ページ離脱時にlocalStorageに保存 */
