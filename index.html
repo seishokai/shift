@@ -280,11 +280,11 @@ function saveShifts(){
     localStorage.setItem('seishokai_shifts_v2',j);
     localStorage.setItem('seishokai_shifts_v2_bak',j);
     localStorage.setItem('seishokai_shifts_v2_ts',new Date().toISOString());
-  }catch(e){}
+  }catch(e){console.error('saveShifts error:',e);showSb('保存エラー: ストレージ容量不足の可能性','e');}
 }
 function saveClosed(){
-  try{var j=JSON.stringify(CLOSED_DATES);localStorage.setItem('seishokai_closed_v2',j);localStorage.setItem('seishokai_closed_v2_bak',j);}catch(e){}
-  try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){}
+  try{var j=JSON.stringify(CLOSED_DATES);localStorage.setItem('seishokai_closed_v2',j);localStorage.setItem('seishokai_closed_v2_bak',j);}catch(e){console.error('saveClosed error:',e);showSb('休診日保存エラー','e');}
+  try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){console.error('saveHoumon error:',e);}
 }
 function loadData(){
   showSb('読み込み中...');
@@ -369,7 +369,7 @@ function saveUndoStack(){
 }
 function snapshot(){
   var snap={s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)};
-  undoStack.push(snap);if(undoStack.length>30)undoStack.shift();
+  undoStack.push(snap);if(undoStack.length>20)undoStack.shift();
   redoStack=[];
   saveUndoStack();
 }
@@ -404,7 +404,7 @@ function updateMonthLbl(){document.getElementById('monthLbl').textContent=curY+'
 function setTab(n){
   curTab=n;
   document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',i===n);});
-  ['tab0','tab1','tab2','tab3','tab4','tab5'].forEach(function(id,i){document.getElementById(id).style.display=i===n?'':'none';});
+  ['tab0','tab1','tab2','tab3','tab4','tab5'].forEach(function(id,i){document.getElementById(id).style.display=i===n?(i===0?'flex':''):'none';});
   renderTab();
 }
 function renderTab(){
@@ -431,8 +431,9 @@ function renderShifts(){
     if(isH)h+='<span class="hol-badge">祝</span>';
     h+='</th>';
   }
-  h+='</tr></thead><tbody>';
+  h+='</tr></thead>';
 
+  h+='<tbody>';
   doctors.forEach(function(doc){
     var nameClick=isAdmin?'openBulkFor(\''+doc.id+'\')':'goToPerson(\''+doc.id+'\')';
     var nameBg=bulkDocId===doc.id?'background:#fff3e0;':'';
@@ -471,6 +472,7 @@ function renderShifts(){
     }
     h+='</tr>';
   });
+  h+='</tbody>';
   /* 下部日付行（tfoot sticky bottom） */
   h+='<tfoot><tr>';
   h+='<td class="fix-left" style="z-index:12;position:sticky;bottom:0;background:#ddd;font-size:9px;font-weight:700;padding:4px 2px;">日付</td>';
@@ -485,7 +487,6 @@ function renderShifts(){
     h+='</td>';
   }
   h+='</tr></tfoot>';
-  h+='</tbody>';
   document.getElementById('shiftTable').innerHTML=h;
   renderPaintBar();
 }
@@ -760,7 +761,7 @@ function toggleHoumon(dateStr){
   saveClosed();renderShifts();
 }
 
-/* ======= Tab 1: 休診日 ======= */
+/* ======= Tab 4: 休診日 ======= */
 function renderClosed(){
   var days=dim(curY,curM);
   var DOW=['日','月','火','水','木','金','土'];
@@ -807,7 +808,7 @@ function toggleClosed(dateStr,cid){
   saveClosed();renderClosed();
 }
 
-/* ======= Tab 2: 集計 ======= */
+/* ======= Tab 5: 集計 ======= */
 function renderSummary(){
   var days=dim(curY,curM);
   var restIds=new Set(['yasumi','yukyu','daikyu']);
@@ -918,13 +919,13 @@ function personCellClick(dateStr){
 }
 function personAssign(cid){
   if(!personEditDate||!selPerson)return;
+  var realCid=cid==='__kibokyu__'?'yasumi':cid;
   var restIds3=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
-  if(restIds3.indexOf(cid)<0&&isClosed(personEditDate,cid)){showSb(cname(cid)+'は休診日','e');return;}
+  if(restIds3.indexOf(realCid)<0&&isClosed(personEditDate,realCid)){showSb(cname(realCid)+'は休診日','e');return;}
   snapshot();
   if(!shifts[personEditDate])shifts[personEditDate]=[];
   var idx=shifts[personEditDate].findIndex(function(s){return s.docId===selPerson;});
   var memo=cid==='__kibokyu__'?'希望':'';
-  var realCid=cid==='__kibokyu__'?'yasumi':cid;
   var entry={docId:selPerson,clinicId:realCid,memo:memo};
   if(idx>=0)shifts[personEditDate][idx]=entry;else shifts[personEditDate].push(entry);
   dbSave(personEditDate,selPerson,realCid,memo);saveShifts();
@@ -1001,7 +1002,7 @@ function renderPersonView(){
 }
 
 /* ======= Tab 3: シフト希望申請 ======= */
-var reqDocId=null,reqSelDates=new Set(),reqType='yasumi';
+var reqDocId=null,reqSelDates=new Set(),reqType='yasumi',reqClinicId=null;
 function renderReqView(){
   var bar=document.getElementById('reqDocBar');
   bar.innerHTML=doctors.map(function(doc){
@@ -1090,7 +1091,6 @@ function renderReqView(){
   }
   document.getElementById('reqView').innerHTML=h;
 }
-var reqClinicId=null;
 function cancelReq(dateStr,docId){
   snapshot();
   if(shifts[dateStr]){
@@ -1136,7 +1136,7 @@ cellClick=function(dateStr,docId){
       if(!shifts[dateStr].length)delete shifts[dateStr];
     }
     dbDel(dateStr,docId);
-    renderShifts();
+    renderShifts();renderClinicSide();
     return;
   }
   origCellClick(dateStr,docId);
