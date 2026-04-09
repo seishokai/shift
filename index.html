@@ -759,12 +759,17 @@ function isClosed(dateStr,cid){
   /* 曜日ベースの休診チェック */
   if(cid&&CLOSED[cid]&&CLOSED[cid].includes(w))return true;
   /* 隔週日曜チェック（2グループ交互・月をまたいで連続） */
-  if(w===0&&cid&&(SUN_GROUP_A.indexOf(cid)>=0||SUN_GROUP_B.indexOf(cid)>=0)){
-    /* 基準: 2026-06-07(日)=GroupA休み。そこから通算週で交互 */
-    var refDate=new Date(2026,5,7);/* 2026-06-07 */
-    var diffWeeks=Math.round((d.getTime()-refDate.getTime())/(7*24*60*60*1000));
-    if(diffWeeks%2===0&&SUN_GROUP_A.indexOf(cid)>=0)return true;
-    if(diffWeeks%2!==0&&SUN_GROUP_B.indexOf(cid)>=0)return true;
+  if(w===0&&cid){
+    var inA=SUN_GROUP_A.indexOf(cid)>=0,inB=SUN_GROUP_B.indexOf(cid)>=0;
+    if(inA||inB){
+      /* 基準: 2026-06-07(日)=GroupA休み。日付文字列で計算（タイムゾーン問題回避） */
+      var refMs=Date.UTC(2026,5,7);
+      var curMs=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
+      var diffWeeks=Math.round((curMs-refMs)/(7*24*60*60*1000));
+      var isEven=((diffWeeks%2)+2)%2===0;/* 負の数でも正しく判定 */
+      if(isEven&&inA)return true;
+      if(!isEven&&inB)return true;
+    }
   }
   /* 祝日チェック（指定医院のみ） */
   if(HOL.has(dateStr)&&cid&&HOL_CLOSED.indexOf(cid)>=0)return true;
