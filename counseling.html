@@ -96,27 +96,39 @@ table.compare tr:hover{background:#222}
 .flow-branch{background:#1a1a1a;border:1px solid #333;padding:15px;border-radius:8px;text-align:center;font-size:16px}
 .flow-branch .label{color:#C5A55A;font-weight:600;margin-bottom:8px}
 .price-block{margin-bottom:60px}
-.price-block h3{text-align:center;font-size:24px;margin-bottom:8px}
-.price-hero{text-align:center;padding:30px 20px;margin-bottom:20px}
-.price-hero .label{font-size:14px;color:#888;margin-bottom:6px}
-.price-hero .amount{font-size:clamp(36px,6vw,52px);font-weight:700;color:#222;letter-spacing:-0.02em}
-.price-hero .amount small{font-size:16px;font-weight:400;color:#888;margin-left:4px}
-.price-hero .tax{font-size:14px;color:#999;margin-top:4px}
-.price-tabs{display:flex;justify-content:center;gap:0;margin-bottom:0;border-bottom:2px solid #C5A55A}
-.price-tab{padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;background:#f5f5f5;border:1px solid #ddd;border-bottom:none;color:#888;transition:all 0.3s;border-radius:8px 8px 0 0;margin-bottom:-2px}
-.price-tab.active{background:#fff;color:#222;border-color:#C5A55A;border-bottom:2px solid #fff;z-index:1}
-.price-tab:hover:not(.active){background:#eee}
-.price-panel{display:none;border:1px solid #ddd;border-top:none;border-radius:0 0 12px 12px;overflow:hidden}
-.price-panel.active{display:block}
-.ptbl{width:100%;border-collapse:collapse}
-.ptbl th{background:#1a1a1a;color:#C5A55A;padding:12px 14px;font-size:14px;font-weight:600;text-align:center;border-bottom:1px solid #333}
-.ptbl td{padding:14px;text-align:center;border-bottom:1px solid #eee;font-size:15px;color:#333}
-.ptbl tr:hover{background:#fafafa}
-.ptbl td:first-child{font-weight:600;color:#222}
-.ptbl .sale{color:#C5A55A;font-weight:700;font-size:13px}
-.ptbl .price-main{font-size:17px;font-weight:700;color:#222}
-.ptbl .per-tooth{font-size:13px;color:#888}
-@media(max-width:768px){.price-tab{padding:10px 14px;font-size:13px}}
+.price-header{display:flex;align-items:baseline;gap:12px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid #222}
+.price-header h3{font-size:22px;font-weight:700;color:#222;margin:0}
+.price-header span{font-size:15px;color:#888}
+.price-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ptbl{width:100%;border-collapse:collapse;min-width:900px}
+.ptbl thead th{padding:10px 8px;font-size:12px;font-weight:600;text-align:center;border-bottom:2px solid #222;color:#555;vertical-align:bottom;background:#fff}
+.ptbl thead th.col-teika{background:#f7f7f5}
+.ptbl thead th.col-set{background:#f0f7f0}
+.ptbl thead th.col-nose{background:#fdf6e3}
+.ptbl thead th.col-face{background:#fef0e8}
+.ptbl thead th.group-head{font-size:14px;font-weight:700;color:#222;border-bottom:1px solid #ccc;padding-bottom:4px}
+.ptbl thead th .sub{display:block;font-size:10px;color:#999;font-weight:400;margin-top:2px}
+.ptbl tbody td{padding:12px 8px;text-align:center;border-bottom:1px solid #eee;font-size:13px;color:#444;vertical-align:top;line-height:1.6}
+.ptbl tbody tr:hover{background:#fafaf8}
+.ptbl .num-cell{text-align:center;padding:14px 8px;vertical-align:middle}
+.ptbl .num-cell .big{font-size:28px;font-weight:800;color:#222;display:block;line-height:1}
+.ptbl .num-cell .unit{font-size:13px;color:#888}
+.ptbl .teika-cell{background:#f7f7f5;text-align:left;padding-left:12px}
+.ptbl .teika-cell .main{font-size:16px;font-weight:700;color:#222}
+.ptbl .teika-cell .tax{font-size:11px;color:#999}
+.ptbl .teika-cell .per{font-size:11px;color:#999;margin-top:2px}
+.ptbl .set-cell{background:#f0f7f0}
+.ptbl .nose-cell{background:#fdf6e3}
+.ptbl .face-cell{background:#fef0e8}
+.ptbl .disc{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:3px;margin-bottom:4px}
+.ptbl .disc-set{background:#c8e6c9;color:#2e7d32}
+.ptbl .disc-nose{background:#fff3cd;color:#856404}
+.ptbl .disc-face{background:#ffccbc;color:#bf360c}
+.ptbl .cell-price{font-size:14px;font-weight:700;color:#222}
+.ptbl .cell-tax{font-size:11px;color:#999}
+.ptbl .cell-per{font-size:11px;color:#999;margin-top:2px}
+.ptbl .定価{font-size:12px;color:#888}
+@media(max-width:768px){.ptbl{min-width:750px}}
 .warranty-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:30px}
 @media(max-width:768px){.warranty-grid{grid-template-columns:1fr}}
 .warranty-card{border:1px solid #333;border-radius:12px;padding:25px}
@@ -571,118 +583,169 @@ table.compare tr:hover{background:#222}
 
 <!-- La Briller -->
 <div class="price-block">
-<h3 style="color:#C5A55A">La Briller ラブリエ</h3>
-<div class="price-hero">
-<div class="label">定価</div>
-<div class="amount">¥132,000<small>税込 / 1本</small></div>
+<div class="price-header">
+<h3>LA BRILLER 料金表</h3>
+<span>― 通常価格（税込）</span>
 </div>
-
-<div class="price-tabs">
-<div class="price-tab active" onclick="showPriceTab(this,'lov-set')">本数セット</div>
-<div class="price-tab" onclick="showPriceTab(this,'lov-nose')">鼻下モニター</div>
-<div class="price-tab" onclick="showPriceTab(this,'lov-face')">顔モニター</div>
-</div>
-
-<div class="price-panel active" id="lov-set">
+<div class="price-wrap">
 <table class="ptbl">
-<tr><th>本数</th><th>1本単価</th><th></th><th>セット価格（税込）</th></tr>
-<tr><td>20本</td><td class="price-main">¥108,900</td><td class="sale">17%OFF</td><td class="price-main">¥2,178,000</td></tr>
-<tr><td>16本</td><td class="price-main">¥108,900</td><td class="sale">17%OFF</td><td class="price-main">¥1,742,400</td></tr>
-<tr><td>14本</td><td class="price-main">¥115,500</td><td class="sale">12%OFF</td><td class="price-main">¥1,617,000</td></tr>
-<tr><td>10本</td><td class="price-main">¥115,500</td><td class="sale">12%OFF</td><td class="price-main">¥1,155,000</td></tr>
-<tr><td>8本</td><td class="price-main">¥126,500</td><td class="sale">4%OFF</td><td class="price-main">¥1,012,000</td></tr>
-<tr><td>6本</td><td class="price-main">¥126,500</td><td class="sale">4%OFF</td><td class="price-main">¥759,000</td></tr>
-<tr><td>2本</td><td class="price-main">¥132,000</td><td></td><td class="price-main">¥264,000</td></tr>
+<thead>
+<tr>
+<th rowspan="2" style="width:60px">本数</th>
+<th rowspan="2" class="col-teika" style="min-width:130px">定価<span class="sub">合計 / 1本単価</span></th>
+<th class="col-set group-head">本数セット価格<span class="sub">割引 / 合計 / 1本</span></th>
+<th class="col-nose group-head">鼻下モニター価格<span class="sub">割引 / 合計 / 1本</span></th>
+<th class="col-face group-head">顔全体モニター価格<span class="sub">割引 / 合計 / 1本</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="num-cell"><span class="big">20</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥2,640,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-17%</span><br><span class="cell-price">¥2,178,000</span><br><span class="cell-per">¥108,900 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-25%</span><br><span class="cell-price">¥1,980,000</span><br><span class="cell-per">¥99,000 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-33%</span><br><span class="cell-price">¥1,760,000</span><br><span class="cell-per">¥88,000 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">16</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥2,112,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-17%</span><br><span class="cell-price">¥1,742,400</span><br><span class="cell-per">¥108,900 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-25%</span><br><span class="cell-price">¥1,584,000</span><br><span class="cell-per">¥99,000 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-33%</span><br><span class="cell-price">¥1,408,000</span><br><span class="cell-per">¥88,000 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">14</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,848,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥1,617,000</span><br><span class="cell-per">¥115,500 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥1,478,400</span><br><span class="cell-per">¥105,600 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-29%</span><br><span class="cell-price">¥1,309,000</span><br><span class="cell-per">¥93,500 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">10</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,320,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥1,155,000</span><br><span class="cell-per">¥115,500 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥1,056,000</span><br><span class="cell-per">¥105,600 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-29%</span><br><span class="cell-price">¥935,000</span><br><span class="cell-per">¥93,500 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">8</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,056,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥1,012,000</span><br><span class="cell-per">¥126,500 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥924,000</span><br><span class="cell-per">¥115,500 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-22%</span><br><span class="cell-price">¥818,400</span><br><span class="cell-per">¥102,300 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">6</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥792,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥759,000</span><br><span class="cell-per">¥126,500 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥693,000</span><br><span class="cell-per">¥115,500 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-22%</span><br><span class="cell-price">¥613,800</span><br><span class="cell-per">¥102,300 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">2</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥264,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="定価">定価</span><br><span class="cell-price">¥264,000</span><br><span class="cell-per">¥132,000 / 本</span></td>
+<td class="nose-cell"><span class="定価">定価</span><br><span class="cell-price">¥264,000</span><br><span class="cell-per">¥132,000 / 本</span></td>
+<td class="face-cell"><span class="定価">定価</span><br><span class="cell-price">¥264,000</span><br><span class="cell-per">¥132,000 / 本</span></td>
+</tr>
+</tbody>
 </table>
 </div>
-
-<div class="price-panel" id="lov-nose">
-<table class="ptbl">
-<tr><th>本数</th><th>1本単価</th><th></th><th>モニター価格（税込）</th></tr>
-<tr><td>20本</td><td class="price-main">¥99,000</td><td class="sale">25%OFF</td><td class="price-main">¥1,980,000</td></tr>
-<tr><td>16本</td><td class="price-main">¥99,000</td><td class="sale">25%OFF</td><td class="price-main">¥1,584,000</td></tr>
-<tr><td>14本</td><td class="price-main">¥105,600</td><td class="sale">20%OFF</td><td class="price-main">¥1,478,400</td></tr>
-<tr><td>10本</td><td class="price-main">¥105,600</td><td class="sale">20%OFF</td><td class="price-main">¥1,056,000</td></tr>
-<tr><td>8本</td><td class="price-main">¥115,500</td><td class="sale">12%OFF</td><td class="price-main">¥924,000</td></tr>
-<tr><td>6本</td><td class="price-main">¥115,500</td><td class="sale">12%OFF</td><td class="price-main">¥693,000</td></tr>
-</table>
-</div>
-
-<div class="price-panel" id="lov-face">
-<table class="ptbl">
-<tr><th>本数</th><th>1本単価</th><th></th><th>モニター価格（税込）</th></tr>
-<tr><td>20本</td><td class="price-main">¥88,000</td><td class="sale">33%OFF</td><td class="price-main">¥1,760,000</td></tr>
-<tr><td>16本</td><td class="price-main">¥88,000</td><td class="sale">33%OFF</td><td class="price-main">¥1,408,000</td></tr>
-<tr><td>14本</td><td class="price-main">¥93,500</td><td class="sale">29%OFF</td><td class="price-main">¥1,309,000</td></tr>
-<tr><td>10本</td><td class="price-main">¥93,500</td><td class="sale">29%OFF</td><td class="price-main">¥935,000</td></tr>
-<tr><td>8本</td><td class="price-main">¥102,300</td><td class="sale">22%OFF</td><td class="price-main">¥818,400</td></tr>
-<tr><td>6本</td><td class="price-main">¥102,300</td><td class="sale">22%OFF</td><td class="price-main">¥613,800</td></tr>
-</table>
-</div>
-
-<p style="text-align:center;color:#888;font-size:13px;margin-top:12px">※ガミースマイルOPE: ¥150,000（税抜）/ Zrクラウン: 1本¥86,000（税抜）</p>
+<p style="text-align:center;color:#888;font-size:12px;margin-top:10px">※ガミースマイルOPE: ¥150,000（税抜）/ Zrクラウン: 1本¥86,000（税抜）</p>
 </div>
 
 <!-- Blackfilm -->
 <div class="price-block">
-<h3 style="color:#C5A55A">Blackfilm ブラックフィルム</h3>
-<div class="price-hero">
-<div class="label">定価</div>
-<div class="amount">¥250,000<small>税抜 / 1本</small></div>
-<div class="tax">税込 ¥275,000</div>
+<div class="price-header">
+<h3>BLACKFILM 料金表</h3>
+<span>― 通常価格</span>
 </div>
-
-<div class="price-tabs">
-<div class="price-tab active" onclick="showPriceTab(this,'bf-set')">本数セット</div>
-<div class="price-tab" onclick="showPriceTab(this,'bf-nose')">鼻下モニター</div>
-<div class="price-tab" onclick="showPriceTab(this,'bf-face')">顔モニター</div>
-</div>
-
-<div class="price-panel active" id="bf-set">
+<div class="price-wrap">
 <table class="ptbl">
-<tr><th>本数</th><th>1本単価（税抜）</th><th></th><th>セット価格（税抜）</th></tr>
-<tr><td>20本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥4,000,000</td></tr>
-<tr><td>18本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥3,600,000</td></tr>
-<tr><td>16本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥3,200,000</td></tr>
-<tr><td>14本</td><td class="price-main">¥220,000</td><td class="sale">12%OFF</td><td class="price-main">¥3,080,000</td></tr>
-<tr><td>12本</td><td class="price-main">¥220,000</td><td class="sale">12%OFF</td><td class="price-main">¥2,640,000</td></tr>
-<tr><td>10本</td><td class="price-main">¥230,000</td><td class="sale">8%OFF</td><td class="price-main">¥2,300,000</td></tr>
-<tr><td>8本</td><td class="price-main">¥230,000</td><td class="sale">8%OFF</td><td class="price-main">¥1,840,000</td></tr>
-<tr><td>6本</td><td class="price-main">¥240,000</td><td class="sale">4%OFF</td><td class="price-main">¥1,440,000</td></tr>
-<tr><td>4本</td><td class="price-main">¥250,000</td><td></td><td class="price-main">¥1,000,000</td></tr>
-<tr><td>2本</td><td class="price-main">¥250,000</td><td></td><td class="price-main">¥500,000</td></tr>
+<thead>
+<tr>
+<th rowspan="2" style="width:60px">本数</th>
+<th rowspan="2" class="col-teika" style="min-width:150px">定価<span class="sub">合計 / 1本単価</span></th>
+<th class="col-set group-head">本数セット価格<span class="sub">割引 / 合計 / 1本</span></th>
+<th class="col-nose group-head">鼻下モニター価格<span class="sub">割引 / 合計 / 1本</span></th>
+<th class="col-face group-head">顔全体モニター価格<span class="sub">割引 / 合計 / 1本</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="num-cell"><span class="big">20</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥5,000,000</div><div class="tax">（税込 ¥5,500,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥4,400,000</span><br><span class="cell-tax">（税込 ¥4,840,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥4,000,000</span><br><span class="cell-tax">（税込 ¥4,400,000）</span><br><span class="cell-per">¥200,000 / 本（税込 ¥220,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-34%</span><br><span class="cell-price">¥3,300,000</span><br><span class="cell-tax">（税込 ¥3,630,000）</span><br><span class="cell-per">¥165,000 / 本（税込 ¥181,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">18</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥4,500,000</div><div class="tax">（税込 ¥4,950,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥3,960,000</span><br><span class="cell-tax">（税込 ¥4,356,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥3,600,000</span><br><span class="cell-tax">（税込 ¥3,960,000）</span><br><span class="cell-per">¥200,000 / 本（税込 ¥220,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-34%</span><br><span class="cell-price">¥2,970,000</span><br><span class="cell-tax">（税込 ¥3,267,000）</span><br><span class="cell-per">¥165,000 / 本（税込 ¥181,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">16</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥4,000,000</div><div class="tax">（税込 ¥4,400,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥3,520,000</span><br><span class="cell-tax">（税込 ¥3,872,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥3,200,000</span><br><span class="cell-tax">（税込 ¥3,520,000）</span><br><span class="cell-per">¥200,000 / 本（税込 ¥220,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-34%</span><br><span class="cell-price">¥2,640,000</span><br><span class="cell-tax">（税込 ¥2,904,000）</span><br><span class="cell-per">¥165,000 / 本（税込 ¥181,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">14</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥3,500,000</div><div class="tax">（税込 ¥3,850,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-8%</span><br><span class="cell-price">¥3,220,000</span><br><span class="cell-tax">（税込 ¥3,542,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥3,080,000</span><br><span class="cell-tax">（税込 ¥3,388,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-30%</span><br><span class="cell-price">¥2,450,000</span><br><span class="cell-tax">（税込 ¥2,695,000）</span><br><span class="cell-per">¥175,000 / 本（税込 ¥192,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">12</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥3,000,000</div><div class="tax">（税込 ¥3,300,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-8%</span><br><span class="cell-price">¥2,760,000</span><br><span class="cell-tax">（税込 ¥3,036,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥2,640,000</span><br><span class="cell-tax">（税込 ¥2,904,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-30%</span><br><span class="cell-price">¥2,100,000</span><br><span class="cell-tax">（税込 ¥2,310,000）</span><br><span class="cell-per">¥175,000 / 本（税込 ¥192,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">10</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥2,500,000</div><div class="tax">（税込 ¥2,750,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-8%</span><br><span class="cell-price">¥2,300,000</span><br><span class="cell-tax">（税込 ¥2,530,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥2,200,000</span><br><span class="cell-tax">（税込 ¥2,420,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-27%</span><br><span class="cell-price">¥1,750,000</span><br><span class="cell-tax">（税込 ¥1,925,000）</span><br><span class="cell-per">¥175,000 / 本（税込 ¥192,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">8</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥2,000,000</div><div class="tax">（税込 ¥2,200,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥1,920,000</span><br><span class="cell-tax">（税込 ¥2,112,000）</span><br><span class="cell-per">¥240,000 / 本（税込 ¥264,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-8%</span><br><span class="cell-price">¥1,840,000</span><br><span class="cell-tax">（税込 ¥2,024,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-27%</span><br><span class="cell-price">¥1,460,000</span><br><span class="cell-tax">（税込 ¥1,606,000）</span><br><span class="cell-per">¥182,500 / 本（税込 ¥200,750）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">6</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,500,000</div><div class="tax">（税込 ¥1,650,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥1,440,000</span><br><span class="cell-tax">（税込 ¥1,584,000）</span><br><span class="cell-per">¥240,000 / 本（税込 ¥264,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-8%</span><br><span class="cell-price">¥1,380,000</span><br><span class="cell-tax">（税込 ¥1,518,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-27%</span><br><span class="cell-price">¥1,095,000</span><br><span class="cell-tax">（税込 ¥1,204,500）</span><br><span class="cell-per">¥182,500 / 本（税込 ¥200,750）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">4</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,000,000</div><div class="tax">（税込 ¥1,100,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥960,000</span><br><span class="cell-tax">（税込 ¥1,056,000）</span><br><span class="cell-per">¥240,000 / 本（税込 ¥264,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-8%</span><br><span class="cell-price">¥920,000</span><br><span class="cell-tax">（税込 ¥1,012,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-27%</span><br><span class="cell-price">¥730,000</span><br><span class="cell-tax">（税込 ¥803,000）</span><br><span class="cell-per">¥182,500 / 本（税込 ¥200,750）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">2</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥500,000</div><div class="tax">（税込 ¥550,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="定価">定価</span><br><span class="cell-price">¥500,000</span><br><span class="cell-tax">（税込 ¥550,000）</span><br><span class="cell-per">¥250,000 / 本（税込 ¥275,000）</span></td>
+<td class="nose-cell"><span class="定価">定価</span><br><span class="cell-price">¥500,000</span><br><span class="cell-tax">（税込 ¥550,000）</span><br><span class="cell-per">¥250,000 / 本（税込 ¥275,000）</span></td>
+<td class="face-cell"><span class="定価">定価</span><br><span class="cell-price">¥500,000</span><br><span class="cell-tax">（税込 ¥550,000）</span><br><span class="cell-per">¥250,000 / 本（税込 ¥275,000）</span></td>
+</tr>
+</tbody>
 </table>
 </div>
-
-<div class="price-panel" id="bf-nose">
-<table class="ptbl">
-<tr><th>本数</th><th>1本単価（税抜）</th><th></th><th>モニター価格（税抜）</th></tr>
-<tr><td>20本</td><td class="price-main">¥170,000</td><td class="sale">32%OFF</td><td class="price-main">¥3,400,000</td></tr>
-<tr><td>18本</td><td class="price-main">¥170,000</td><td class="sale">32%OFF</td><td class="price-main">¥3,060,000</td></tr>
-<tr><td>16本</td><td class="price-main">¥175,000</td><td class="sale">30%OFF</td><td class="price-main">¥2,800,000</td></tr>
-<tr><td>14本</td><td class="price-main">¥185,000</td><td class="sale">26%OFF</td><td class="price-main">¥2,590,000</td></tr>
-<tr><td>12本</td><td class="price-main">¥190,000</td><td class="sale">24%OFF</td><td class="price-main">¥2,280,000</td></tr>
-<tr><td>10本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥2,000,000</td></tr>
-<tr><td>8本</td><td class="price-main">¥200,000</td><td class="sale">20%OFF</td><td class="price-main">¥1,600,000</td></tr>
-<tr><td>6本</td><td class="price-main">¥210,000</td><td class="sale">16%OFF</td><td class="price-main">¥1,260,000</td></tr>
-</table>
-</div>
-
-<div class="price-panel" id="bf-face">
-<table class="ptbl">
-<tr><th>本数</th><th>1本単価（税抜）</th><th></th><th>モニター価格（税抜）</th></tr>
-<tr><td>20本</td><td class="price-main">¥150,000</td><td class="sale">40%OFF</td><td class="price-main">¥3,000,000</td></tr>
-<tr><td>18本</td><td class="price-main">¥150,000</td><td class="sale">40%OFF</td><td class="price-main">¥2,700,000</td></tr>
-<tr><td>16本</td><td class="price-main">¥155,000</td><td class="sale">38%OFF</td><td class="price-main">¥2,480,000</td></tr>
-<tr><td>14本</td><td class="price-main">¥165,000</td><td class="sale">34%OFF</td><td class="price-main">¥2,310,000</td></tr>
-<tr><td>12本</td><td class="price-main">¥170,000</td><td class="sale">32%OFF</td><td class="price-main">¥2,040,000</td></tr>
-<tr><td>10本</td><td class="price-main">¥180,000</td><td class="sale">28%OFF</td><td class="price-main">¥1,800,000</td></tr>
-<tr><td>8本</td><td class="price-main">¥185,000</td><td class="sale">26%OFF</td><td class="price-main">¥1,480,000</td></tr>
-<tr><td>6本</td><td class="price-main">¥195,000</td><td class="sale">22%OFF</td><td class="price-main">¥1,170,000</td></tr>
-</table>
-</div>
-
-<p style="text-align:center;color:#888;font-size:13px;margin-top:12px">※モニター価格の詳細はカウンセリング時にご案内いたします。</p>
+<p style="text-align:center;color:#888;font-size:12px;margin-top:10px">※モニター価格の詳細はカウンセリング時にご案内いたします。</p>
 </div>
 
 </section>
@@ -809,13 +872,6 @@ var bfCases=[
 var uploadedCases=[];
 var ssCases,ssIdx,ssImgIdx;
 
-function showPriceTab(el,panelId){
-var parent=el.parentElement.parentElement;
-parent.querySelectorAll('.price-tab').forEach(function(t){t.classList.remove('active')});
-parent.querySelectorAll('.price-panel').forEach(function(p){p.classList.remove('active')});
-el.classList.add('active');
-document.getElementById(panelId).classList.add('active');
-}
 function showCases(type){
 document.getElementById('cases-lovelier').style.display=type==='lovelier'?'block':'none';
 document.getElementById('cases-blackfilm').style.display=type==='blackfilm'?'block':'none';
