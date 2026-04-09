@@ -514,11 +514,12 @@ function cellClick(dateStr,docId){
 }
 
 function setPaint(cid){
-  paintClinic=cid;
+  paintClinic=cid;sideMonth=0;
   if(!cid)document.getElementById('paintBar').style.display='none';
   renderPaintBar();renderShifts();renderClinicSide();
 }
 
+var sideMonth=0; /* 0=当月, -1=前月, 1=翌月 */
 function renderClinicSide(){
   var panel=document.getElementById('clinicSidePanel');
   if(!paintClinic||paintClinic==='__del__'||paintClinic==='__kibokyu__'){
@@ -529,11 +530,18 @@ function renderClinicSide(){
   if(restIds4.indexOf(cid)>=0){panel.style.display='none';return;}
   panel.style.display='block';
   var col=getCC(cid);
-  var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'];
-  var h='<div style="font-size:14px;font-weight:800;color:'+col.c+';margin-bottom:6px;text-align:center;">'+cname(cid)+'</div>';
+  var sY=curY,sM=curM+sideMonth;
+  if(sM>11){sM=0;sY++;}if(sM<0){sM=11;sY--;}
+  var days=dim(sY,sM),DOW=['日','月','火','水','木','金','土'];
+  var monthLbl=sY+'年'+(sM+1)+'月';
+  var h='<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:4px;">';
+  h+='<button onclick="sideMonth--;renderClinicSide();" style="border:none;background:#eee;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">‹</button>';
+  h+='<span style="font-size:13px;font-weight:800;color:'+col.c+';">'+cname(cid)+' '+monthLbl+'</span>';
+  h+='<button onclick="sideMonth++;renderClinicSide();" style="border:none;background:#eee;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">›</button>';
+  h+='</div>';
   for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    var w=new Date(curY,curM,d).getDay();
+    var dateStr=ds(sY,sM,d);
+    var w=new Date(sY,sM,d).getDay();
     var isH=HOL.has(dateStr);
     var closed=isClosed(dateStr,cid);
     var assigned=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cid;});
