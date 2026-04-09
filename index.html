@@ -794,9 +794,6 @@ function loadDB(){
         if(idx>=0)shifts[row.date_str][idx]=e;else shifts[row.date_str].push(e);
       });
       showSb(rows.length+'件読込','ok');
-    }
-    /* localStorageを最後に上書き（最新の編集が最優先） */
-    loadShiftsLocal();
     } else {
       showSb('');
     }
