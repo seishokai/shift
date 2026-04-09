@@ -825,7 +825,7 @@ function loadShiftsLocal(){
 var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
-  saveShiftsLocal();
+  saveShiftsLocalNow();
   var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
   /* まずINSERT。409ならPATCH(更新) */
   return fetch(SB_URL+'/rest/v1/shifts',{
@@ -1608,16 +1608,16 @@ function renderP(){
   document.getElementById('vB-view').style.display='none';
   /* ドクター選択バー（ボタン形式） */
   document.getElementById('docSelBar').innerHTML=(function(){
+    if(selDocId){
+      /* ドクター選択済み → 一覧非表示、選択中のみ表示 */
+      var sd=doctors.find(function(dd){return dd.id===selDocId;});
+      return '<div style="padding:8px 12px;background:#1a1a18;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:space-between;">'+( sd?sd.n:'')+' <button onclick="selDocId=null;renderP();" style="border:none;background:rgba(255,255,255,.25);color:#fff;padding:4px 12px;border-radius:8px;font-size:11px;cursor:pointer;">← 一覧</button></div>';
+    }
     var h='<div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px;">';
     doctors.forEach(function(d){
-      var on=selDocId===d.id;
-      h+='<button class="doc-sel-chip" data-did="'+d.id+'" style="padding:6px 12px;border-radius:16px;border:'+(on?'2px solid #1a1a18':'1.5px solid var(--border)')+';background:'+(on?'#1a1a18':'var(--card)')+';color:'+(on?'#fff':'var(--ink)')+';font-family:inherit;font-size:11px;font-weight:'+(on?'700':'500')+';cursor:pointer;white-space:nowrap;">'+d.n+'</button>';
+      h+='<button class="doc-sel-chip" data-did="'+d.id+'" style="padding:6px 12px;border-radius:16px;border:1.5px solid var(--border);background:var(--card);color:var(--ink);font-family:inherit;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;">'+d.n+'</button>';
     });
     h+='</div>';
-    if(selDocId){
-      var sd=doctors.find(function(dd){return dd.id===selDocId;});
-      h+='<div style="padding:6px 12px;background:#1a1a18;color:#fff;font-size:13px;font-weight:700;">'+( sd?sd.n:'')+' <button onclick="selDocId=null;renderP();" style="border:none;background:rgba(255,255,255,.2);color:#fff;padding:2px 8px;border-radius:8px;font-size:10px;cursor:pointer;margin-left:8px;">解除</button></div>';
-    }
     return h;
   })();
   renderClinicPickBar();
