@@ -1092,6 +1092,19 @@ function loadClosedDates(){
 
 /* シフトペイントモード */
 window._shiftPaintClinic=null;
+/* スクロール位置を保持して再描画 */
+function refreshViews(tid){
+  var wrap=document.getElementById(tid||'allViewWrap');
+  var scrollEl=wrap?wrap.querySelector('div[style*="overflow"]'):null;
+  var sx=scrollEl?scrollEl.scrollLeft:0,sy=scrollEl?scrollEl.scrollTop:0;
+  renderAllView(tid||'allViewWrap');renderA();renderC();
+  setTimeout(function(){
+    var wrap2=document.getElementById(tid||'allViewWrap');
+    var se2=wrap2?wrap2.querySelector('div[style*="overflow"]'):null;
+    if(se2){se2.scrollLeft=sx;se2.scrollTop=sy;}
+  },0);
+}
+
 function shiftPaint(cid){
   window._shiftPaintClinic=cid;
   closeInlineEdit();
@@ -1357,7 +1370,7 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
       } else if(balSelDocId){
         /* 医院選択モード（balSelDocIdが医院IDとして使っている場合） */
       } else return;
-      renderAllView(targetId);renderA();renderC();
+      refreshViews(targetId);
     }
 
     tableEl.addEventListener('mousedown',function(ev){
@@ -1375,7 +1388,7 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
           shifts[dateStr].splice(idx3,1);if(!shifts[dateStr].length)delete shifts[dateStr];
           dbDel(dateStr,docId);
         }
-        renderAllView(targetId);renderA();renderC();
+        refreshViews(targetId);
         ev.preventDefault();return;
       }
       /* 通常クリック：ペイントモードまたはインライン編集 */
@@ -1391,7 +1404,7 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
               shifts[dateStr2]=shifts[dateStr2].filter(function(s){return s.docId!==docId2;});
               if(!shifts[dateStr2].length)delete shifts[dateStr2];
               dbDel(dateStr2,docId2);
-              renderAllView(targetId);renderA();renderC();
+              refreshViews(targetId);
             }
           }
         } else {
@@ -1408,7 +1421,7 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
             if(idx4>=0)shifts[dateStr2][idx4]=entry4;else shifts[dateStr2].push(entry4);
             dbSave(dateStr2,docId2,window._shiftPaintClinic,'');
           }
-          renderAllView(targetId);renderA();renderC();
+          refreshViews(targetId);
         }
         return;
       }
@@ -1430,14 +1443,14 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
         var e5={docId:docId,clinicId:window._shiftPaintClinic,memo:''};
         if(idx5>=0)shifts[dateStr][idx5]=e5;else shifts[dateStr].push(e5);
         dbSave(dateStr,docId,window._shiftPaintClinic,'');
-        renderAllView(targetId);renderA();renderC();
+        refreshViews(targetId);
       } else {
         var hasSh2=shifts[dateStr]&&shifts[dateStr].find(function(s){return s.docId===docId;});
         if(hasSh2){
           shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
           if(!shifts[dateStr].length)delete shifts[dateStr];
           dbDel(dateStr,docId);
-          renderAllView(targetId);renderA();renderC();
+          refreshViews(targetId);
         }
       }
     });
@@ -1469,7 +1482,7 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
         shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
         if(!shifts[dateStr].length)delete shifts[dateStr];
         dbDel(dateStr,docId);
-        renderAllView(targetId);renderA();renderC();
+        refreshViews(targetId);
       }
     },{passive:true});
     tableEl.addEventListener('touchend',function(){
@@ -1485,7 +1498,7 @@ function balDeleteCell(docId,dateStr){
     if(!shifts[dateStr].length)delete shifts[dateStr];
   }
   dbDel(dateStr,docId);
-  renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+  refreshViews('allViewWrap');renderAllView('allViewWrapView');
 }
 
 
@@ -1944,7 +1957,7 @@ function inlineSave(cid){
   if(idx>=0)shifts[ieDateStr][idx]=e;else shifts[ieDateStr].push(e);
   dbSave(ieDateStr,ieDocId,cid,'');
   closeInlineEdit();
-  renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+  refreshViews('allViewWrap');renderAllView('allViewWrapView');
 }
 function inlineDelete(){
   if(!ieDocId||!ieDateStr)return;
@@ -1955,7 +1968,7 @@ function inlineDelete(){
   }
   dbDel(ieDateStr,ieDocId);
   closeInlineEdit();
-  renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+  refreshViews('allViewWrap');renderAllView('allViewWrapView');
   showSb('削除','ok');
 }
 function quickSave(dateStrArg, docIdArg, cid){
@@ -4017,7 +4030,7 @@ document.addEventListener('DOMContentLoaded',function(){
       shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});
       if(!shifts[eDt].length)delete shifts[eDt];
       dbDel(eDt,eDoc);
-      renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+      refreshViews('allViewWrap');renderAllView('allViewWrapView');
     }
   });
   document.addEventListener('mouseup',function(){
@@ -4040,7 +4053,7 @@ document.addEventListener('DOMContentLoaded',function(){
       shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});
       if(!shifts[eDt].length)delete shifts[eDt];
       dbDel(eDt,eDoc);
-      renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+      refreshViews('allViewWrap');renderAllView('allViewWrapView');
     }
   },{passive:true});
   document.addEventListener('touchend',function(){bDone.clear();},{passive:true});
@@ -4179,7 +4192,7 @@ document.addEventListener('DOMContentLoaded',function(){
         /* Ctrl+クリック → 即削除 */
         if(shifts[eDt]){shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});if(!shifts[eDt].length)delete shifts[eDt];}
         dbDel(eDt,eDoc);
-        renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+        refreshViews('allViewWrap');renderAllView('allViewWrapView');
         return;
       } else {
         var hasSh=shifts[eDt]&&shifts[eDt].find(function(s){return s.docId===eDoc;});
@@ -4188,7 +4201,7 @@ document.addEventListener('DOMContentLoaded',function(){
           shifts[eDt]=shifts[eDt].filter(function(s){return s.docId!==eDoc;});
           if(!shifts[eDt].length)delete shifts[eDt];
           dbDel(eDt,eDoc);
-          renderAllView('allViewWrap');renderAllView('allViewWrapView');renderA();renderC();
+          refreshViews('allViewWrap');renderAllView('allViewWrapView');
         } else {
           /* なければ qpop で追加 */
           selDocId=eDoc;
