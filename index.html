@@ -1358,8 +1358,8 @@ h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;
   var paintBar='';
   if(isAdmin){
     var pc=window._shiftPaintClinic;
-    var pcName=pc==='__del__'?'削除モード':pc?cname(pc)+'を塗る':'セルクリックで編集';
-    var pcColor=pc==='__del__'?'#b83030':pc?getCC(pc).c:'#999';
+    var pcName=pc==='__del__'?'削除モード':pc==='__kibokyu__'?'希望休を塗る':pc?cname(pc)+'を塗る':'セルクリックで編集';
+    var pcColor=pc==='__del__'?'#b83030':pc==='__kibokyu__'?'#7b2d8b':pc?getCC(pc).c:'#999';
     paintBar='<div style="padding:4px 8px;background:#e8f4fd;border-bottom:1px solid #b0cfe8;position:sticky;top:0;z-index:25;">';
     /* 選択中の表示 */
     paintBar+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">';
@@ -1383,9 +1383,10 @@ h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;
       var cc=getCC(s.id);var on=pc===s.id;
       paintBar+='<button onclick="shiftPaint(\''+s.id+'\')" style="padding:2px 6px;border-radius:8px;border:1.5px solid '+(on?cc.c:'#ddd')+';background:'+(on?cc.c:'var(--bg)')+';color:'+(on?'#fff':cc.c)+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">'+s.n+'</button>';
     });
+    var kiboOn=pc==='__kibokyu__';
+    paintBar+='<button onclick="shiftPaint(\'__kibokyu__\')" style="padding:2px 6px;border-radius:8px;border:1.5px solid '+(kiboOn?'#7b2d8b':'#ddd')+';background:'+(kiboOn?'#7b2d8b':'var(--bg)')+';color:'+(kiboOn?'#fff':'#7b2d8b')+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">希望休</button>';
     paintBar+='</div>';
     paintBar+='</div>';
-  }
 el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?'155':'112')+'px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
 
   el.querySelectorAll('[data-open-doc]').forEach(function(th){
@@ -1492,14 +1493,17 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
           if(!shifts[dateStr2])shifts[dateStr2]=[];
           var idx4=shifts[dateStr2].findIndex(function(s){return s.docId===docId2;});
           /* 同じ医院が既にあれば削除（トグル） */
-          if(idx4>=0&&shifts[dateStr2][idx4].clinicId===window._shiftPaintClinic){
+          var paintCidChk=window._shiftPaintClinic==='__kibokyu__'?'yasumi':window._shiftPaintClinic;
+          if(idx4>=0&&shifts[dateStr2][idx4].clinicId===paintCidChk){
             shifts[dateStr2].splice(idx4,1);
             if(!shifts[dateStr2].length)delete shifts[dateStr2];
             dbDel(dateStr2,docId2);
           } else {
-            var entry4={docId:docId2,clinicId:window._shiftPaintClinic,memo:''};
+            var paintCid=window._shiftPaintClinic==='__kibokyu__'?'yasumi':window._shiftPaintClinic;
+            var paintMemo=window._shiftPaintClinic==='__kibokyu__'?'希望':'';
+            var entry4={docId:docId2,clinicId:paintCid,memo:paintMemo};
             if(idx4>=0)shifts[dateStr2][idx4]=entry4;else shifts[dateStr2].push(entry4);
-            dbSave(dateStr2,docId2,window._shiftPaintClinic,'');
+            dbSave(dateStr2,docId2,paintCid,paintMemo);
           }
           refreshViews(targetId);
         }
