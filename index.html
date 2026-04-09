@@ -31,10 +31,10 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 .fix-left{position:sticky;left:0;z-index:11;background:#edebe6;}
 .fix-left-body{position:sticky;left:0;z-index:5;background:#fff;}
 /* シフトセル */
-.shift-cell{width:56px;min-width:56px;height:28px;cursor:pointer;user-select:none;transition:opacity .1s;}
+.shift-cell{width:32px;min-width:32px;height:24px;cursor:pointer;user-select:none;transition:opacity .1s;}
 .shift-cell:hover{opacity:.8;}
 /* 日付ヘッダー */
-.date-hdr{writing-mode:horizontal-tb;min-width:56px;padding:3px 2px !important;}
+.date-hdr{writing-mode:horizontal-tb;min-width:32px;padding:2px 1px !important;font-size:9px;}
 .sun{color:#e05252;background:#fff5f5 !important;}.sat{color:#4a7fd4;background:#f0f5ff !important;}
 .hol-badge{background:#e05252;color:#fff;font-size:7px;border-radius:3px;padding:0 3px;margin-left:1px;}
 /* ペイントバー */
@@ -85,8 +85,8 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
   .undo-btn,.login-btn{padding:4px 8px;font-size:10px;}
   .save-btn{padding:4px 10px;font-size:10px;}
   .grid-wrap{height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;}
-  .shift-cell{width:44px;min-width:44px;font-size:9px!important;}
-  .date-hdr{min-width:44px!important;font-size:9px!important;}
+  .shift-cell{width:26px;min-width:26px;height:22px;font-size:7px!important;line-height:22px!important;}
+  .date-hdr{min-width:26px!important;font-size:8px!important;}
   #paintBar{flex-wrap:wrap;gap:4px;}
   #paintBar .paint-opt{padding:3px 7px;font-size:9px;margin:1px;}
   .pcal-cell{min-height:48px;font-size:9px;}
@@ -426,7 +426,7 @@ function renderShifts(){
         bg=rowBg;col='#ccc';txt='';
       }
       var click=isAdmin?'onclick="cellClick(\''+dateStr+'\',\''+doc.id+'\')"':'';
-      h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:10px;line-height:28px;" '+click+'>'+txt+'</td>';
+      h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;overflow:hidden;" '+click+'>'+txt+'</td>';
     }
     h+='</tr>';
   });
