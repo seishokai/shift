@@ -423,7 +423,10 @@ function renderShifts(){
       var bg='',txt='',col='';
       if(sh){
         var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
-        if(isKibo){bg='#f3e5f5';col='#7b2d8b';txt='希望休';}
+        var restCheck=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
+        var onClosedDay=restCheck.indexOf(sh.clinicId)<0&&isClosed(dateStr,sh.clinicId);
+        if(onClosedDay){bg='#ff0000';col='#fff';txt='⚠'+cname(sh.clinicId);}
+        else if(isKibo){bg='#f3e5f5';col='#7b2d8b';txt='希望休';}
         else if(sh.clinicId==='yasumi'){bg='#eceff1';col='#78909c';txt='休み';}
         else if(sh.clinicId==='yukyu'){bg='#eceff1';col='#e53935';txt='有給';}
         else if(sh.clinicId==='daikyu'){bg='#eceff1';col='#1a5276';txt='代休';}
@@ -553,6 +556,7 @@ function renderBulkPanel(){
     });
     h+='</div>';
     h+='<button onclick="doBulkClear()" style="padding:5px 14px;border:none;border-radius:10px;background:#b83030;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">この月クリア</button>';
+    h+=' <button onclick="fixClosedConflicts()" style="padding:5px 14px;border:none;border-radius:10px;background:#e65100;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">休診日エラー修正</button>';
   }
   el.innerHTML=h;
 }
@@ -597,6 +601,25 @@ function doBulkClear(){
   }
   saveShifts();renderShifts();
   showSb('月クリア完了','ok');
+}
+
+/* 休診日エラー一括修正 */
+function fixClosedConflicts(){
+  snapshot();
+  var days=dim(curY,curM),cnt=0;
+  var restIds3=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
+  for(var d=1;d<=days;d++){
+    var dateStr=ds(curY,curM,d);
+    if(!shifts[dateStr])continue;
+    shifts[dateStr]=shifts[dateStr].filter(function(s){
+      if(restIds3.indexOf(s.clinicId)>=0)return true;
+      if(isClosed(dateStr,s.clinicId)){cnt++;dbDel(dateStr,s.docId);return false;}
+      return true;
+    });
+    if(!shifts[dateStr].length)delete shifts[dateStr];
+  }
+  saveShifts();renderShifts();
+  showSb(cnt+'件の休診日エラーを修正','ok');
 }
 
 /* 訪問チーム日トグル */
