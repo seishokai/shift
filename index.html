@@ -218,6 +218,7 @@ var curY=2026,curM=5,curTab=0,isAdmin=false;
 var paintClinic=null;
 var undoStack=[],redoStack=[];
 var today=new Date();
+var HOUMON_DAYS={}; /* {'2026-06':['2026-06-01','2026-06-03',...]} */
 
 /* ======= ユーティリティ ======= */
 function cc(id){var el=document.createElement('div');el.className='cc-'+id;document.body.appendChild(el);var s=getComputedStyle(el);var c=s.getPropertyValue('--cc').trim()||'#999';var b=s.getPropertyValue('--cb').trim()||'#f0f0f0';document.body.removeChild(el);return{c:c,b:b};}
@@ -272,6 +273,7 @@ function saveShifts(){
 }
 function saveClosed(){
   try{var j=JSON.stringify(CLOSED_DATES);localStorage.setItem('seishokai_closed_v2',j);localStorage.setItem('seishokai_closed_v2_bak',j);}catch(e){}
+  try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){}
 }
 function loadData(){
   showSb('読み込み中...');
@@ -317,6 +319,7 @@ function loadClosed(){
     if(!s)s=localStorage.getItem('seishokai_closed_v2_bak');
     if(s){var d=JSON.parse(s);Object.keys(d).forEach(function(k){CLOSED_DATES[k]=d[k];});}
   }catch(e){}
+  try{var h=localStorage.getItem('seishokai_houmon_v2');if(h)HOUMON_DAYS=JSON.parse(h);}catch(e){}
 }
 
 /* Supabase保存（個別） */
@@ -407,6 +410,18 @@ function renderShifts(){
     h+='</th>';
   }
   h+='</tr></thead><tbody>';
+
+  /* 訪問チーム行 */
+  var ym=curY+'-'+String(curM+1).padStart(2,'0');
+  var hDays=HOUMON_DAYS[ym]||[];
+  h+='<tr style="background:#e6eef5;"><td class="fix-left-body" style="font-size:10px;font-weight:700;padding:2px 6px;white-space:nowrap;border-right:2px solid #bbb;background:#e6eef5;color:#2c6e8a;">訪問</td>';
+  for(var dd=1;dd<=days;dd++){
+    var dds=ds(curY,curM,dd);
+    var hOn=hDays.indexOf(dds)>=0;
+    var hClick=isAdmin?'onclick="toggleHoumon(\''+dds+'\')"':'';
+    h+='<td style="background:'+(hOn?'#2c6e8a':'transparent')+';color:'+(hOn?'#fff':'#ccc')+';font-size:8px;font-weight:700;cursor:'+(isAdmin?'pointer':'default')+';height:24px;" '+hClick+'>'+(hOn?'訪':'')+'</td>';
+  }
+  h+='</tr>';
 
   doctors.forEach(function(doc){
     var nameClick=isAdmin&&paintClinic?'bulkMenu(\''+doc.id+'\')':'goToPerson(\''+doc.id+'\')';
@@ -509,6 +524,16 @@ function renderPaintBar(){
   document.getElementById('paintOpts').innerHTML=opts;
 }
 function setPaintDel(){paintClinic='__del__';renderPaintBar();renderShifts();}
+
+/* 訪問チーム日トグル */
+function toggleHoumon(dateStr){
+  var ym=dateStr.slice(0,7);
+  if(!HOUMON_DAYS[ym])HOUMON_DAYS[ym]=[];
+  var idx=HOUMON_DAYS[ym].indexOf(dateStr);
+  if(idx>=0)HOUMON_DAYS[ym].splice(idx,1);
+  else HOUMON_DAYS[ym].push(dateStr);
+  saveClosed();renderShifts();
+}
 
 /* ======= Tab 1: 休診日 ======= */
 function renderClosed(){
