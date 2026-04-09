@@ -432,6 +432,7 @@ function renderShifts(){
     if(isH)h+='<span class="hol-badge">祝</span>';
     h+='</th>';
   }
+  h+='<th class="date-hdr" style="z-index:12;position:sticky;right:0;background:#edebe6;">名前</th>';
   h+='</tr></thead>';
 
   h+='<tbody>';
@@ -471,6 +472,7 @@ function renderShifts(){
       var click=isAdmin?'onclick="cellClick(\''+dateStr+'\',\''+doc.id+'\')"':'';
       h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;overflow:hidden;'+opacity+extraStyle+'" '+click+'>'+txt+'</td>';
     }
+    h+='<td style="position:sticky;right:0;z-index:5;background:#fff;font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;border-left:2px solid #bbb;color:#1a5276;cursor:pointer;" onclick="goToPerson(\''+doc.id+'\')">'+doc.n+'</td>';
     h+='</tr>';
   });
   h+='</tbody>';
@@ -487,6 +489,7 @@ function renderShifts(){
     if(isH2)h+='<span class="hol-badge">祝</span>';
     h+='</td>';
   }
+  h+='<td style="position:sticky;right:0;bottom:0;z-index:12;background:#ddd;font-size:9px;font-weight:700;padding:4px 2px;">名前</td>';
   h+='</tr></tfoot>';
   document.getElementById('shiftTable').innerHTML=h;
   renderPaintBar();
