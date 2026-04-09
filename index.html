@@ -339,7 +339,8 @@ function renderShifts(){
     var dateStr=ds(curY,curM,d);
     var w=new Date(curY,curM,d).getDay();
     var isH=HOL.has(dateStr);
-    var cls=w===0||isH?'sun':w===6?'sat':'';
+    var cls=w===0?'sun':w===6?'sat':'';
+    if(isH)cls='sun';
     h+='<th class="date-hdr '+cls+'">'+d+'<span style="font-size:8px;margin-left:1px;">'+DOW[w]+'</span>';
     if(isH)h+='<span class="hol-badge">祝</span>';
     h+='</th>';
@@ -513,7 +514,7 @@ function renderSummary(){
     var DOW=['日','月','火','水','木','金','土'];
     var isH=HOL.has(dateStr);
     var numCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'';
-    h+='<tr><td style="font-weight:700;color:'+numCol+';">'+d+'('+DOW[w]+')'+(isH?'祝':'')+'</td>';
+    h+='<tr><td style="font-weight:700;color:'+numCol+';">'+d+'('+DOW[w]+')'+(isH?' <span class="hol-badge">祝</span>':'')+'</td>';
     CLINICS.forEach(function(c){
       var cnt=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===c.id;}).length;
       var closed=isClosed(dateStr,c.id);
