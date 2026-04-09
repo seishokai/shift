@@ -811,6 +811,40 @@ function renderClinicView(){
 
 function goToPerson(docId){selPerson=docId;setTab(2);}
 
+/* 個人ビューからシフト編集 */
+var personEditDate=null;
+function personCellClick(dateStr){
+  if(!selPerson||!isAdmin)return;
+  var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===selPerson;});
+  if(existing){
+    /* 既存→削除 */
+    snapshot();
+    shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==selPerson;});
+    if(!shifts[dateStr].length)delete shifts[dateStr];
+    dbDel(dateStr,selPerson);saveShifts();
+    showSb('削除','ok');renderPersonView();
+    return;
+  }
+  /* 空→医院選択パネル表示 */
+  personEditDate=dateStr;
+  renderPersonView();
+}
+function personAssign(cid){
+  if(!personEditDate||!selPerson)return;
+  var restIds3=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
+  if(restIds3.indexOf(cid)<0&&isClosed(personEditDate,cid)){showSb(cname(cid)+'は休診日','e');return;}
+  snapshot();
+  if(!shifts[personEditDate])shifts[personEditDate]=[];
+  var idx=shifts[personEditDate].findIndex(function(s){return s.docId===selPerson;});
+  var memo=cid==='__kibokyu__'?'希望':'';
+  var realCid=cid==='__kibokyu__'?'yasumi':cid;
+  var entry={docId:selPerson,clinicId:realCid,memo:memo};
+  if(idx>=0)shifts[personEditDate][idx]=entry;else shifts[personEditDate].push(entry);
+  dbSave(personEditDate,selPerson,realCid,memo);saveShifts();
+  personEditDate=null;
+  showSb('✓','ok');renderPersonView();
+}
+
 /* ======= Tab 2: 個人ビュー ======= */
 var selPerson=null;
 function renderPersonView(){
@@ -841,7 +875,10 @@ function renderPersonView(){
     var isH=HOL.has(dateStr);
     var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===selPerson;});
     var cls=w===0||isH?'sun':w===6?'sat':'';
-    h+='<div class="pcal-cell '+cls+'">';
+    var isEditing=personEditDate===dateStr;
+    var pClick=isAdmin&&!isEditing?'onclick="personCellClick(\''+dateStr+'\')"':'';
+    var editBorder=isEditing?'border:2px solid #e65100;':'';
+    h+='<div class="pcal-cell '+cls+'" style="'+(isAdmin?'cursor:pointer;':'')+editBorder+'" '+pClick+'>';
     h+='<div style="font-weight:800;font-size:14px;color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">'+d+(isH?' <span class="hol-badge" style="font-size:8px;padding:1px 4px;">祝</span>':'')+'</div>';
     if(sh){
       var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
@@ -860,6 +897,15 @@ function renderPersonView(){
           h+='</div>';
         }
       }
+    }
+    if(isEditing){
+      h+='<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;">';
+      CLINICS.forEach(function(c){var cc=getCC(c.id);h+='<span onclick="event.stopPropagation();personAssign(\''+c.id+'\')" style="background:'+cc.c+';color:#fff;padding:1px 4px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;">'+c.n+'</span>';});
+      h+='<span onclick="event.stopPropagation();personAssign(\'yasumi\')" style="background:#999;color:#fff;padding:1px 4px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;">休</span>';
+      h+='<span onclick="event.stopPropagation();personAssign(\'yukyu\')" style="background:#e53935;color:#fff;padding:1px 4px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;">有給</span>';
+      h+='<span onclick="event.stopPropagation();personAssign(\'__kibokyu__\')" style="background:#7b2d8b;color:#fff;padding:1px 4px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;">希望休</span>';
+      h+='<span onclick="event.stopPropagation();personEditDate=null;renderPersonView();" style="background:#eee;color:#333;padding:1px 4px;border-radius:4px;font-size:8px;cursor:pointer;">✕</span>';
+      h+='</div>';
     }
     h+='</div>';
   }
