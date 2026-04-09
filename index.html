@@ -1798,8 +1798,12 @@ function renderCalGrid(){
     if(sh){
       var c=getCC(sh.clinicId);
       var isKyu=sh.memo==='休出';
-      var border=isKyu?'border:2px solid #e67e22;':'';
-      h+='<span class="day-shift" data-del-date="'+dateStr+'" style="background:'+c.b+';color:'+c.c+';'+border+';cursor:pointer;">'+cname(sh.clinicId)+'</span>';
+      var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
+      var border=isKyu?'border:2px solid #e67e22;':isKibo?'border:2px solid #7b2d8b;':'';
+      var lbl=isKibo?'希望休':cname(sh.clinicId);
+      var shBg=isKibo?'#f3e5f5':c.b;
+      var shCol=isKibo?'#7b2d8b':c.c;
+      h+='<span class="day-shift" data-del-date="'+dateStr+'" style="background:'+shBg+';color:'+shCol+';'+border+';cursor:pointer;">'+lbl+'</span>';
       if(sh.memo==='代出')h+='<span style="display:block;font-size:7px;color:#999;">代出</span>';
       if(isKyu)h+='<span style="display:block;font-size:7px;color:#e67e22;font-weight:700;">休出</span>';
     }
