@@ -272,6 +272,7 @@ thead .date-th{top:0;}
   <div style="flex:1;"></div>
   <button class="hdr-btn" id="undoBtn" style="display:none;font-size:11px;" onclick="globalUndo()">← 戻る</button>
   <button class="hdr-btn" id="redoBtn" style="display:none;font-size:11px;" onclick="globalRedo()">進む →</button>
+  <button class="hdr-btn" id="saveBtn2" style="display:none;font-size:12px;background:#2e7d32;color:#fff;border-color:#2e7d32;font-weight:800;" onclick="saveAll()">保存</button>
   <button class="hdr-btn" id="printBtn" style="font-size:13px;">🖨</button>
   <button class="hdr-btn" id="aiShiftBtn" style="display:none;background:#7b2d8b;color:#fff;border-color:#7b2d8b;font-size:12px;">🤖 AI</button>
   <button class="hdr-btn" id="setBtn" style="display:none;">⚙️</button>
@@ -919,6 +920,7 @@ function setAdmin(v){
   /* 戻る/進むボタン */
   var ub=document.getElementById('undoBtn');if(ub)ub.style.display=v?'':'none';
   var rb=document.getElementById('redoBtn');if(rb)rb.style.display=v?'':'none';
+  var sb3=document.getElementById('saveBtn2');if(sb3)sb3.style.display=v?'':'none';
   /* チャットボタンは管理者のみ */
   var fab=document.getElementById('chatFab');if(fab)fab.style.display=v?'':'none';
   var cp=document.getElementById('chatPanel');if(cp&&!v)cp.classList.remove('open');
@@ -1150,6 +1152,11 @@ function shiftClearMonth(){
   }
   saveShiftsLocal();refreshViews('allViewWrap');renderAllView('allViewWrapView');
   showSb((curM+1)+'月全削除','ok');
+}
+function saveAll(){
+  saveShiftsLocalNow();
+  saveClosedDates();
+  showSb('保存完了！','ok');
 }
 function shiftPaint(cid){
   window._shiftPaintClinic=cid;
