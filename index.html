@@ -446,6 +446,19 @@ function renderShifts(){
     }
     h+='</tr>';
   });
+  /* 下部にも日付行 */
+  h+='<tr><td class="fix-left date-hdr" style="z-index:12;position:sticky;bottom:0;">日付</td>';
+  for(var d2=1;d2<=days;d2++){
+    var dateStr2=ds(curY,curM,d2);
+    var w2=new Date(curY,curM,d2).getDay();
+    var isH2=HOL.has(dateStr2);
+    var cls2=w2===0?'sun':w2===6?'sat':'';
+    if(isH2)cls2='sun';
+    h+='<td class="date-hdr '+cls2+'" style="position:sticky;bottom:0;z-index:10;background:#edebe6;font-weight:600;padding:4px 2px;">'+d2+'<span style="font-size:8px;margin-left:1px;">'+DOW[w2]+'</span>';
+    if(isH2)h+='<span class="hol-badge">祝</span>';
+    h+='</td>';
+  }
+  h+='</tr>';
   h+='</tbody>';
   document.getElementById('shiftTable').innerHTML=h;
   renderPaintBar();
