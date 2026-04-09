@@ -1154,23 +1154,30 @@ function shiftClearMonth(){
   showSb((curM+1)+'月全削除','ok');
 }
 function saveAll(){
-  /* 全シフトをlocalStorage＋Supabaseに保存 */
   saveShiftsLocal();
   saveClosedDates();
-  showSb('全データ保存中...');
-  var tasks=[];
   var ym=curY+'-'+String(curM+1).padStart(2,'0');
+  var queue=[];
   Object.keys(shifts).forEach(function(dateStr){
     if(dateStr.slice(0,7)!==ym)return;
     shifts[dateStr].forEach(function(s){
-      tasks.push(dbSave(dateStr,s.docId,s.clinicId,s.memo||''));
+      queue.push({d:dateStr,doc:s.docId,c:s.clinicId,m:s.memo||''});
     });
   });
-  Promise.all(tasks).then(function(){
-    showSb('全'+tasks.length+'件保存完了！','ok');
-  }).catch(function(){
-    showSb('一部保存失敗','e');
-  });
+  var total=queue.length,done=0;
+  showSb('保存中... 0/'+total);
+  function next(){
+    if(!queue.length){showSb('全'+total+'件保存完了！','ok');return;}
+    /* 5件ずつ送信 */
+    var batch=queue.splice(0,5);
+    Promise.all(batch.map(function(e){
+      return dbSave(e.d,e.doc,e.c,e.m).then(function(){done++;});
+    })).then(function(){
+      showSb('保存中... '+done+'/'+total);
+      setTimeout(next,100);
+    });
+  }
+  next();
 }
 function shiftPaint(cid){
   window._shiftPaintClinic=cid;
