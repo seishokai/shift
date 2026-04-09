@@ -800,6 +800,8 @@ function loadDB(){
     } else {
       showSb('');
     }
+    /* localStorageを最後に上書き（最新の編集が最優先） */
+    loadShiftsLocal();
   }).catch(function(e){
     console.warn('DB読み込み失敗:',e);
     Object.assign(shifts,EXCEL_DATA);
