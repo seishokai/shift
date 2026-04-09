@@ -97,7 +97,11 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 </head>
 <body>
 <div class="hdr">
-  <h1>清翔会 シフト</h1>
+  <div class="month-nav">
+    <button onclick="chgMonth(-1)">‹</button>
+    <span id="monthLbl"></span>
+    <button onclick="chgMonth(1)">›</button>
+  </div>
   <div class="hdr-tabs">
     <button class="tab-btn on" onclick="setTab(0)">シフト表</button>
     <button class="tab-btn" onclick="setTab(1)">医院別</button>
@@ -106,15 +110,10 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
     <button class="tab-btn" onclick="setTab(4)">休診日</button>
     <button class="tab-btn" onclick="setTab(5)">集計</button>
   </div>
-  <div class="month-nav">
-    <button onclick="chgMonth(-1)">‹</button>
-    <span id="monthLbl"></span>
-    <button onclick="chgMonth(1)">›</button>
-  </div>
   <div class="hdr-right">
     <button class="undo-btn" onclick="undo()">← 戻す</button>
     <button class="undo-btn" onclick="redo()">進む →</button>
-    <button class="save-btn" onclick="saveAll()" id="saveBtn" style="display:none">💾 保存</button>
+    <button class="save-btn" onclick="saveAll()" id="saveBtn" style="display:none">保存</button>
     <button class="login-btn" onclick="toggleLogin()" id="loginBtn">ログイン</button>
   </div>
 </div>
@@ -431,8 +430,11 @@ function renderShifts(){
         else if(sh.clinicId==='daishutsu'){bg='#777';col='#fff';txt='代出';}
         else{var c=getCC(sh.clinicId);bg=c.c;col='#fff';txt=cname(sh.clinicId);}
       } else {
+        /* 空セル：休診医院数を表示 */
+        var closedCount=CLINICS.filter(function(c){return isClosed(dateStr,c.id);}).length;
         var rowBg=w===0||isH?'#fff5f5':w===6?'#f0f5ff':'';
-        bg=rowBg;col='#ccc';txt='';
+        if(closedCount>=CLINICS.length){bg='#f0efed';col='#bbb';txt='全休';}
+        else{bg=rowBg;col='';txt='';}
       }
       var click=isAdmin?'onclick="cellClick(\''+dateStr+'\',\''+doc.id+'\')"':'';
       h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;overflow:hidden;" '+click+'>'+txt+'</td>';
