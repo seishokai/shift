@@ -54,7 +54,7 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 .cc-chiryu{--cc:#0a6b8a;--cb:#e0f2f8;}.cc-komaki{--cc:#d81b60;--cb:#fce4ec;}
 .cc-yagoto{--cc:#8b4513;--cb:#f9ece2;}.cc-omori{--cc:#1f6b4e;--cb:#e4f4ed;}
 .cc-kyoto{--cc:#6b3a87;--cb:#f2ecf8;}.cc-ginza{--cc:#7d6608;--cb:#f8f3e2;}
-.cc-houmon{--cc:#2c6e8a;--cb:#e6eef5;}.cc-toin{--cc:#b85c00;--cb:#fff3e0;}
+.cc-houmon1{--cc:#2c6e8a;--cb:#e6eef5;}.cc-houmon2{--cc:#4a9bb5;--cb:#e8f2f6;}.cc-toin{--cc:#b85c00;--cb:#fff3e0;}
 .cc-yasumi{--cc:#999;--cb:#f2f2f0;}.cc-yukyu{--cc:#c0392b;--cb:#f0f0ee;}
 .cc-daikyu{--cc:#1a5276;--cb:#e8f4fd;}.cc-daishutsu{--cc:#555;--cb:#f0f0ee;}
 .cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
@@ -172,7 +172,7 @@ var CLINICS=[
   {id:'chiryu',n:'知立'},{id:'komaki',n:'小牧'},
   {id:'yagoto',n:'八事'},{id:'omori',n:'大森'},
   {id:'kyoto',n:'京都'},{id:'ginza',n:'銀座'},
-  {id:'houmon',n:'訪問'},{id:'toin',n:'東員'}
+  {id:'houmon1',n:'訪1'},{id:'houmon2',n:'訪2'},{id:'toin',n:'東員'}
 ];
 var STATUSES=[
   {id:'yasumi',n:'休み'},{id:'yukyu',n:'有給'},
@@ -798,7 +798,7 @@ function renderReqView(){
   var h='<h3 style="font-size:15px;font-weight:800;margin-bottom:8px;">'+doc.n+'｜'+(curM+1)+'月 シフト希望</h3>';
   /* 種類選択 */
   h+='<div style="margin-bottom:10px;">';
-  [{id:'yasumi',n:'休み希望',col:'#999'},{id:'yukyu',n:'有給',col:'#e53935'},{id:'daishutsu',n:'代出',col:'#555'},{id:'kibou_shutskin',n:'出勤希望',col:'#2e7d32'},{id:'kibou_clinic',n:'希望医院',col:'#1a5276'}].forEach(function(t){
+  [{id:'yasumi',n:'休み希望',col:'#999'},{id:'yukyu',n:'有給',col:'#e53935'},{id:'daishutsu',n:'代出',col:'#555'},{id:'houmon1',n:'訪1',col:'#2c6e8a'},{id:'houmon2',n:'訪2',col:'#4a9bb5'},{id:'kibou_shutskin',n:'出勤希望',col:'#2e7d32'},{id:'kibou_clinic',n:'希望医院',col:'#1a5276'}].forEach(function(t){
     h+='<button class="req-type'+(reqType===t.id?' on':'')+'" onclick="reqType=\''+t.id+'\';renderReqView();" style="'+(reqType===t.id?'border-color:'+t.col+';background:'+t.col:'')+'">'+t.n+'</button>';
   });
   h+='</div>';
@@ -855,6 +855,8 @@ function submitReq(){
     if(reqType==='yasumi'){cid='yasumi';memo='希望';}
     else if(reqType==='yukyu'){cid='yukyu';}
     else if(reqType==='daishutsu'){cid='daishutsu';memo='';}
+    else if(reqType==='houmon1'){cid='houmon1';memo='';}
+    else if(reqType==='houmon2'){cid='houmon2';memo='';}
     else if(reqType==='kibou_shutskin'){cid='kibou_shutskin';memo='希望出勤';}
     else if(reqType==='kibou_clinic'){cid=reqClinicId||'yasumi';memo='希望医院';}
     var entry={docId:reqDocId,clinicId:cid,memo:memo};
