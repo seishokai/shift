@@ -452,11 +452,11 @@ function renderShifts(){
         else{bg=rowBg;col='';txt='';}
       }
       /* 空ハイライトモード */
-      var opacity='';
-      if(highlightEmpty&&sh){opacity='opacity:.25;';}
-      if(highlightEmpty&&!sh&&txt!=='全休'){bg='#e8f5e9';col='#2e7d32';txt='空';}
+      var opacity='',extraStyle='';
+      if(highlightEmpty&&sh){opacity='opacity:.15;';}
+      if(highlightEmpty&&!sh&&txt!=='全休'){bg='#2e7d32';col='#fff';txt='空';extraStyle='font-size:10px!important;text-shadow:0 0 2px rgba(0,0,0,.3);';}
       var click=isAdmin?'onclick="cellClick(\''+dateStr+'\',\''+doc.id+'\')"':'';
-      h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;overflow:hidden;'+opacity+'" '+click+'>'+txt+'</td>';
+      h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;overflow:hidden;'+opacity+extraStyle+'" '+click+'>'+txt+'</td>';
     }
     h+='</tr>';
   });
