@@ -358,25 +358,36 @@ function dbDel(dateStr,docId){
 }
 function saveAll(){saveShifts();saveClosed();showSb('保存完了','ok');}
 
-/* ======= Undo/Redo ======= */
+/* ======= Undo/Redo（localStorage永続化） ======= */
+function loadUndoStack(){
+  try{var s=localStorage.getItem('seishokai_undo_v2');if(s)undoStack=JSON.parse(s);}catch(e){}
+  try{var r=localStorage.getItem('seishokai_redo_v2');if(r)redoStack=JSON.parse(r);}catch(e){}
+}
+function saveUndoStack(){
+  try{localStorage.setItem('seishokai_undo_v2',JSON.stringify(undoStack.slice(-20)));
+      localStorage.setItem('seishokai_redo_v2',JSON.stringify(redoStack.slice(-10)));}catch(e){}
+}
 function snapshot(){
   var snap={s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)};
   undoStack.push(snap);if(undoStack.length>30)undoStack.shift();
   redoStack=[];
+  saveUndoStack();
 }
 function undo(){
-  if(!undoStack.length)return;
+  if(!undoStack.length){showSb('これ以上戻せません','e');return;}
   redoStack.push({s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)});
   var snap=undoStack.pop();
   shifts=JSON.parse(snap.s);CLOSED_DATES=JSON.parse(snap.c);
-  saveShifts();saveClosed();renderTab();
+  saveShifts();saveClosed();saveUndoStack();renderTab();
+  showSb('1つ戻しました','ok');
 }
 function redo(){
-  if(!redoStack.length)return;
+  if(!redoStack.length){showSb('これ以上進めません','e');return;}
   undoStack.push({s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)});
   var snap=redoStack.pop();
   shifts=JSON.parse(snap.s);CLOSED_DATES=JSON.parse(snap.c);
-  saveShifts();saveClosed();renderTab();
+  saveShifts();saveClosed();saveUndoStack();renderTab();
+  showSb('1つ進めました','ok');
 }
 
 /* ======= 認証 ======= */
@@ -1133,6 +1144,7 @@ cellClick=function(dateStr,docId){
 
 /* ======= 初期化 ======= */
 updateMonthLbl();
+loadUndoStack();
 loadData().then(function(){renderTab();});
 window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
 </script>
