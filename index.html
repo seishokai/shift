@@ -195,7 +195,7 @@ var doctors=[
   {id:'d7',n:'大西',dir:'chiryu'},{id:'d8',n:'田村',dir:'yagoto'},
   /* 一般 */
   {id:'d9',n:'立松'},{id:'d10',n:'武内'},{id:'d11',n:'長谷川'},
-  {id:'d12',n:'長江'},{id:'d13',n:'れみ'},{id:'d14',n:'西村'},
+  {id:'d12',n:'永江'},{id:'d13',n:'れみ'},{id:'d14',n:'西村'},
   {id:'d15',n:'鈴木'},{id:'d16',n:'星野'},{id:'d17',n:'綱島'},
   {id:'d18',n:'向田'},{id:'d19',n:'清水'},{id:'d20',n:'内藤'},
   {id:'d21',n:'上野'},{id:'d22',n:'珠里'},{id:'d23',n:'土屋'},
@@ -231,7 +231,7 @@ function cc(id){var el=document.createElement('div');el.className='cc-'+id;docum
 var _ccCache={};
 function getCC(id){if(!_ccCache[id])_ccCache[id]=cc(id);return _ccCache[id];}
 function cname(id){if(!id)return'';var p=ALL.find(function(x){return x.id===id;});return p?p.n:id;}
-function shiftLabel(sh){if(!sh)return'';if(sh.clinicId==='yasumi'&&sh.memo==='希望')return'希望休';return cname(sh.clinicId);}
+function shiftLabel(sh){if(!sh)return'';if(sh.clinicId==='yasumi'&&sh.memo==='希望')return'希望休';if(sh.clinicId==='kibou_shutskin')return'出勤希望';return cname(sh.clinicId);}
 function ds(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
 function dim(y,m){return new Date(y,m+1,0).getDate();}
 function showSb(msg,type){
@@ -437,6 +437,7 @@ function renderShifts(){
         else if(sh.clinicId==='yukyu'){bg='#eceff1';col='#e53935';txt='有給';}
         else if(sh.clinicId==='daikyu'){bg='#eceff1';col='#1a5276';txt='代休';}
         else if(sh.clinicId==='daishutsu'){bg='#777';col='#fff';txt='代出';}
+        else if(sh.clinicId==='kibou_shutskin'){bg='#e8f5e9';col='#2e7d32';txt='出勤希望';}
         else{var c=getCC(sh.clinicId);bg=c.c;col='#fff';txt=cname(sh.clinicId);}
       } else {
         /* 空セル：休診医院数を表示 */
