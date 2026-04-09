@@ -146,6 +146,25 @@ table.compare tr:hover{background:#222}
 .set-half h4{color:#C5A55A;margin-bottom:15px;font-size:20px}
 .set-half ol{padding-left:20px}
 .set-half li{margin-bottom:8px;font-size:16px}
+/* Presentation mode toggle */
+.mode-toggle{position:fixed;bottom:20px;right:20px;z-index:500;background:#C5A55A;color:#000;border:none;width:50px;height:50px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:transform 0.3s}
+.mode-toggle:hover{transform:scale(1.1)}
+/* Slide mode */
+body.slide-mode .nav{display:none}
+body.slide-mode .slide-section{width:100vw;height:100vh;overflow-y:auto;scroll-snap-align:start;flex-shrink:0;display:flex;flex-direction:column;justify-content:center}
+body.slide-mode .slide-section>*{max-width:1100px;margin:0 auto;width:100%;padding:0 30px}
+body.slide-mode .slide-section.dark>*{max-width:100%}
+body.slide-mode{overflow:hidden}
+body.slide-mode .slide-wrap{display:flex;height:100vh;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth}
+.slide-nav{display:none;position:fixed;z-index:600}
+body.slide-mode .slide-nav{display:flex;align-items:center;justify-content:center}
+.slide-nav.s-prev{left:10px;top:50%}
+.slide-nav.s-next{right:10px;top:50%}
+.slide-nav button{background:rgba(0,0,0,0.5);color:#fff;border:none;width:48px;height:48px;border-radius:50%;font-size:24px;cursor:pointer;transition:background 0.3s}
+.slide-nav button:hover{background:rgba(197,165,90,0.8)}
+.slide-counter{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:600;background:rgba(0,0,0,0.6);color:#fff;padding:6px 16px;border-radius:20px;font-size:14px}
+body.slide-mode .slide-counter{display:block}
+body.slide-mode .mode-toggle{background:#fff;color:#222}
 </style>
 </head>
 <body>
@@ -163,6 +182,12 @@ table.compare tr:hover{background:#222}
 <a href="#warranty">保証</a>
 <a href="#faq">FAQ</a>
 </nav>
+
+<!-- Mode Toggle -->
+<button class="mode-toggle" onclick="toggleMode()" title="表示モード切替">&#9654;</button>
+<div class="slide-nav s-prev"><button onclick="slideNav(-1)">&#10094;</button></div>
+<div class="slide-nav s-next"><button onclick="slideNav(1)">&#10095;</button></div>
+<div class="slide-counter"><span id="slide-cur">1</span> / <span id="slide-total">1</span></div>
 
 <!-- Hero -->
 <div class="hero" id="hero">
@@ -980,6 +1005,97 @@ e.preventDefault();
 var target=document.querySelector(this.getAttribute('href'));
 if(target)target.scrollIntoView({behavior:'smooth'});
 });
+});
+
+// ===== Presentation Mode =====
+var isSlideMode=false;
+var slideWrap=null;
+var slides=[];
+var curSlide=0;
+
+function toggleMode(){
+  isSlideMode=!isSlideMode;
+  var btn=document.querySelector('.mode-toggle');
+  if(isSlideMode){
+    enterSlideMode();
+    btn.innerHTML='&#9660;';
+    btn.title='スクロールモードに戻す';
+  }else{
+    exitSlideMode();
+    btn.innerHTML='&#9654;';
+    btn.title='プレゼンモードに切替';
+  }
+}
+
+function enterSlideMode(){
+  document.body.classList.add('slide-mode');
+  // Wrap sections in slide container
+  if(!slideWrap){
+    slideWrap=document.createElement('div');
+    slideWrap.className='slide-wrap';
+    var sections=document.querySelectorAll('.hero, section, .dark:not(.slide-mode .slide-wrap .dark)');
+    var parent=document.querySelector('.hero').parentNode;
+    var els=Array.from(parent.children).filter(function(el){
+      return el.tagName!=='NAV'&&!el.classList.contains('mode-toggle')&&
+             !el.classList.contains('slide-nav')&&!el.classList.contains('slide-counter')&&
+             !el.classList.contains('slideshow')&&el.tagName!=='SCRIPT'&&
+             el.tagName!=='BUTTON'&&!el.classList.contains('slide-wrap');
+    });
+    els.forEach(function(el){
+      el.classList.add('slide-section');
+      slideWrap.appendChild(el);
+    });
+    parent.appendChild(slideWrap);
+    slides=slideWrap.querySelectorAll('.slide-section');
+  }else{
+    slideWrap.style.display='flex';
+  }
+  curSlide=0;
+  updateSlideCounter();
+  scrollToSlide(0);
+}
+
+function exitSlideMode(){
+  document.body.classList.remove('slide-mode');
+  if(slideWrap){
+    slideWrap.style.display='';
+    var parent=slideWrap.parentNode;
+    while(slideWrap.firstChild){
+      slideWrap.firstChild.classList.remove('slide-section');
+      parent.insertBefore(slideWrap.firstChild,slideWrap);
+    }
+    slideWrap.remove();
+    slideWrap=null;
+    slides=[];
+  }
+}
+
+function slideNav(dir){
+  curSlide+=dir;
+  if(curSlide<0)curSlide=0;
+  if(curSlide>=slides.length)curSlide=slides.length-1;
+  scrollToSlide(curSlide);
+}
+
+function scrollToSlide(idx){
+  if(!slides.length)return;
+  curSlide=idx;
+  slides[idx].scrollIntoView({behavior:'smooth',inline:'start',block:'start'});
+  updateSlideCounter();
+}
+
+function updateSlideCounter(){
+  document.getElementById('slide-cur').textContent=curSlide+1;
+  document.getElementById('slide-total').textContent=slides.length;
+}
+
+// Keyboard for slide mode
+document.addEventListener('keydown',function(e){
+  if(!isSlideMode)return;
+  if(document.getElementById('slideshow').classList.contains('active'))return;
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();slideNav(1);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();slideNav(-1);}
+  else if(e.key==='Escape'){toggleMode();}
 });
 </script>
 </body>
