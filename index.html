@@ -704,7 +704,7 @@ function renderReqView(){
   var h='<h3 style="font-size:15px;font-weight:800;margin-bottom:8px;">'+doc.n+'｜'+(curM+1)+'月 シフト希望</h3>';
   /* 種類選択 */
   h+='<div style="margin-bottom:10px;">';
-  [{id:'yasumi',n:'休み希望',col:'#999'},{id:'yukyu',n:'有給',col:'#e53935'},{id:'kibou_shutskin',n:'出勤希望',col:'#2e7d32'},{id:'kibou_clinic',n:'希望医院',col:'#1a5276'}].forEach(function(t){
+  [{id:'yasumi',n:'休み希望',col:'#999'},{id:'yukyu',n:'有給',col:'#e53935'},{id:'daishutsu',n:'代出',col:'#555'},{id:'kibou_shutskin',n:'出勤希望',col:'#2e7d32'},{id:'kibou_clinic',n:'希望医院',col:'#1a5276'}].forEach(function(t){
     h+='<button class="req-type'+(reqType===t.id?' on':'')+'" onclick="reqType=\''+t.id+'\';renderReqView();" style="'+(reqType===t.id?'border-color:'+t.col+';background:'+t.col:'')+'">'+t.n+'</button>';
   });
   h+='</div>';
@@ -760,6 +760,7 @@ function submitReq(){
     var cid,memo='';
     if(reqType==='yasumi'){cid='yasumi';memo='希望';}
     else if(reqType==='yukyu'){cid='yukyu';}
+    else if(reqType==='daishutsu'){cid='daishutsu';memo='';}
     else if(reqType==='kibou_shutskin'){cid='kibou_shutskin';memo='希望出勤';}
     else if(reqType==='kibou_clinic'){cid=reqClinicId||'yasumi';memo='希望医院';}
     var entry={docId:reqDocId,clinicId:cid,memo:memo};
