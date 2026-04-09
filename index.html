@@ -409,7 +409,9 @@ function renderShifts(){
   h+='</tr></thead><tbody>';
 
   doctors.forEach(function(doc){
-    h+='<tr><td class="fix-left-body" style="font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;border-right:2px solid #bbb;cursor:pointer;color:#1a5276;" onclick="goToPerson(\''+doc.id+'\')">'+doc.n+'</td>';
+    var nameClick=isAdmin&&paintClinic?'bulkMenu(\''+doc.id+'\')':'goToPerson(\''+doc.id+'\')';
+    var nameBg=bulkDocId===doc.id?'background:#fff3e0;':'';
+    h+='<tr><td class="fix-left-body" style="font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;border-right:2px solid #bbb;cursor:pointer;color:#1a5276;'+nameBg+'" onclick="'+nameClick+'">'+doc.n+'</td>';
     for(var d=1;d<=days;d++){
       var dateStr=ds(curY,curM,d);
       var w=new Date(curY,curM,d).getDay();
@@ -491,6 +493,19 @@ function renderPaintBar(){
   var kiboOn=paintClinic==='__kibokyu__';
   opts+='<button class="paint-opt" onclick="setPaint(\'__kibokyu__\')" style="background:'+(kiboOn?'#7b2d8b':'#f5f5f3')+';color:'+(kiboOn?'#fff':'#7b2d8b')+';border-color:'+(kiboOn?'#7b2d8b':'#ddd')+';">希望休</button>';
   opts+='<button class="paint-opt" onclick="setPaintDel()" style="background:'+(paintClinic==='__del__'?'#b83030':'#f5f5f3')+';color:'+(paintClinic==='__del__'?'#fff':'#ff6b6b')+';border-color:'+(paintClinic==='__del__'?'#b83030':'#ddd')+';">削除</button>';
+  /* 一括ボタン（ドクター選択時） */
+  if(bulkDocId&&paintClinic&&paintClinic!=='__del__'){
+    var dn=doctors.find(function(d){return d.id===bulkDocId;});
+    opts+='<br><span style="font-size:11px;font-weight:700;color:#e65100;">⚡ '+(dn?dn.n:'')+'に一括：</span>';
+    opts+='<button class="paint-opt" onclick="bulkApply(\'all\')" style="background:#e65100;color:#fff;border-color:#e65100;">全日</button>';
+    opts+='<button class="paint-opt" onclick="bulkApply(\'weekday\')" style="background:#2d6a9f;color:#fff;border-color:#2d6a9f;">平日</button>';
+    opts+='<button class="paint-opt" onclick="bulkApply(\'weekend\')" style="background:#7b2d8b;color:#fff;border-color:#7b2d8b;">土日</button>';
+    ['日','月','火','水','木','金','土'].forEach(function(d,i){
+      opts+='<button class="paint-opt" onclick="bulkApply('+i+')" style="background:#f5f5f3;color:#333;border-color:#bbb;">'+d+'</button>';
+    });
+    opts+='<button class="paint-opt" onclick="bulkClear()" style="background:#b83030;color:#fff;border-color:#b83030;">月クリア</button>';
+    opts+='<button class="paint-opt" onclick="bulkDocId=null;renderPaintBar();renderShifts();" style="background:#f5f5f3;color:#333;border-color:#bbb;">✕</button>';
+  }
   document.getElementById('paintOpts').innerHTML=opts;
 }
 function setPaintDel(){paintClinic='__del__';renderPaintBar();renderShifts();}
@@ -632,6 +647,56 @@ function renderClinicView(){
 }
 
 function goToPerson(docId){selPerson=docId;setTab(2);}
+
+/* 一括入力 */
+var bulkDocId=null;
+function bulkMenu(docId){
+  if(!paintClinic||paintClinic==='__del__'){goToPerson(docId);return;}
+  bulkDocId=docId;
+  renderPaintBar();
+}
+function bulkApply(mode){
+  if(!bulkDocId||!paintClinic)return;
+  snapshot();
+  var days=dim(curY,curM);
+  var cid=paintClinic==='__kibokyu__'?'yasumi':paintClinic;
+  var memo=paintClinic==='__kibokyu__'?'希望':'';
+  var cnt=0;
+  for(var d=1;d<=days;d++){
+    var dateStr=ds(curY,curM,d);
+    var w=new Date(curY,curM,d).getDay();
+    var skip=false;
+    if(mode==='weekday'&&(w===0||w===6))skip=true;
+    if(mode==='weekend'&&w!==0&&w!==6)skip=true;
+    if(typeof mode==='number'&&w!==mode)skip=true;
+    if(skip)continue;
+    if(!shifts[dateStr])shifts[dateStr]=[];
+    var idx=shifts[dateStr].findIndex(function(s){return s.docId===bulkDocId;});
+    var entry={docId:bulkDocId,clinicId:cid,memo:memo};
+    if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
+    dbSave(dateStr,bulkDocId,cid,memo);
+    cnt++;
+  }
+  bulkDocId=null;
+  saveShifts();renderShifts();
+  showSb(cnt+'日を一括入力','ok');
+}
+function bulkClear(){
+  if(!bulkDocId)return;
+  snapshot();
+  var days=dim(curY,curM);
+  for(var d=1;d<=days;d++){
+    var dateStr=ds(curY,curM,d);
+    if(shifts[dateStr]){
+      shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==bulkDocId;});
+      if(!shifts[dateStr].length)delete shifts[dateStr];
+    }
+    dbDel(dateStr,bulkDocId);
+  }
+  bulkDocId=null;
+  saveShifts();renderShifts();
+  showSb('月クリア完了','ok');
+}
 
 /* ======= Tab 2: 個人ビュー ======= */
 var selPerson=null;
