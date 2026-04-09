@@ -134,7 +134,6 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
   <div id="shiftScrollArea" style="flex:1;overflow:auto;">
     <table class="grid" id="shiftTable"></table>
   </div>
-  <div id="shiftFooter" style="flex-shrink:0;overflow:hidden;background:#edebe6;border-top:2px solid #bbb;"></div>
 </div>
 
 <!-- Tab 1: 医院別 -->
@@ -451,26 +450,22 @@ function renderShifts(){
     }
     h+='</tr>';
   });
-  h+='</tbody>';
-  document.getElementById('shiftTable').innerHTML=h;
-  /* 下部固定日付行 */
-  var fh='<table class="grid" style="margin:0;"><tr><td class="fix-left date-hdr" style="background:#edebe6;">日付</td>';
+  /* 下部日付行（tfoot sticky bottom） */
+  h+='<tfoot><tr>';
+  h+='<td class="fix-left" style="z-index:12;position:sticky;bottom:0;background:#ddd;font-size:9px;font-weight:700;padding:4px 2px;">日付</td>';
   for(var d2=1;d2<=days;d2++){
     var dateStr2=ds(curY,curM,d2);
     var w2=new Date(curY,curM,d2).getDay();
     var isH2=HOL.has(dateStr2);
     var cls2=w2===0?'sun':w2===6?'sat':'';
     if(isH2)cls2='sun';
-    fh+='<td class="date-hdr '+cls2+'" style="background:#edebe6;font-weight:600;">'+d2+'<span style="font-size:8px;margin-left:1px;">'+DOW[w2]+'</span>';
-    if(isH2)fh+='<span class="hol-badge">祝</span>';
-    fh+='</td>';
+    h+='<td class="date-hdr '+cls2+'" style="position:sticky;bottom:0;background:#ddd;font-weight:700;">'+d2+'<span style="font-size:8px;margin-left:1px;">'+DOW[w2]+'</span>';
+    if(isH2)h+='<span class="hol-badge">祝</span>';
+    h+='</td>';
   }
-  fh+='</tr></table>';
-  document.getElementById('shiftFooter').innerHTML=fh;
-  /* 横スクロール同期 */
-  var scroll=document.getElementById('shiftScrollArea');
-  var footer=document.getElementById('shiftFooter');
-  scroll.onscroll=function(){footer.scrollLeft=scroll.scrollLeft;};
+  h+='</tr></tfoot>';
+  h+='</tbody>';
+  document.getElementById('shiftTable').innerHTML=h;
   renderPaintBar();
 }
 
