@@ -1154,30 +1154,10 @@ function shiftClearMonth(){
   showSb((curM+1)+'月全削除','ok');
 }
 function saveAll(){
+  /* localStorageに全データを即座に保存（ネットワーク不要） */
   saveShiftsLocal();
   saveClosedDates();
-  var ym=curY+'-'+String(curM+1).padStart(2,'0');
-  var queue=[];
-  Object.keys(shifts).forEach(function(dateStr){
-    if(dateStr.slice(0,7)!==ym)return;
-    shifts[dateStr].forEach(function(s){
-      queue.push({d:dateStr,doc:s.docId,c:s.clinicId,m:s.memo||''});
-    });
-  });
-  var total=queue.length,done=0;
-  showSb('保存中... 0/'+total);
-  function next(){
-    if(!queue.length){showSb('全'+total+'件保存完了！','ok');return;}
-    /* 5件ずつ送信 */
-    var batch=queue.splice(0,5);
-    Promise.all(batch.map(function(e){
-      return dbSave(e.d,e.doc,e.c,e.m).then(function(){done++;});
-    })).then(function(){
-      showSb('保存中... '+done+'/'+total);
-      setTimeout(next,100);
-    });
-  }
-  next();
+  showSb('💾 保存完了！','ok');
 }
 function shiftPaint(cid){
   window._shiftPaintClinic=cid;
