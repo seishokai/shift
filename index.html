@@ -950,6 +950,7 @@ function renderReqView(){
       h+='<tr style="border-bottom:1px solid #eee;">';
       h+='<td style="padding:4px 8px;font-weight:700;color:'+(r.w===0?'#e05252':r.w===6?'#4a7fd4':'#333')+';width:70px;">'+r.d+'('+DOW2[r.w]+')</td>';
       h+='<td style="padding:4px 8px;"><span style="background:'+bgCol+';color:'+txtCol+';padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;">'+lbl+'</span></td>';
+      h+='<td style="padding:4px;width:40px;"><button onclick="cancelReq(\''+r.ds+'\',\''+reqDocId+'\')" style="border:none;background:#fdf0ee;color:#b83030;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;">取消</button></td>';
       h+='</tr>';
     });
     h+='</tbody></table></div>';
@@ -957,6 +958,16 @@ function renderReqView(){
   document.getElementById('reqView').innerHTML=h;
 }
 var reqClinicId=null;
+function cancelReq(dateStr,docId){
+  snapshot();
+  if(shifts[dateStr]){
+    shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
+    if(!shifts[dateStr].length)delete shifts[dateStr];
+  }
+  dbDel(dateStr,docId);saveShifts();
+  showSb('取り消しました','ok');
+  renderReqView();
+}
 function toggleReqDate(dateStr){reqSelDates.has(dateStr)?reqSelDates.delete(dateStr):reqSelDates.add(dateStr);renderReqView();}
 function submitReq(){
   if(!reqDocId||!reqSelDates.size)return;
