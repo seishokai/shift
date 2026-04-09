@@ -475,7 +475,16 @@ function cellClick(dateStr,docId){
     renderShifts();
     return;
   }
-  /* ペイント未選択: ポップアップで医院選択は不要。ペイントバーを表示 */
+  /* ペイント未選択: 既存シフトがあれば削除、なければペイントバー表示 */
+  var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===docId;});
+  if(existing){
+    snapshot();
+    shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
+    if(!shifts[dateStr].length)delete shifts[dateStr];
+    dbDel(dateStr,docId);
+    renderShifts();
+    return;
+  }
   document.getElementById('paintBar').style.display='flex';
   renderPaintBar();
 }
