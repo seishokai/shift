@@ -728,10 +728,18 @@ function renderReqView(){
     var sel=reqSelDates.has(dateStr);
     var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===reqDocId;});
     var exLbl=existing?shiftLabel(existing):'';
-    h+='<div class="req-cell'+(sel?' sel':'')+'" onclick="toggleReqDate(\''+dateStr+'\')" style="color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">';
-    h+='<div style="font-weight:700;">'+d+'</div>';
-    if(exLbl)h+='<div style="font-size:8px;color:#999;">現:'+exLbl+'</div>';
-    if(sel)h+='<div style="font-size:8px;color:#7b2d8b;font-weight:700;">✓</div>';
+    /* 休診医院を集める */
+    var closedClinics=CLINICS.filter(function(c){return isClosed(dateStr,c.id);});
+    var cellBg=sel?'#f3e5f5':isH?'#fff0f0':w===0?'#fff5f5':w===6?'#f0f5ff':'#fff';
+    h+='<div class="req-cell'+(sel?' sel':'')+'" onclick="toggleReqDate(\''+dateStr+'\')" style="background:'+cellBg+';color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">';
+    h+='<div style="font-weight:700;">'+d+(isH?' <span class="hol-badge">祝</span>':'')+'</div>';
+    if(closedClinics.length&&closedClinics.length<CLINICS.length){
+      h+='<div style="font-size:7px;color:#999;line-height:1.3;margin-top:1px;">休:'+closedClinics.map(function(c){return c.n;}).join(',')+'</div>';
+    } else if(closedClinics.length>=CLINICS.length){
+      h+='<div style="font-size:7px;color:#bbb;">全休</div>';
+    }
+    if(exLbl)h+='<div style="font-size:8px;color:#7b2d8b;font-weight:600;">現:'+exLbl+'</div>';
+    if(sel)h+='<div style="font-size:9px;color:#7b2d8b;font-weight:800;">✓</div>';
     h+='</div>';
   }
   h+='</div>';
