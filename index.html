@@ -1152,6 +1152,40 @@ updateMonthLbl();
 loadUndoStack();
 loadData().then(function(){renderTab();});
 window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
+
+/* ======= リアルタイム同期（15秒ごと） ======= */
+var _lastSyncHash='';
+function syncFromDB(){
+  fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{headers:Object.assign({},SB_H)})
+  .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+  .then(function(rows){
+    if(!rows||!rows.length)return;
+    var hash=rows.length+'_'+rows[rows.length-1].date_str;
+    if(hash===_lastSyncHash)return; /* 変更なし */
+    _lastSyncHash=hash;
+    /* Supabaseデータをshiftsにマージ（Supabaseが優先） */
+    var changed=false;
+    rows.forEach(function(row){
+      if(!shifts[row.date_str])shifts[row.date_str]=[];
+      var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
+      var entry={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
+      if(idx>=0){
+        if(shifts[row.date_str][idx].clinicId!==entry.clinicId||shifts[row.date_str][idx].memo!==entry.memo){
+          shifts[row.date_str][idx]=entry;changed=true;
+        }
+      } else {
+        shifts[row.date_str].push(entry);changed=true;
+      }
+    });
+    if(changed){
+      saveShifts();
+      renderTab();
+      showSb('他の管理者の変更を同期','ok');
+    }
+  }).catch(function(){});
+}
+setInterval(syncFromDB,15000); /* 15秒ごと */
+setTimeout(syncFromDB,3000); /* 起動3秒後に初回同期 */
 </script>
 </body>
 </html>
