@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>歯科医院 3F フロアプラン</title>
+<style>
+:root{--bg:#f8f9fa;--panel:#fff;--border:#dee2e6;--ink:#212529;--ink2:#6c757d;--accent:#2d6a9f;--accent-light:#e8f4fd;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;overflow-x:hidden;}
+
+/* Header */
+.header{background:#fff;border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.header h1{font-size:16px;font-weight:700;}
+.header-sub{font-size:11px;color:var(--ink2);}
+.header-actions{display:flex;gap:6px;}
+.btn{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;}
+.btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn.primary:hover{background:#1e5a8a;}
+.btn.danger{color:#c0392b;border-color:#e8c4c0;}
+.btn.danger:hover{background:#fdf0ee;}
+
+/* Layout */
+.layout{display:flex;height:calc(100vh - 52px);}
+.sidebar{width:280px;background:#fff;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;transition:width .2s;}
+.sidebar.collapsed{width:0;overflow:hidden;}
+.canvas-area{flex:1;overflow:auto;position:relative;background:#e9ecef;display:flex;align-items:center;justify-content:center;}
+
+/* Sidebar */
+.side-section{border-bottom:1px solid var(--border);}
+.side-header{padding:10px 12px;font-size:11px;font-weight:700;color:var(--ink2);letter-spacing:.05em;background:#f8f9fa;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+.side-header:hover{background:#eef1f4;}
+.side-header::after{content:'▼';font-size:8px;transition:transform .2s;}
+.side-section.closed .side-header::after{transform:rotate(-90deg);}
+.side-section.closed .side-list{display:none;}
+.side-list{padding:4px 0;}
+.side-item{padding:7px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.1s;border-left:3px solid transparent;}
+.side-item:hover{background:var(--accent-light);}
+.side-item.selected{background:var(--accent-light);border-left-color:var(--accent);font-weight:600;}
+.side-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.side-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.side-item-type{font-size:10px;color:var(--ink2);}
+
+/* SVG Canvas */
+.floor-svg{background:#fff;box-shadow:0 2px 20px rgba(0,0,0,.1);border-radius:4px;}
+
+/* Edit Panel (overlay) */
+.edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.edit-overlay.on{opacity:1;pointer-events:all;}
+.edit-panel{background:#fff;border-radius:12px;padding:24px;width:400px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.15);transform:translateY(20px);transition:transform .25s;}
+.edit-overlay.on .edit-panel{transform:none;}
+.edit-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.edit-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink2);padding:4px 8px;}
+.edit-close:hover{color:var(--ink);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--ink2);margin-bottom:4px;letter-spacing:.03em;}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;color:var(--ink);}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(45,106,159,.15);}
+.field textarea{resize:vertical;min-height:60px;}
+.field-row{display:flex;gap:10px;}
+.field-row .field{flex:1;}
+.edit-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end;}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#212529;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:300;transition:transform .3s;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* Room type labels */
+.room-type-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;color:#fff;}
+
+/* Zoom controls */
+.zoom-controls{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:4px;z-index:10;}
+.zoom-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.zoom-btn:hover{background:var(--accent-light);}
+.zoom-label{text-align:center;font-size:10px;color:var(--ink2);font-weight:600;}
+
+/* Add room button */
+.add-btn{width:100%;padding:8px;border:1px dashed var(--border);border-radius:6px;background:transparent;color:var(--ink2);font-size:12px;cursor:pointer;font-family:inherit;margin:8px 0;transition:.15s;}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+
+@media(max-width:768px){
+  .sidebar{position:fixed;left:0;top:52px;bottom:0;z-index:50;width:260px;transform:translateX(-100%);transition:transform .25s;}
+  .sidebar.open{transform:none;}
+  .layout{flex-direction:column;}
+  .canvas-area{height:calc(100vh - 52px);}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>歯科医院 3F フロアプラン</h1>
+    <div class="header-sub">FL-3 | 18,000 x 7,000 mm</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="toggleSidebar()" id="sidebarToggle">☰</button>
+    <button class="btn" onclick="exportJSON()">📥 JSON出力</button>
+    <button class="btn primary" onclick="openAddRoom()">＋ 部屋追加</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar">
+    <div class="side-section">
+      <div class="side-header" onclick="toggleSection(this)">部屋一覧</div>
+      <div class="side-list" id="roomList"></div>
+      <div style="padding:4px 12px 8px;">
+        <button class="add-btn" onclick="openAddRoom()">＋ 部屋を追加</button>
+      </div>
+    </div>
+    <div class="side-section">
+      <div class="side-header" onclick="toggleSection(this)">診療ユニット</div>
+      <div class="side-list" id="unitList"></div>
+    </div>
+    <div class="side-section">
+      <div class="side-header" onclick="toggleSection(this)">設備</div>
+      <div class="side-list" id="fixtureList"></div>
+    </div>
+    <div class="side-section">
+      <div class="side-header" onclick="toggleSection(this)">寸法情報</div>
+      <div class="side-list" id="dimList"></div>
+    </div>
+  </div>
+
+  <div class="canvas-area" id="canvasArea">
+    <svg id="floorSvg" class="floor-svg"></svg>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoomIn()">+</button>
+      <div class="zoom-label" id="zoomLabel">100%</div>
+      <button class="zoom-btn" onclick="zoomOut()">−</button>
+      <button class="zoom-btn" onclick="zoomFit()" style="font-size:12px;">⊡</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="edit-overlay" id="editOverlay" onclick="if(event.target===this)closeEdit()">
+  <div class="edit-panel" id="editPanel"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA =====
+let data = null;
+let selectedId = null;
+let scale = 1;
+const PADDING = 60;
+const SCALE_BASE = 0.05; // 1mm = 0.05px base
+
+async function init() {
+  try {
+    const res = await fetch('floorplan-data.json');
+    data = await res.json();
+  } catch(e) {
+    // Fallback: embedded data
+    data = getDefaultData();
+  }
+  render();
+}
+
+function getDefaultData() {
+  return {"meta":{"project":"歯科医院 3F フロアプラン","floor":"FL-3","lastUpdated":"2026-04-09","unit":"mm","gridColumns":[{"id":"6","x":0},{"id":"7","x":9000},{"id":"8","x":18000}],"gridRows":[{"id":"F","y":0},{"id":"E","y":7000}],"overallWidth":18000,"overallHeight":7000},"rooms":[],"treatmentUnits":[],"fixtures":[],"dimensions":[]};
+}
+
+// ===== RENDERING =====
+function render() {
+  renderSidebar();
+  renderSVG();
+}
+
+function renderSidebar() {
+  const typeLabels = {counseling:'カウンセリング',sterilization:'消毒室',xray:'X線室','treatment-vip':'VIP診療',doctor:'ドクター',equipment:'機械室',waiting:'待合室',treatment:'診療室',storage:'倉庫',office:'事務室',other:'その他'};
+
+  // Rooms
+  const rl = document.getElementById('roomList');
+  rl.innerHTML = data.rooms.map(r => `
+    <div class="side-item ${selectedId===r.id?'selected':''}" onclick="selectItem('${r.id}')" ondblclick="editRoom('${r.id}')">
+      <div class="side-dot" style="background:${r.color||'#999'}"></div>
+      <div class="side-item-name">${r.name}</div>
+      <div class="side-item-type">${typeLabels[r.type]||r.type}</div>
+    </div>
+  `).join('');
+
+  // Units
+  const ul = document.getElementById('unitList');
+  ul.innerHTML = (data.treatmentUnits||[]).map(u => `
+    <div class="side-item ${selectedId===u.id?'selected':''}" onclick="selectItem('${u.id}')" ondblclick="editUnit('${u.id}')">
+      <div class="side-dot" style="background:#0984e3"></div>
+      <div class="side-item-name">${u.label}</div>
+    </div>
+  `).join('');
+
+  // Fixtures
+  const fl = document.getElementById('fixtureList');
+  fl.innerHTML = (data.fixtures||[]).map(f => `
+    <div class="side-item ${selectedId===f.id?'selected':''}" onclick="selectItem('${f.id}')">
+      <div class="side-dot" style="background:#636e72"></div>
+      <div class="side-item-name">${f.label}</div>
+      <div class="side-item-type">${f.type}</div>
+    </div>
+  `).join('');
+
+  // Dimensions
+  const dl = document.getElementById('dimList');
+  dl.innerHTML = (data.dimensions||[]).map(d => `
+    <div class="side-item">
+      <div class="side-item-name">${d.from?d.from+'→'+d.to:d.label}</div>
+      <div class="side-item-type">${d.value.toLocaleString()}mm</div>
+    </div>
+  `).join('');
+}
+
+function renderSVG() {
+  const svg = document.getElementById('floorSvg');
+  const s = SCALE_BASE * scale;
+  const w = data.meta.overallWidth * s + PADDING * 2;
+  const h = data.meta.overallHeight * s + PADDING * 2;
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+
+  let html = '';
+
+  // Background
+  html += `<rect x="0" y="0" width="${w}" height="${h}" fill="#fafafa"/>`;
+
+  // Grid
+  const gCols = data.meta.gridColumns || [];
+  const gRows = data.meta.gridRows || [];
+  gCols.forEach(col => {
+    const cx = col.x * s + PADDING;
+    html += `<line x1="${cx}" y1="${PADDING-30}" x2="${cx}" y2="${h-PADDING+30}" stroke="#ccc" stroke-width="0.5" stroke-dasharray="6,4"/>`;
+    html += `<circle cx="${cx}" cy="${PADDING-38}" r="12" fill="none" stroke="#999" stroke-width="1"/>`;
+    html += `<text x="${cx}" y="${PADDING-34}" text-anchor="middle" font-size="11" fill="#666" font-weight="600">${col.id}</text>`;
+    html += `<circle cx="${cx}" cy="${h-PADDING+38}" r="12" fill="none" stroke="#999" stroke-width="1"/>`;
+    html += `<text x="${cx}" y="${h-PADDING+42}" text-anchor="middle" font-size="11" fill="#666" font-weight="600">${col.id}</text>`;
+  });
+  gRows.forEach(row => {
+    const ry = row.y * s + PADDING;
+    html += `<line x1="${PADDING-30}" y1="${ry}" x2="${w-PADDING+30}" y2="${ry}" stroke="#ccc" stroke-width="0.5" stroke-dasharray="6,4"/>`;
+    html += `<circle cx="${PADDING-38}" cy="${ry}" r="12" fill="none" stroke="#999" stroke-width="1"/>`;
+    html += `<text x="${PADDING-38}" y="${ry+4}" text-anchor="middle" font-size="11" fill="#666" font-weight="600">${row.id}</text>`;
+  });
+
+  // Outer walls
+  html += `<rect x="${PADDING}" y="${PADDING}" width="${data.meta.overallWidth*s}" height="${data.meta.overallHeight*s}" fill="none" stroke="#333" stroke-width="2.5"/>`;
+
+  // Dimension lines between grid columns
+  gCols.forEach((col, i) => {
+    if (i < gCols.length - 1) {
+      const x1 = col.x * s + PADDING;
+      const x2 = gCols[i+1].x * s + PADDING;
+      const dy = h - PADDING + 22;
+      html += `<line x1="${x1}" y1="${dy}" x2="${x2}" y2="${dy}" stroke="#999" stroke-width="0.8" marker-start="url(#arrow)" marker-end="url(#arrow)"/>`;
+      html += `<text x="${(x1+x2)/2}" y="${dy-4}" text-anchor="middle" font-size="9" fill="#666">${((gCols[i+1].x - col.x)).toLocaleString()}</text>`;
+    }
+  });
+
+  // Dimension line for height
+  if (gRows.length >= 2) {
+    const y1 = gRows[0].y * s + PADDING;
+    const y2 = gRows[1].y * s + PADDING;
+    const dx = PADDING - 22;
+    html += `<line x1="${dx}" y1="${y1}" x2="${dx}" y2="${y2}" stroke="#999" stroke-width="0.8"/>`;
+    html += `<text x="${dx}" y="${(y1+y2)/2}" text-anchor="middle" font-size="9" fill="#666" transform="rotate(-90,${dx},${(y1+y2)/2})">${data.meta.overallHeight.toLocaleString()}</text>`;
+  }
+
+  // Rooms
+  data.rooms.forEach(r => {
+    const rx = r.x * s + PADDING;
+    const ry = r.y * s + PADDING;
+    const rw = r.width * s;
+    const rh = r.height * s;
+    const isSel = selectedId === r.id;
+    const opacity = isSel ? 0.35 : 0.18;
+    const strokeW = isSel ? 2.5 : 1.5;
+
+    html += `<rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" fill="${r.color||'#999'}" fill-opacity="${opacity}" stroke="${r.color||'#999'}" stroke-width="${strokeW}" rx="3" cursor="pointer" onclick="selectItem('${r.id}')" ondblclick="editRoom('${r.id}')"/>`;
+
+    // Room label
+    const fontSize = Math.min(Math.max(rw / r.name.length * 0.7, 9), 16);
+    html += `<text x="${rx + rw/2}" y="${ry + rh/2 - 2}" text-anchor="middle" dominant-baseline="middle" font-size="${fontSize}" font-weight="700" fill="${r.color||'#999'}" pointer-events="none">${r.name}</text>`;
+
+    // Dimensions below label
+    const dimFontSize = Math.min(Math.max(fontSize * 0.6, 7), 10);
+    html += `<text x="${rx + rw/2}" y="${ry + rh/2 + fontSize*0.7}" text-anchor="middle" dominant-baseline="middle" font-size="${dimFontSize}" fill="${r.color||'#999'}" opacity="0.7" pointer-events="none">${(r.width/1000).toFixed(1)}m × ${(r.height/1000).toFixed(1)}m</text>`;
+  });
+
+  // Treatment units (dental chairs)
+  (data.treatmentUnits||[]).forEach(u => {
+    const ux = u.x * s + PADDING;
+    const uy = u.y * s + PADDING;
+    const chairW = 800 * s;
+    const chairH = 500 * s;
+    const isSel = selectedId === u.id;
+
+    // Chair body (oval)
+    html += `<ellipse cx="${ux}" cy="${uy}" rx="${chairW/2}" ry="${chairH/2}" fill="${isSel?'#0984e3':'#74b9ff'}" fill-opacity="0.3" stroke="#0984e3" stroke-width="${isSel?2:1}" cursor="pointer" onclick="selectItem('${u.id}')" ondblclick="editUnit('${u.id}')"/>`;
+
+    // Headrest
+    html += `<ellipse cx="${ux}" cy="${uy - chairH*0.35}" rx="${chairW*0.2}" ry="${chairH*0.18}" fill="#0984e3" fill-opacity="0.4" pointer-events="none"/>`;
+
+    // Label
+    html += `<text x="${ux}" y="${uy + chairH*0.55}" text-anchor="middle" font-size="7" fill="#0984e3" font-weight="600" pointer-events="none">${u.label}</text>`;
+  });
+
+  // Fixtures
+  (data.fixtures||[]).forEach(f => {
+    const fx = f.x * s + PADDING;
+    const fy = f.y * s + PADDING;
+    const fw = f.width * s;
+    const fh = f.height * s;
+
+    html += `<rect x="${fx}" y="${fy}" width="${fw}" height="${fh}" fill="#636e72" fill-opacity="0.15" stroke="#636e72" stroke-width="0.8" rx="2"/>`;
+    html += `<text x="${fx+fw/2}" y="${fy+fh/2+3}" text-anchor="middle" font-size="7" fill="#636e72">${f.label}</text>`;
+  });
+
+  // Windows
+  (data.windows||[]).forEach(win => {
+    const wx = win.x * s + PADDING;
+    const wy = win.y * s + PADDING;
+    const ww = win.width * s;
+    html += `<rect x="${wx}" y="${wy-2}" width="${ww}" height="4" fill="#54a0ff" fill-opacity="0.6"/>`;
+    html += `<line x1="${wx}" y1="${wy}" x2="${wx+ww}" y2="${wy}" stroke="#2e86de" stroke-width="1.5"/>`;
+  });
+
+  // Doors
+  (data.doors||[]).forEach(d => {
+    const dx = d.x * s + PADDING;
+    const dy = d.y * s + PADDING;
+    const dw = d.width * s;
+    html += `<line x1="${dx}" y1="${dy}" x2="${dx+dw}" y2="${dy}" stroke="#e17055" stroke-width="3"/>`;
+    // Door arc
+    html += `<path d="M${dx},${dy} A${dw},${dw} 0 0,1 ${dx+dw},${dy-dw*0.5}" fill="none" stroke="#e17055" stroke-width="0.8" stroke-dasharray="3,2"/>`;
+  });
+
+  // Smoke barrier wall
+  (data.walls||[]).forEach(wall => {
+    const wx = wall.x * s + PADDING;
+    const wy = wall.y * s + PADDING;
+    const ww = wall.width * s;
+    html += `<line x1="${wx}" y1="${wy}" x2="${wx+ww}" y2="${wy}" stroke="#d63031" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+    html += `<text x="${wx+ww/2}" y="${wy-4}" text-anchor="middle" font-size="6" fill="#d63031">${wall.label}</text>`;
+  });
+
+  // Arrow marker definition
+  const defs = `<defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#999"/></marker></defs>`;
+
+  svg.innerHTML = defs + html;
+}
+
+// ===== INTERACTION =====
+function selectItem(id) {
+  selectedId = selectedId === id ? null : id;
+  render();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function toggleSection(el) {
+  el.parentElement.classList.toggle('closed');
+}
+
+// Zoom
+function zoomIn() { scale = Math.min(scale * 1.25, 4); updateZoom(); }
+function zoomOut() { scale = Math.max(scale / 1.25, 0.3); updateZoom(); }
+function zoomFit() { scale = 1; updateZoom(); }
+function updateZoom() {
+  document.getElementById('zoomLabel').textContent = Math.round(scale * 100) + '%';
+  renderSVG();
+}
+
+// ===== EDIT ROOM =====
+function editRoom(id) {
+  const room = data.rooms.find(r => r.id === id);
+  if (!room) return;
+  selectedId = id;
+
+  const types = [
+    ['counseling','カウンセリング'],['sterilization','消毒室'],['xray','X線室'],
+    ['treatment-vip','VIP診療'],['treatment','診療室'],['doctor','ドクター'],
+    ['equipment','機械室'],['waiting','待合室'],['storage','倉庫'],
+    ['office','事務室'],['other','その他']
+  ];
+
+  document.getElementById('editPanel').innerHTML = `
+    <div class="edit-title">部屋を編集 <button class="edit-close" onclick="closeEdit()">&times;</button></div>
+    <div class="field">
+      <label>部屋名</label>
+      <input id="ed-name" value="${room.name}">
+    </div>
+    <div class="field">
+      <label>タイプ</label>
+      <select id="ed-type">${types.map(t=>`<option value="${t[0]}" ${room.type===t[0]?'selected':''}>${t[1]}</option>`).join('')}</select>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>X (mm)</label><input type="number" id="ed-x" value="${room.x}"></div>
+      <div class="field"><label>Y (mm)</label><input type="number" id="ed-y" value="${room.y}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>幅 (mm)</label><input type="number" id="ed-w" value="${room.width}"></div>
+      <div class="field"><label>高さ (mm)</label><input type="number" id="ed-h" value="${room.height}"></div>
+    </div>
+    <div class="field">
+      <label>色</label>
+      <input type="color" id="ed-color" value="${room.color||'#999999'}" style="height:36px;padding:2px;">
+    </div>
+    <div class="field">
+      <label>メモ</label>
+      <textarea id="ed-notes">${room.notes||''}</textarea>
+    </div>
+    <div class="edit-actions">
+      <button class="btn danger" onclick="deleteRoom('${id}')">削除</button>
+      <button class="btn" onclick="closeEdit()">キャンセル</button>
+      <button class="btn primary" onclick="saveRoom('${id}')">保存</button>
+    </div>
+  `;
+  document.getElementById('editOverlay').classList.add('on');
+}
+
+function saveRoom(id) {
+  const room = data.rooms.find(r => r.id === id);
+  if (!room) return;
+  room.name = document.getElementById('ed-name').value;
+  room.type = document.getElementById('ed-type').value;
+  room.x = parseInt(document.getElementById('ed-x').value) || 0;
+  room.y = parseInt(document.getElementById('ed-y').value) || 0;
+  room.width = parseInt(document.getElementById('ed-w').value) || 1000;
+  room.height = parseInt(document.getElementById('ed-h').value) || 1000;
+  room.color = document.getElementById('ed-color').value;
+  room.notes = document.getElementById('ed-notes').value;
+  data.meta.lastUpdated = new Date().toISOString().slice(0,10);
+  closeEdit();
+  render();
+  showToast('保存しました');
+}
+
+function deleteRoom(id) {
+  if (!confirm('この部屋を削除しますか？')) return;
+  data.rooms = data.rooms.filter(r => r.id !== id);
+  selectedId = null;
+  closeEdit();
+  render();
+  showToast('削除しました');
+}
+
+// ===== ADD ROOM =====
+function openAddRoom() {
+  document.getElementById('editPanel').innerHTML = `
+    <div class="edit-title">部屋を追加 <button class="edit-close" onclick="closeEdit()">&times;</button></div>
+    <div class="field">
+      <label>部屋名</label>
+      <input id="ed-name" value="" placeholder="例: レントゲン室">
+    </div>
+    <div class="field">
+      <label>タイプ</label>
+      <select id="ed-type">
+        <option value="treatment">診療室</option>
+        <option value="counseling">カウンセリング</option>
+        <option value="sterilization">消毒室</option>
+        <option value="xray">X線室</option>
+        <option value="treatment-vip">VIP診療</option>
+        <option value="doctor">ドクター</option>
+        <option value="equipment">機械室</option>
+        <option value="waiting">待合室</option>
+        <option value="storage">倉庫</option>
+        <option value="office">事務室</option>
+        <option value="other">その他</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>X (mm)</label><input type="number" id="ed-x" value="5000"></div>
+      <div class="field"><label>Y (mm)</label><input type="number" id="ed-y" value="3000"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>幅 (mm)</label><input type="number" id="ed-w" value="2000"></div>
+      <div class="field"><label>高さ (mm)</label><input type="number" id="ed-h" value="2000"></div>
+    </div>
+    <div class="field">
+      <label>色</label>
+      <input type="color" id="ed-color" value="#4a90d9" style="height:36px;padding:2px;">
+    </div>
+    <div class="field">
+      <label>メモ</label>
+      <textarea id="ed-notes" placeholder="備考"></textarea>
+    </div>
+    <div class="edit-actions">
+      <button class="btn" onclick="closeEdit()">キャンセル</button>
+      <button class="btn primary" onclick="addRoom()">追加</button>
+    </div>
+  `;
+  document.getElementById('editOverlay').classList.add('on');
+}
+
+function addRoom() {
+  const id = 'room-' + Date.now();
+  data.rooms.push({
+    id: id,
+    name: document.getElementById('ed-name').value || '新規部屋',
+    type: document.getElementById('ed-type').value,
+    x: parseInt(document.getElementById('ed-x').value) || 0,
+    y: parseInt(document.getElementById('ed-y').value) || 0,
+    width: parseInt(document.getElementById('ed-w').value) || 2000,
+    height: parseInt(document.getElementById('ed-h').value) || 2000,
+    color: document.getElementById('ed-color').value,
+    notes: document.getElementById('ed-notes').value
+  });
+  data.meta.lastUpdated = new Date().toISOString().slice(0,10);
+  selectedId = id;
+  closeEdit();
+  render();
+  showToast('部屋を追加しました');
+}
+
+// ===== EDIT UNIT =====
+function editUnit(id) {
+  const unit = (data.treatmentUnits||[]).find(u => u.id === id);
+  if (!unit) return;
+  selectedId = id;
+
+  document.getElementById('editPanel').innerHTML = `
+    <div class="edit-title">ユニットを編集 <button class="edit-close" onclick="closeEdit()">&times;</button></div>
+    <div class="field">
+      <label>ラベル</label>
+      <input id="ed-label" value="${unit.label}">
+    </div>
+    <div class="field-row">
+      <div class="field"><label>X (mm)</label><input type="number" id="ed-x" value="${unit.x}"></div>
+      <div class="field"><label>Y (mm)</label><input type="number" id="ed-y" value="${unit.y}"></div>
+    </div>
+    <div class="field">
+      <label>角度 (°)</label>
+      <input type="number" id="ed-angle" value="${unit.angle||0}">
+    </div>
+    <div class="edit-actions">
+      <button class="btn danger" onclick="deleteUnit('${id}')">削除</button>
+      <button class="btn" onclick="closeEdit()">キャンセル</button>
+      <button class="btn primary" onclick="saveUnit('${id}')">保存</button>
+    </div>
+  `;
+  document.getElementById('editOverlay').classList.add('on');
+}
+
+function saveUnit(id) {
+  const unit = data.treatmentUnits.find(u => u.id === id);
+  if (!unit) return;
+  unit.label = document.getElementById('ed-label').value;
+  unit.x = parseInt(document.getElementById('ed-x').value) || 0;
+  unit.y = parseInt(document.getElementById('ed-y').value) || 0;
+  unit.angle = parseInt(document.getElementById('ed-angle').value) || 0;
+  closeEdit();
+  render();
+  showToast('保存しました');
+}
+
+function deleteUnit(id) {
+  if (!confirm('このユニットを削除しますか？')) return;
+  data.treatmentUnits = data.treatmentUnits.filter(u => u.id !== id);
+  selectedId = null;
+  closeEdit();
+  render();
+  showToast('削除しました');
+}
+
+// ===== EXPORT =====
+function exportJSON() {
+  data.meta.lastUpdated = new Date().toISOString().slice(0,10);
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'floorplan-data.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('JSONをダウンロードしました');
+}
+
+function closeEdit() {
+  document.getElementById('editOverlay').classList.remove('on');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== INIT =====
+init();
+</script>
+</body>
+</html>
