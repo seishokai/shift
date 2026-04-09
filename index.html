@@ -758,11 +758,13 @@ function isClosed(dateStr,cid){
   if(cid&&CLOSED_DATES[cid]&&CLOSED_DATES[cid].includes(dateStr))return true;
   /* 曜日ベースの休診チェック */
   if(cid&&CLOSED[cid]&&CLOSED[cid].includes(w))return true;
-  /* 隔週日曜チェック（2グループ交互） */
-  if(w===0&&cid){
-    var weekNum=Math.ceil(d.getDate()/7);
-    if(weekNum%2===1&&SUN_GROUP_A.indexOf(cid)>=0)return true; /* 第1・3・5日曜: エスカ・アール */
-    if(weekNum%2===0&&SUN_GROUP_B.indexOf(cid)>=0)return true; /* 第2・4日曜: ウィズ・ルミナス・大森 */
+  /* 隔週日曜チェック（2グループ交互・月をまたいで連続） */
+  if(w===0&&cid&&(SUN_GROUP_A.indexOf(cid)>=0||SUN_GROUP_B.indexOf(cid)>=0)){
+    /* 基準: 2026-06-07(日)=GroupA休み。そこから通算週で交互 */
+    var refDate=new Date(2026,5,7);/* 2026-06-07 */
+    var diffWeeks=Math.round((d.getTime()-refDate.getTime())/(7*24*60*60*1000));
+    if(diffWeeks%2===0&&SUN_GROUP_A.indexOf(cid)>=0)return true;
+    if(diffWeeks%2!==0&&SUN_GROUP_B.indexOf(cid)>=0)return true;
   }
   /* 祝日チェック（指定医院のみ） */
   if(HOL.has(dateStr)&&cid&&HOL_CLOSED.indexOf(cid)>=0)return true;
