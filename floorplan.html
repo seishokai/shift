@@ -150,19 +150,78 @@ let scale = 1;
 const PADDING = 60;
 const SCALE_BASE = 0.05; // 1mm = 0.05px base
 
-async function init() {
-  try {
-    const res = await fetch('floorplan-data.json');
-    data = await res.json();
-  } catch(e) {
-    // Fallback: embedded data
-    data = getDefaultData();
-  }
+function init() {
+  data = {
+    "meta": {
+      "project": "歯科医院 3F フロアプラン",
+      "floor": "FL-3",
+      "lastUpdated": "2026-04-09",
+      "unit": "mm",
+      "gridColumns": [{"id":"6","x":0},{"id":"7","x":9000},{"id":"8","x":18000}],
+      "gridRows": [{"id":"F","y":0},{"id":"E","y":7000}],
+      "overallWidth": 18000,
+      "overallHeight": 7000,
+      "wallThickness": 200,
+      "notes": "通り芯 6-7-8 (横方向 各9000mm間隔), F-E (縦方向 7000mm)"
+    },
+    "windows": [
+      {"id":"win-1","x":800,"y":0,"width":3220,"height":150,"sillHeight":150,"headerHeight":4320,"label":"W=3,220 H=4,320 h=7FL-150"},
+      {"id":"win-2","x":4800,"y":0,"width":3220,"height":150,"sillHeight":150,"headerHeight":4320,"label":"W=3,220 H=4,320 h=7FL-150"},
+      {"id":"win-3","x":9800,"y":0,"width":3220,"height":150,"sillHeight":150,"headerHeight":4320,"label":"W=3,220 H=4,320 h=7FL-150"},
+      {"id":"win-4","x":14800,"y":0,"width":3220,"height":150,"sillHeight":150,"headerHeight":4320,"label":"W=3,220 H=4,320 h=7FL-150"}
+    ],
+    "blindBoxes": [
+      {"id":"bb-1","x":400,"y":200,"width":700,"height":300,"label":"ブラインドボックス 7FL+700 W=200 H=300"},
+      {"id":"bb-2","x":4200,"y":200,"width":700,"height":300,"label":"ブラインドボックス 7FL+700 W=200 H=300"},
+      {"id":"bb-3","x":7600,"y":200,"width":700,"height":300,"label":"ブラインドボックス"},
+      {"id":"bb-4","x":10200,"y":200,"width":700,"height":300,"label":"ブラインドボックス"},
+      {"id":"bb-5","x":13800,"y":200,"width":700,"height":300,"label":"ブラインドボックス 7FL+700 W=200 H=300"},
+      {"id":"bb-6","x":17000,"y":200,"width":700,"height":300,"label":"ブラインドボックス 7FL+700"}
+    ],
+    "rooms": [
+      {"id":"room-counseling-1","name":"カウンセリング","type":"counseling","x":500,"y":800,"width":3500,"height":2800,"color":"#4a90d9","notes":"カウンセリングルーム（左側）"},
+      {"id":"room-sterilization","name":"消毒","type":"sterilization","x":5000,"y":1800,"width":3500,"height":2400,"color":"#50c878","notes":"消毒・滅菌室（中央）"},
+      {"id":"room-xray","name":"X線","type":"xray","x":15500,"y":600,"width":2200,"height":2000,"color":"#e8575a","notes":"X線撮影室（右上）"},
+      {"id":"room-vip","name":"VIP","type":"treatment-vip","x":500,"y":4200,"width":3000,"height":2500,"color":"#d4a017","notes":"VIP診療室（左下）"},
+      {"id":"room-doctor","name":"ドクター","type":"doctor","x":4000,"y":5000,"width":2800,"height":1800,"color":"#8e6bbf","notes":"ドクタールーム（下中央左）"},
+      {"id":"room-equipment","name":"機械","type":"equipment","x":7000,"y":5000,"width":2800,"height":1800,"color":"#7a8b99","notes":"機械室（下中央右）"},
+      {"id":"room-waiting","name":"待合","type":"waiting","x":10500,"y":2800,"width":5000,"height":4000,"color":"#f5a623","notes":"待合室（右側大）"},
+      {"id":"room-counseling-2","name":"カウンセリング","type":"counseling","x":15500,"y":2800,"width":2200,"height":1800,"color":"#4a90d9","notes":"カウンセリングルーム2（右側）"}
+    ],
+    "treatmentUnits": [
+      {"id":"unit-1","x":1500,"y":1200,"angle":0,"label":"ユニット1"},
+      {"id":"unit-2","x":3200,"y":1200,"angle":0,"label":"ユニット2"},
+      {"id":"unit-3","x":5500,"y":700,"angle":0,"label":"ユニット3"},
+      {"id":"unit-4","x":7200,"y":700,"angle":0,"label":"ユニット4"},
+      {"id":"unit-5","x":9500,"y":700,"angle":0,"label":"ユニット5"},
+      {"id":"unit-6","x":11200,"y":700,"angle":0,"label":"ユニット6"},
+      {"id":"unit-7","x":12900,"y":700,"angle":0,"label":"ユニット7"}
+    ],
+    "fixtures": [
+      {"id":"fix-sink-1","type":"sink","x":4800,"y":3200,"width":600,"height":400,"label":"シンク"},
+      {"id":"fix-sink-2","type":"sink","x":6500,"y":3200,"width":600,"height":400,"label":"シンク"},
+      {"id":"fix-counter-1","type":"counter","x":5000,"y":3800,"width":3000,"height":500,"label":"カウンター"},
+      {"id":"fix-vent","type":"ventilation","x":1200,"y":600,"width":400,"height":200,"label":"通気管"}
+    ],
+    "walls": [
+      {"id":"wall-smoke","type":"smoke-barrier","x":9000,"y":6500,"width":4000,"height":200,"label":"防煙垂壁 H=500 LGS90+PBt12.5(共用廊側のみ)"}
+    ],
+    "doors": [
+      {"id":"door-1","x":400,"y":6800,"width":900,"swing":"inward","label":"一方枠A St1.6曲げ加工"},
+      {"id":"door-2","x":17200,"y":6800,"width":900,"swing":"inward","label":"一方枠A St1.6曲げ加工"}
+    ],
+    "dimensions": [
+      {"from":"6","to":"7","value":9000,"axis":"x"},
+      {"from":"7","to":"8","value":9000,"axis":"x"},
+      {"from":"F","to":"E","value":7000,"axis":"y"},
+      {"label":"上部壁厚","value":200},
+      {"label":"天井高 (5450)","value":5450},
+      {"label":"奥行3850","value":3850},
+      {"label":"高さ4100","value":4100},
+      {"label":"幅5600","value":5600}
+    ]
+  };
   render();
-}
-
-function getDefaultData() {
-  return {"meta":{"project":"歯科医院 3F フロアプラン","floor":"FL-3","lastUpdated":"2026-04-09","unit":"mm","gridColumns":[{"id":"6","x":0},{"id":"7","x":9000},{"id":"8","x":18000}],"gridRows":[{"id":"F","y":0},{"id":"E","y":7000}],"overallWidth":18000,"overallHeight":7000},"rooms":[],"treatmentUnits":[],"fixtures":[],"dimensions":[]};
 }
 
 // ===== RENDERING =====
