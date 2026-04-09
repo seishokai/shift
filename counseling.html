@@ -153,15 +153,61 @@ table.compare tr:hover{background:#222}
 body.slide-mode{overflow:hidden;margin:0;padding:0}
 body.slide-mode .nav{display:none}
 body.slide-mode .slide-wrap{display:flex;width:max-content;height:100vh;transition:transform 0.5s ease}
-body.slide-mode .slide-section{width:100vw;height:100vh;overflow-y:auto;flex-shrink:0;box-sizing:border-box;padding:40px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+body.slide-mode .slide-section{width:100vw;height:100vh;overflow:hidden;flex-shrink:0;box-sizing:border-box;padding:30px 50px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#fff}
 body.slide-mode .slide-section>*{max-width:1100px;width:100%}
-body.slide-mode .slide-section.dark{padding:40px}
-body.slide-mode .slide-section section{padding:20px 0}
+body.slide-mode .slide-section.dark{background:#111;padding:30px 50px}
+body.slide-mode .slide-section section{padding:10px 0}
+/* スライド時のサイズ調整 - 1画面に収める */
+body.slide-mode .section-title{margin-bottom:15px}
+body.slide-mode .section-title h2{font-size:22px;padding-bottom:8px}
+body.slide-mode .concern-item{padding:10px 15px;font-size:15px}
+body.slide-mode .concerns{gap:10px}
+body.slide-mode .detail-section{margin-bottom:20px}
+body.slide-mode .detail-section h3{font-size:18px;margin-bottom:10px}
+body.slide-mode .detail-section li{font-size:14px;padding:4px 0 4px 18px}
+body.slide-mode .option-card{padding:15px}
+body.slide-mode .option-card h3{font-size:20px}
+body.slide-mode .option-card p{font-size:14px}
+body.slide-mode .two-options{gap:15px;margin-top:15px}
+body.slide-mode table.compare th,body.slide-mode table.compare td{padding:8px 10px;font-size:13px}
+body.slide-mode .flow-step{padding:12px;margin-bottom:8px}
+body.slide-mode .flow-step h4{font-size:15px;margin-bottom:4px}
+body.slide-mode .flow-step p,body.slide-mode .flow-step li{font-size:13px}
+body.slide-mode .flow-branches{gap:8px;margin:10px 0}
+body.slide-mode .flow-branch{padding:8px;font-size:12px}
+body.slide-mode .set-day{gap:15px;margin:10px 0}
+body.slide-mode .set-half{padding:12px}
+body.slide-mode .set-half h4{font-size:15px;margin-bottom:8px}
+body.slide-mode .set-half li{font-size:12px;margin-bottom:4px}
+body.slide-mode .cases-list{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+body.slide-mode .case-thumb img{height:140px}
+body.slide-mode .case-thumb .thumb-info{padding:8px 10px}
+body.slide-mode .case-thumb .thumb-info h4{font-size:14px}
+body.slide-mode .case-thumb .thumb-info p{font-size:12px}
+body.slide-mode .upload-area{padding:15px;font-size:14px;margin-bottom:15px}
+body.slide-mode .price-block{margin-bottom:20px}
+body.slide-mode .price-header{margin-bottom:12px;padding-bottom:8px}
+body.slide-mode .price-header h3{font-size:18px}
+body.slide-mode .ptbl{min-width:700px}
+body.slide-mode .ptbl thead th{padding:6px 4px;font-size:10px}
+body.slide-mode .ptbl tbody td{padding:6px 4px;font-size:11px}
+body.slide-mode .ptbl .num-cell .big{font-size:20px}
+body.slide-mode .ptbl .teika-cell .main{font-size:13px}
+body.slide-mode .ptbl .cell-price{font-size:12px}
+body.slide-mode .warranty-grid{gap:15px;margin-top:15px}
+body.slide-mode .warranty-card{padding:15px}
+body.slide-mode .warranty-card h4{font-size:17px;margin-bottom:8px}
+body.slide-mode .warranty-card li{font-size:13px;padding:5px 0}
+body.slide-mode .faq-item{padding:10px 0}
+body.slide-mode .faq-q{font-size:15px;margin-bottom:5px}
+body.slide-mode .faq-a{font-size:14px}
+body.slide-mode .comparison-img img{max-height:35vh}
 body.slide-mode .hero-bg{display:none}
-body.slide-mode .hero{background:#fff;color:#222;min-height:auto;padding:40px 20px}
-body.slide-mode .hero h1{text-shadow:none;color:#222}
-body.slide-mode .hero .sub{text-shadow:none}
-body.slide-mode .hero .tagline{text-shadow:none;color:#222}
+body.slide-mode .hero{background:#fff;color:#222;min-height:auto;padding:30px 20px}
+body.slide-mode .hero h1{text-shadow:none;color:#222;font-size:28px}
+body.slide-mode .hero .sub{text-shadow:none;font-size:16px}
+body.slide-mode .hero .tagline{text-shadow:none;color:#222;font-size:20px;margin-top:15px}
+body.slide-mode .hero .fade{opacity:1;transform:none;animation:none}
 .slide-nav{display:none;position:fixed;z-index:600}
 body.slide-mode .slide-nav{display:flex;align-items:center;justify-content:center}
 .slide-nav.s-prev{left:10px;top:50%}
