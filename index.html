@@ -75,15 +75,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .cal-dow-lbl{text-align:center;font-size:10px;color:var(--ink3);padding:4px 0;}
 .cal-dow-lbl.sun{color:#c0392b;}.cal-dow-lbl.sat{color:#1a5276;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.day-cell{border-radius:8px;min-height:52px;padding:4px;background:var(--card);border:0.5px solid var(--border);cursor:pointer;position:relative;transition:all .12s;}
+.day-cell{border-radius:8px;min-height:58px;padding:5px;background:var(--card);border:0.5px solid var(--border);cursor:pointer;position:relative;transition:all .12s;}
 .day-cell:active{opacity:.7;}
 .day-cell.empty{background:transparent;border-color:transparent;cursor:default;}
 .day-cell.sun{background:#fff5f5;}.day-cell.sat{background:#f0f5ff;}
 .day-cell.closed-day{background:#f0efed;opacity:.7;}
 .day-cell.today-day{border:2px solid #f39c12;background:#fff9e6;box-shadow:0 0 0 1px #f39c12;}
-.day-num{font-size:11px;font-weight:500;color:var(--ink2);display:block;}
+.day-num{font-size:12px;font-weight:600;color:var(--ink2);display:block;}
 .day-cell.sun .day-num{color:#c0392b;}.day-cell.sat .day-num{color:#1a5276;}
-.day-shift{display:block;margin-top:2px;padding:2px 4px;border-radius:4px;font-size:9px;font-weight:700;text-align:center;line-height:1.3;}
+.day-shift{display:block;margin-top:2px;padding:3px 4px;border-radius:5px;font-size:10px;font-weight:700;text-align:center;line-height:1.3;}
 .no-doc-msg{padding:40px;text-align:center;color:var(--ink3);font-size:13px;}
 /* よく行く医院 */
 .freq-bar{padding:10px 12px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
@@ -114,17 +114,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .btn-del{background:#fdf0ee;color:#b83030;flex:0 0 auto;padding:13px 14px;}
 /* ===== VIEW B 2ペインレイアウト ===== */
 .b-layout{display:flex;height:calc(100vh - 100px);overflow:hidden;}
-.b-left{flex:0 0 340px;border-right:1px solid var(--border);overflow-y:hidden;display:flex;flex-direction:column;min-width:0;}
+.b-left{flex:0 0 420px;border-right:1px solid var(--border);overflow-y:hidden;display:flex;flex-direction:column;min-width:0;}
 .b-right{flex:1;overflow:auto;background:var(--bg);}
 .b-right-title{padding:8px 12px;font-size:11px;font-weight:600;color:var(--ink3);background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;}
 /* 医院選択バー */
-.clinic-pick-lbl{padding:8px 12px 4px;font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;}
-.clinic-pick-row{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px;border-bottom:1px solid var(--border);}
-.clinic-pick-btn{padding:9px 14px;border-radius:20px;border:2px solid transparent;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.clinic-pick-lbl{padding:6px 12px 2px;font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;}
+.clinic-pick-row{display:flex;flex-wrap:nowrap;gap:4px;padding:0 12px 6px;border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.clinic-pick-row.expanded{flex-wrap:wrap;}
+.clinic-pick-btn{padding:5px 10px;border-radius:14px;border:2px solid transparent;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.06);white-space:nowrap;flex-shrink:0;}
 .clinic-pick-btn:active{transform:scale(.95);}
 .clinic-pick-btn.on{border-width:2px;box-shadow:0 2px 8px rgba(0,0,0,.12);}
-/* カレンダー（コンパクト） */
-.cal-wrap{padding:10px 10px 6px;}
+/* カレンダー */
+.cal-wrap{padding:8px;}
 .cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px;}
 .cal-dow-lbl{text-align:center;font-size:9px;color:var(--ink3);padding:3px 0;}
 .cal-dow-lbl.sun{color:#c0392b;}.cal-dow-lbl.sat{color:#1a5276;}
@@ -294,7 +295,7 @@ thead .date-th{top:0;}
       <div class="b-left">
         <div class="doc-sel-bar" id="docSelBar"></div>
         <div id="clinicPickBar" style="display:none;position:sticky;top:56px;z-index:9;background:var(--card);">
-          <div class="clinic-pick-lbl">医院を選んで → 日付をポチポチ</div>
+          <div class="clinic-pick-lbl"><span>医院を選んで → 日付をポチポチ</span><button id="clinicPickToggle" onclick="var r=document.getElementById('clinicPickRow');r.classList.toggle('expanded');this.textContent=r.classList.contains('expanded')?'▲ 閉じる':'▼ 全表示';" style="border:none;background:none;color:var(--ink3);font-size:9px;cursor:pointer;font-family:inherit;">▼ 全表示</button></div>
           <div class="clinic-pick-row" id="clinicPickRow"></div>
         </div>
         <div class="no-doc-msg" id="noDocMsg">ドクターを選んでください</div>
