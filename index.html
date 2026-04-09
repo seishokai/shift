@@ -810,6 +810,7 @@ function loadDB(){
 function saveShiftsLocal(){
   try{localStorage.setItem('seishokai_shifts',JSON.stringify(shifts));}catch(e){}
 }
+var saveShiftsLocalNow=saveShiftsLocal;
 function loadShiftsLocal(){
   try{
     var s=localStorage.getItem('seishokai_shifts');
