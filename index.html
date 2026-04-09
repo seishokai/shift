@@ -38,7 +38,7 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 .sun{color:#e05252;background:#fff5f5 !important;}.sat{color:#4a7fd4;background:#f0f5ff !important;}
 .hol-badge{background:#e05252;color:#fff;font-size:7px;border-radius:3px;padding:0 3px;margin-left:1px;}
 /* ペイントバー */
-#paintBar{display:none;position:sticky;top:0;z-index:50;background:#1a1a18;color:#fff;padding:6px 10px;font-size:12px;}
+#paintBar{display:none;position:sticky;top:0;z-index:50;background:#fff;color:#333;padding:6px 10px;font-size:12px;border-bottom:2px solid #ddd;box-shadow:0 2px 6px rgba(0,0,0,.08);}
 #paintBar .paint-opt{padding:4px 10px;border-radius:10px;border:2px solid transparent;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;margin:0 2px;}
 /* 休診日セル */
 .closed-cell{width:50px;min-width:50px;height:26px;cursor:pointer;user-select:none;font-weight:700;font-size:10px;}
@@ -88,7 +88,7 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
   <div id="paintBar">
     <span id="paintLbl">医院を選んでセルをクリック</span>
     <span id="paintOpts"></span>
-    <button onclick="setPaint(null)" style="margin-left:auto;padding:3px 10px;border:none;background:rgba(255,255,255,.2);color:#fff;border-radius:8px;font-size:11px;cursor:pointer;">✕ 閉じる</button>
+    <button onclick="setPaint(null)" style="margin-left:auto;padding:3px 10px;border:none;background:#f0f0ee;color:#333;border-radius:8px;font-size:11px;cursor:pointer;">✕ 閉じる</button>
   </div>
   <table class="grid" id="shiftTable"></table>
 </div>
@@ -419,16 +419,16 @@ function renderPaintBar(){
   var opts='';
   CLINICS.forEach(function(cl){
     var c=getCC(cl.id),on=paintClinic===cl.id;
-    opts+='<button class="paint-opt" onclick="setPaint(\''+cl.id+'\')" style="background:'+(on?c.c:'rgba(255,255,255,.1)')+';color:'+(on?'#fff':c.c)+';border-color:'+(on?'#fff':'transparent')+';">'+cl.n+'</button>';
+    opts+='<button class="paint-opt" onclick="setPaint(\''+cl.id+'\')" style="background:'+(on?c.c:'#f5f5f3')+';color:'+(on?'#fff':c.c)+';border-color:'+(on?c.c:'#ddd')+';">'+cl.n+'</button>';
   });
   opts+='<span style="margin:0 4px;color:#555;">|</span>';
   STATUSES.forEach(function(s){
     var c=getCC(s.id),on=paintClinic===s.id;
-    opts+='<button class="paint-opt" onclick="setPaint(\''+s.id+'\')" style="background:'+(on?c.c:'rgba(255,255,255,.1)')+';color:'+(on?'#fff':c.c)+';border-color:'+(on?'#fff':'transparent')+';">'+s.n+'</button>';
+    opts+='<button class="paint-opt" onclick="setPaint(\''+s.id+'\')" style="background:'+(on?c.c:'#f5f5f3')+';color:'+(on?'#fff':c.c)+';border-color:'+(on?c.c:'#ddd')+';">'+s.n+'</button>';
   });
   var kiboOn=paintClinic==='__kibokyu__';
-  opts+='<button class="paint-opt" onclick="setPaint(\'__kibokyu__\')" style="background:'+(kiboOn?'#7b2d8b':'rgba(255,255,255,.1)')+';color:'+(kiboOn?'#fff':'#7b2d8b')+';border-color:'+(kiboOn?'#fff':'transparent')+';">希望休</button>';
-  opts+='<button class="paint-opt" onclick="setPaintDel()" style="background:'+(paintClinic==='__del__'?'#b83030':'rgba(255,255,255,.1)')+';color:'+(paintClinic==='__del__'?'#fff':'#ff6b6b')+';border-color:'+(paintClinic==='__del__'?'#fff':'transparent')+';">削除</button>';
+  opts+='<button class="paint-opt" onclick="setPaint(\'__kibokyu__\')" style="background:'+(kiboOn?'#7b2d8b':'#f5f5f3')+';color:'+(kiboOn?'#fff':'#7b2d8b')+';border-color:'+(kiboOn?'#7b2d8b':'#ddd')+';">希望休</button>';
+  opts+='<button class="paint-opt" onclick="setPaintDel()" style="background:'+(paintClinic==='__del__'?'#b83030':'#f5f5f3')+';color:'+(paintClinic==='__del__'?'#fff':'#ff6b6b')+';border-color:'+(paintClinic==='__del__'?'#b83030':'#ddd')+';">削除</button>';
   document.getElementById('paintOpts').innerHTML=opts;
 }
 function setPaintDel(){paintClinic='__del__';renderPaintBar();renderShifts();}
