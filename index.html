@@ -1270,7 +1270,7 @@ function renderAllView(targetId){
     if(hol) dateColor='#c0392b';
     var dateCellStyle='position:sticky;text-align:center;font-size:8px;font-weight:700;color:'+dateColor+';padding:1px 2px;border:0.5px solid #ccc;width:28px;min-width:28px;white-space:nowrap;background:'+(isT2?'#ffe082':isSun?'#ffd6d6':hol?'#ffe0e0':isSat?'#d6e4ff':'#e8e8e8')+';';
     if(hol) dateLabel+='祝';
-    var dateCell='<td style="'+dateCellStyle+'left:0;z-index:6;border-right:2px solid #aaa;'+todayBorderL+'">'+dateLabel+'</td>';
+    var dateCell='<td data-del-date="'+dateStr+'" style="'+dateCellStyle+'left:0;z-index:6;border-right:2px solid #aaa;cursor:pointer;'+todayBorderL+'">'+dateLabel+'</td>';
     var dateCell2='<td style="'+dateCellStyle+'right:0;z-index:6;border-left:2px solid #aaa;'+todayBorderR+'">'+dateLabel+'</td>';
 
     h+='<tr style="height:28px;max-height:28px;">'+dateCell;
@@ -1355,8 +1355,24 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
 
   el.querySelectorAll('[data-open-doc]').forEach(function(th){
     th.addEventListener('click',function(){
+      if(isAdmin&&window._shiftPaintClinic==='__del__'){
+        /* 削除モード：列全削除（このドクターの今月全シフト） */
+        var did=th.dataset.openDoc;
+        var doc=doctors.find(function(d){return d.id===did;});
+        if(!confirm((doc?doc.n:'')+'の'+(curM+1)+'月シフトを全削除しますか？'))return;
+        globalSnapshot();
+        for(var dd=1;dd<=dim(curY,curM);dd++){
+          var dds=ds(dd);
+          if(shifts[dds]){
+            var had=shifts[dds].find(function(s){return s.docId===did;});
+            if(had){shifts[dds]=shifts[dds].filter(function(s){return s.docId!==did;});if(!shifts[dds].length)delete shifts[dds];dbDel(dds,did);}
+          }
+        }
+        saveShiftsLocal();refreshViews('allViewWrap');renderAllView('allViewWrapView');
+        showSb((doc?doc.n:'')+'の月シフト削除','ok');
+        return;
+      }
       if(isAdmin){
-        /* 管理モード：ドクター選択 → selDocIdをセットして全体バランスでも入力可能に */
         var did=th.dataset.openDoc;
         var isSame=(balSelDocId===did);
         balSelDocId=isSame?null:did;
@@ -1527,6 +1543,24 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
     tableEl.addEventListener('touchend',function(){
       balIsDragging=false;balSelDates.clear();
     },{passive:true});
+
+    /* 日付セルクリック→行全削除（削除モード時） */
+    el.querySelectorAll('[data-del-date]').forEach(function(td){
+      td.addEventListener('click',function(){
+        if(!window._shiftPaintClinic||window._shiftPaintClinic!=='__del__')return;
+        var dds=td.dataset.delDate;
+        var dt=new Date(dds);
+        var DOW9=['日','月','火','水','木','金','土'];
+        if(!confirm((dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW9[dt.getDay()]+')の全シフトを削除しますか？'))return;
+        globalSnapshot();
+        if(shifts[dds]){
+          shifts[dds].forEach(function(s){dbDel(dds,s.docId);});
+          delete shifts[dds];
+        }
+        saveShiftsLocal();refreshViews(targetId);
+        showSb(dt.getDate()+'日の全シフト削除','ok');
+      });
+    });
   }
 }
 
