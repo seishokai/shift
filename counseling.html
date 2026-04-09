@@ -12,16 +12,20 @@ body{font-family:"Yu Gothic","游ゴシック",YuGothic,"Hiragino Sans",sans-ser
 .nav a{color:#C5A55A;text-decoration:none;padding:8px 16px;font-size:15px;display:inline-block;transition:opacity 0.3s}
 .nav a:hover{opacity:0.7}
 section{padding:60px 20px;max-width:1100px;margin:0 auto}
-.hero{background:#000;color:#fff;text-align:center;padding:100px 20px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:100%}
+.hero{background:#000;color:#fff;text-align:center;padding:100px 20px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;max-width:100%;position:relative;overflow:hidden}
+.hero-bg{position:absolute;top:0;left:0;width:100%;height:100%;background:url('./16.jpg') center center/cover no-repeat;opacity:0;animation:bgFadeIn 3s ease 0.3s forwards;z-index:0}
+.hero-bg::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.7) 50%,rgba(0,0,0,0.85) 100%)}
+.hero>*{position:relative;z-index:1}
+@keyframes bgFadeIn{to{opacity:1}}
 .hero .fade{opacity:0;transform:translateY(20px);animation:fadeUp 1.2s ease forwards}
-.hero .fade:nth-child(1){animation-delay:0.8s}
-.hero .fade:nth-child(2){animation-delay:1.8s}
-.hero .fade:nth-child(3){animation-delay:2.8s}
-.hero .fade:nth-child(4){animation-delay:3.6s}
+.hero .fade:nth-child(2){animation-delay:1s}
+.hero .fade:nth-child(3){animation-delay:2s}
+.hero .fade:nth-child(4){animation-delay:3s}
+.hero .fade:nth-child(5){animation-delay:3.8s}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-.hero h1{font-size:clamp(28px,5vw,48px);font-weight:300;letter-spacing:0.1em;margin-bottom:20px}
-.hero .sub{font-size:clamp(16px,3vw,22px);color:#C5A55A;letter-spacing:0.15em;margin-top:10px}
-.hero .tagline{font-size:clamp(18px,3.5vw,28px);margin-top:30px;font-weight:400}
+.hero h1{font-size:clamp(28px,5vw,48px);font-weight:400;letter-spacing:0.1em;margin-bottom:20px;text-shadow:0 2px 20px rgba(0,0,0,0.8)}
+.hero .sub{font-size:clamp(16px,3vw,22px);color:#C5A55A;letter-spacing:0.15em;margin-top:10px;text-shadow:0 2px 10px rgba(0,0,0,0.8)}
+.hero .tagline{font-size:clamp(18px,3.5vw,28px);margin-top:30px;font-weight:400;text-shadow:0 2px 15px rgba(0,0,0,0.8)}
 .section-title{text-align:center;margin-bottom:40px}
 .section-title h2{font-size:clamp(24px,4vw,36px);font-weight:300;letter-spacing:0.08em;padding-bottom:15px;border-bottom:2px solid #C5A55A;display:inline-block}
 .dark{background:#111;color:#fff;max-width:100%;padding:60px 20px}
@@ -53,21 +57,35 @@ table.compare tr:hover{background:#222}
 .case-tabs{display:flex;justify-content:center;gap:10px;margin-bottom:30px;flex-wrap:wrap}
 .case-tab{padding:12px 30px;border:2px solid #C5A55A;background:transparent;color:#C5A55A;cursor:pointer;font-size:17px;border-radius:30px;transition:all 0.3s}
 .case-tab.active,.case-tab:hover{background:#C5A55A;color:#000}
-.carousel-case{margin-bottom:40px;border:1px solid #eee;border-radius:16px;overflow:hidden;background:#fafafa}
-.carousel-header{padding:20px 25px 10px;text-align:center}
-.carousel-header h3{font-size:20px;color:#C5A55A;margin-bottom:6px}
-.carousel-header p{font-size:16px;color:#666}
-.carousel-track-wrap{position:relative;display:flex;align-items:center;padding:10px 0 20px}
-.carousel-track{display:flex;overflow-x:auto;scroll-behavior:smooth;gap:12px;padding:0 50px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.carousel-track::-webkit-scrollbar{display:none}
-.carousel-track img{min-width:320px;max-width:420px;height:280px;object-fit:cover;border-radius:10px;cursor:pointer;flex-shrink:0;transition:transform 0.3s}
-.carousel-track img:hover{transform:scale(1.03)}
-@media(max-width:768px){.carousel-track img{min-width:260px;max-width:300px;height:220px}}
-.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:10;background:rgba(0,0,0,0.6);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.3s}
-.carousel-btn:hover{background:rgba(0,0,0,0.85)}
-.carousel-btn.prev{left:6px}
-.carousel-btn.next{right:6px}
-.dark .carousel-case{background:#1a1a1a;border-color:#333}
+.cases-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.case-thumb{border:1px solid #eee;border-radius:14px;overflow:hidden;cursor:pointer;transition:transform 0.3s,box-shadow 0.3s;background:#fafafa}
+.case-thumb:hover{transform:translateY(-4px);box-shadow:0 8px 25px rgba(0,0,0,0.1)}
+.case-thumb img{width:100%;height:220px;object-fit:cover}
+.case-thumb .thumb-info{padding:14px 16px}
+.case-thumb .thumb-info h4{font-size:17px;color:#C5A55A;margin-bottom:4px}
+.case-thumb .thumb-info p{font-size:14px;color:#888}
+.upload-area{border:2px dashed #C5A55A;border-radius:14px;padding:30px;text-align:center;cursor:pointer;margin-bottom:30px;transition:background 0.3s;color:#C5A55A;font-size:16px}
+.upload-area:hover{background:rgba(197,165,90,0.08)}
+.upload-area input{display:none}
+/* Full-screen slideshow */
+.slideshow{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:2000;flex-direction:column}
+.slideshow.active{display:flex}
+.slideshow-close{position:absolute;top:12px;right:16px;color:#fff;font-size:32px;cursor:pointer;z-index:2010;background:rgba(0,0,0,0.5);border:none;line-height:1;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.slideshow-close:hover{color:#C5A55A}
+.slideshow-img-wrap{flex:1;display:flex;align-items:center;justify-content:center;width:100%;position:relative;overflow:hidden;min-height:0}
+.slideshow-img-wrap img{width:100%;height:100%;object-fit:contain;transition:opacity 0.3s}
+.slideshow-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.4);border:none;color:#fff;width:50px;height:50px;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.3s;z-index:2010}
+.slideshow-nav:hover{background:rgba(197,165,90,0.7)}
+.slideshow-nav.prev{left:10px}
+.slideshow-nav.next{right:10px}
+.slideshow-bottom{background:rgba(0,0,0,0.85);padding:8px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.slideshow-caption{color:#fff;font-size:14px;flex:1;min-width:0}
+.slideshow-caption h4{color:#C5A55A;font-size:16px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slideshow-caption p{margin:0}
+.slideshow-counter{color:#888;font-size:13px;flex-shrink:0}
+.slideshow-thumbs{display:flex;gap:6px;justify-content:center;padding:6px 10px;overflow-x:auto;background:rgba(0,0,0,0.9);flex-shrink:0}
+.slideshow-thumbs img{width:50px;height:38px;object-fit:cover;border-radius:4px;cursor:pointer;opacity:0.4;transition:opacity 0.3s;border:2px solid transparent;flex-shrink:0}
+.slideshow-thumbs img.active{opacity:1;border-color:#C5A55A}
 .flow-chart{max-width:700px;margin:30px auto}
 .flow-step{background:#f5f5f5;padding:20px;border-radius:10px;margin-bottom:15px;position:relative}
 .flow-step:not(:last-child):after{content:"▼";display:block;text-align:center;color:#C5A55A;font-size:20px;margin-top:10px;position:absolute;bottom:-18px;left:50%;transform:translateX(-50%)}
@@ -77,12 +95,40 @@ table.compare tr:hover{background:#222}
 @media(max-width:768px){.flow-branches{grid-template-columns:1fr}}
 .flow-branch{background:#1a1a1a;border:1px solid #333;padding:15px;border-radius:8px;text-align:center;font-size:16px}
 .flow-branch .label{color:#C5A55A;font-weight:600;margin-bottom:8px}
-table.price-table{width:100%;border-collapse:collapse;margin:20px 0}
-table.price-table th{background:#C5A55A;color:#000;padding:14px;font-weight:600;font-size:17px}
-table.price-table td{padding:14px;border-bottom:1px solid #eee;text-align:center;font-size:17px}
-table.price-table tr:hover{background:#f9f9f9}
-.dark table.price-table td{border-bottom-color:#333}
-.dark table.price-table tr:hover{background:#1a1a1a}
+.price-block{margin-bottom:60px}
+.price-header{display:flex;align-items:baseline;gap:12px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid #222}
+.price-header h3{font-size:22px;font-weight:700;color:#222;margin:0}
+.price-header span{font-size:15px;color:#888}
+.price-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ptbl{width:100%;border-collapse:collapse;min-width:900px}
+.ptbl thead th{padding:10px 8px;font-size:12px;font-weight:600;text-align:center;border-bottom:2px solid #222;color:#555;vertical-align:bottom;background:#fff}
+.ptbl thead th.col-teika{background:#f7f7f5}
+.ptbl thead th.col-set{background:#f0f7f0}
+.ptbl thead th.col-nose{background:#fdf6e3}
+.ptbl thead th.col-face{background:#fef0e8}
+.ptbl thead th.group-head{font-size:14px;font-weight:700;color:#222;border-bottom:1px solid #ccc;padding-bottom:4px}
+.ptbl thead th .sub{display:block;font-size:10px;color:#999;font-weight:400;margin-top:2px}
+.ptbl tbody td{padding:12px 8px;text-align:center;border-bottom:1px solid #eee;font-size:13px;color:#444;vertical-align:top;line-height:1.6}
+.ptbl tbody tr:hover{background:#fafaf8}
+.ptbl .num-cell{text-align:center;padding:14px 8px;vertical-align:middle}
+.ptbl .num-cell .big{font-size:28px;font-weight:800;color:#222;display:block;line-height:1}
+.ptbl .num-cell .unit{font-size:13px;color:#888}
+.ptbl .teika-cell{background:#f7f7f5;text-align:center}
+.ptbl .teika-cell .main{font-size:16px;font-weight:700;color:#222}
+.ptbl .teika-cell .tax{font-size:11px;color:#999}
+.ptbl .teika-cell .per{font-size:11px;color:#999;margin-top:2px}
+.ptbl .set-cell{background:#f0f7f0}
+.ptbl .nose-cell{background:#fdf6e3}
+.ptbl .face-cell{background:#fef0e8}
+.ptbl .disc{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:3px;margin-bottom:4px}
+.ptbl .disc-set{background:#c8e6c9;color:#2e7d32}
+.ptbl .disc-nose{background:#fff3cd;color:#856404}
+.ptbl .disc-face{background:#ffccbc;color:#bf360c}
+.ptbl .cell-price{font-size:14px;font-weight:700;color:#222}
+.ptbl .cell-tax{font-size:11px;color:#999}
+.ptbl .cell-per{font-size:11px;color:#999;margin-top:2px}
+.ptbl .定価{font-size:12px;color:#888}
+@media(max-width:768px){.ptbl{min-width:750px}}
 .warranty-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:30px}
 @media(max-width:768px){.warranty-grid{grid-template-columns:1fr}}
 .warranty-card{border:1px solid #333;border-radius:12px;padding:25px}
@@ -93,9 +139,7 @@ table.price-table tr:hover{background:#f9f9f9}
 .faq-q:before{content:"Q";background:#C5A55A;color:#000;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .faq-a{padding-left:38px;color:#666;font-size:17px}
 .dark .faq-a{color:#aaa}
-.lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:1000;justify-content:center;align-items:center;cursor:pointer}
-.lightbox.active{display:flex}
-.lightbox img{max-width:90%;max-height:90%;object-fit:contain}
+
 .set-day{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin:20px 0}
 @media(max-width:768px){.set-day{grid-template-columns:1fr}}
 .set-half{background:#1a1a1a;padding:20px;border-radius:10px}
@@ -122,6 +166,7 @@ table.price-table tr:hover{background:#f9f9f9}
 
 <!-- Hero -->
 <div class="hero" id="hero">
+<div class="hero-bg"></div>
 <p class="sub fade">― No-Prep Laminate Veneer ―</p>
 <h1 class="fade">美しさのために歯を削る時代は<br>終わりました。</h1>
 <p class="tagline fade">削らないラミネートベニア</p>
@@ -150,12 +195,15 @@ table.price-table tr:hover{background:#f9f9f9}
 人生80年といわれる時代に、不用意に「削る」ことは正しいのでしょうか？
 </p>
 <div class="comparison-img">
-<img src="./15.jpg" alt="各セラミック治療と削り方の比較" style="max-width:800px">
+<img src="./15.jpg" alt="各セラミック治療と削り方の比較" style="max-width:100%;width:100%">
 </div>
 <p style="text-align:center;margin-top:20px;font-size:17px;color:#aaa">
 セラミッククラウン → ラミネートベニア → <span class="gold" style="font-weight:600">削らないラミネートベニア</span><br>
 削る量が少ないほど、歯の健康を守れます。
 </p>
+<div style="margin-top:30px;text-align:center">
+<img src="./13.jpg" alt="セラミック治療の比較" style="max-width:100%;width:100%;border-radius:8px">
+</div>
 </section>
 </div>
 
@@ -186,13 +234,12 @@ table.price-table tr:hover{background:#f9f9f9}
 <tr><td>素材</td><td>ジルコニア（人工ダイヤモンド）</td><td>セラミック</td></tr>
 <tr><td>発祥</td><td>アジア施術数No.1のジルコニアベニア</td><td>韓国（キム院長開発）</td></tr>
 <tr><td>薄さ</td><td>最薄 <strong>0.04mm</strong></td><td><strong>0.1mm</strong></td></tr>
-<tr><td>製作方法</td><td>―</td><td>歯科技工士による完全手作業（機械不使用）</td></tr>
+<tr><td>製作方法</td><td>最新の3Dプリンタで製作</td><td>歯科技工士による完全手作業（機械不使用）</td></tr>
 <tr><td>審美性</td><td>劣化しない白さ・自然な仕上がり</td><td>圧倒的な審美性・スマイルデザイン（顔分析）</td></tr>
 <tr><td>強度</td><td>高強度（人工ダイヤモンド素材）</td><td>セラミック</td></tr>
 <tr><td>保証</td><td>3年（10年オプションあり）</td><td><strong>10年</strong>（破損・脱離・変色）</td></tr>
-<tr><td>セット</td><td>―</td><td>1日かけて患者・Dr・技工士の3者で調整</td></tr>
+<tr><td>セット</td><td>2時間〜3時間</td><td>5時間〜8時間</td></tr>
 <tr><td>臨床実績</td><td>アジア施術数No.1</td><td>韓国で80,000件以上（2016年〜）</td></tr>
-<tr><td>品質検査</td><td>―</td><td>厚み・透明度・色再現性・誤差率検査</td></tr>
 <tr><td>メンテナンス</td><td>半年に1度の定期検診</td><td>1年に1度の噛み合わせメンテナンス</td></tr>
 </table>
 </div>
@@ -240,6 +287,10 @@ table.price-table tr:hover{background:#f9f9f9}
 <section>
 <div class="section-title"><h2>Blackfilm ブラックフィルム 詳細</h2></div>
 
+<div style="margin-bottom:40px">
+<img src="./11.jpg" alt="Blackfilm" style="width:100%;border-radius:12px">
+</div>
+
 <div class="detail-section">
 <h3>特徴</h3>
 <ul>
@@ -251,6 +302,7 @@ table.price-table tr:hover{background:#f9f9f9}
 <li>ジルコニアベニアでは出せない圧倒的な審美性</li>
 </ul>
 </div>
+
 
 <div class="detail-section">
 <h3>開発者の想い</h3>
@@ -279,6 +331,8 @@ table.price-table tr:hover{background:#f9f9f9}
 <li>歪みを緩やかにすることも可能</li>
 </ul>
 </div>
+
+
 </section>
 </div>
 <!-- Cases Section -->
@@ -290,395 +344,181 @@ table.price-table tr:hover{background:#f9f9f9}
 <button class="case-tab" onclick="showCases('blackfilm')">Blackfilm ブラックフィルム</button>
 </div>
 
+<!-- Upload Area -->
+<div class="upload-area" onclick="document.getElementById('upload-input').click()">
+<p>＋ 症例写真をアップロード（タップで選択）</p>
+<p style="font-size:13px;color:#999;margin-top:6px">アップロードした写真はこのブラウザ上でのみ表示されます</p>
+<input type="file" id="upload-input" accept="image/*" multiple onchange="handleUpload(event)">
+</div>
+<div id="uploaded-cases" class="cases-list" style="margin-bottom:30px"></div>
+
 <!-- Lovelier Cases -->
 <div id="cases-lovelier">
+<div class="cases-list">
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 1: 歯のガタツキをなくしたい / 歯を白くしたい / 出っ歯NG</h3>
-<p>上下16本 ¥1,264,000（税抜）/ 1本 ¥79,000</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide15_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide15_01.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide15_02.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide15_03.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide15_04.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide15_05.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide16_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide16_01.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide16_02.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',0)">
+<img src="./lovelier_img/slide15_00.jpg">
+<div class="thumb-info"><h4>Case 1</h4><p>歯のガタツキ / 歯を白くしたい</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 2: 2番目の歯の隙間 / 歯の黄ばみ</h3>
-<p>上8本 ¥920,000（税抜）/ 1本 ¥115,000</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide17_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide17_01.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide17_02.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide17_03.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',1)">
+<img src="./lovelier_img/slide17_00.jpg">
+<div class="thumb-info"><h4>Case 2</h4><p>2番目の歯の隙間 / 歯の黄ばみ</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 3: すきっ歯が気になる / 歯が大きく見えるのはNG</h3>
-<p>上6本 ¥690,000（税抜）/ 1本 ¥115,000</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide18_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide18_01.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide18_02.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',2)">
+<img src="./lovelier_img/slide18_00.jpg">
+<div class="thumb-info"><h4>Case 3</h4><p>すきっ歯が気になる</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 4: 歯のガタツキ治したい / 笑った時に歯が見えるようにしたい</h3>
-<p>上16本 ¥1,584,000（税抜）/ 1本 ¥99,000</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide19_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide19_01.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide19_02.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',3)">
+<img src="./lovelier_img/slide19_00.jpg">
+<div class="thumb-info"><h4>Case 4</h4><p>歯のガタツキ / スマイルライン</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 5: すきっ歯 / 歯を白くしたい</h3>
-<p>上8本 ¥816,000（税抜）/ 1本 ¥102,000</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide20_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide20_01.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',4)">
+<img src="./lovelier_img/slide20_00.jpg">
+<div class="thumb-info"><h4>Case 5</h4><p>すきっ歯 / 歯を白くしたい</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 6: ガミースマイル / 奥歯まで全て綺麗にしたい</h3>
-<p>上下20本+Zrクラウン4本+ガミーOPE 計¥2,474,000（税抜）</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide22_00.png" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide22_01.png" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',5)">
+<img src="./lovelier_img/slide22_00.png">
+<div class="thumb-info"><h4>Case 6</h4><p>ガミースマイル / 全体</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 7: 歯の黄ばみ・隙間 / 歯の色味</h3>
-<p>上顎8〜10本 ¥1,012,000〜¥1,155,000（税込）</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide24_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide24_01.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide24_02.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide24_03.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide24_04.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',6)">
+<img src="./lovelier_img/slide24_00.jpg">
+<div class="thumb-info"><h4>Case 7</h4><p>歯の黄ばみ・隙間</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 8: 矯正後のブラックトライアングル / 歯の色味・ガタツキ</h3>
-<p>上下14〜16本 ¥1,617,000〜¥1,742,400（税込）</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide25_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide25_01.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide25_02.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide25_03.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',7)">
+<img src="./lovelier_img/slide25_00.jpg">
+<div class="thumb-info"><h4>Case 8</h4><p>矯正後のBT / 色味・ガタツキ</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 9: 前歯2本の出っ歯・隙間</h3>
-<p>上顎2本 ¥264,000（税込）</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide27_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide27_01.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide27_02.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide27_03.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',8)">
+<img src="./lovelier_img/slide27_00.jpg">
+<div class="thumb-info"><h4>Case 9</h4><p>前歯2本の出っ歯・隙間</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 10: 矮小歯・隙間</h3>
-<p>右上1番2番 ¥264,000（税込）</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./lovelier_img/slide28_00.jpg" onclick="openLightbox(this)">
-<img src="./lovelier_img/slide28_01.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('lov',9)">
+<img src="./lovelier_img/slide28_00.jpg">
+<div class="thumb-info"><h4>Case 10</h4><p>矮小歯・隙間</p></div>
 </div>
 
+</div>
 </div>
 
 <!-- Blackfilm Cases -->
 <div id="cases-blackfilm" style="display:none">
+<div class="cases-list">
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 1: すき歯の悩み（20代女性）</h3>
-<p>主訴: すきっ歯を直したい</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./20.jpg" onclick="openLightbox(this)">
-<img src="./29.jpg" onclick="openLightbox(this)">
-<img src="./30.jpg" onclick="openLightbox(this)">
-<img src="./31.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',0)">
+<img src="./21.jpg">
+<div class="thumb-info"><h4>Case 1</h4><p>すき歯の悩み（20代女性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 2: 絶対に削りたくない（30代男性・経営者）</h3>
-<p>主訴: 削るセラミックは絶対にいやだ</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./32.jpg" onclick="openLightbox(this)">
-<img src="./33.jpg" onclick="openLightbox(this)">
-<img src="./34.jpg" onclick="openLightbox(this)">
-<img src="./35.jpg" onclick="openLightbox(this)">
-<img src="./36.jpg" onclick="openLightbox(this)">
-<img src="./38.jpg" onclick="openLightbox(this)">
-<img src="./39.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',1)">
+<img src="./29.jpg">
+<div class="thumb-info"><h4>Case 2</h4><p>矯正後の悩み（20代女性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 3: 矯正後の悩み（20代女性・歯科医師）</h3>
-<p>主訴: ブラックトライアングル、形・色を完璧にしたい</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./28.jpg" onclick="openLightbox(this)">
-<img src="./40.jpg" onclick="openLightbox(this)">
-<img src="./42.jpg" onclick="openLightbox(this)">
-<img src="./43.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',2)">
+<img src="./35.jpg">
+<div class="thumb-info"><h4>Case 3</h4><p>絶対に削りたくない（30代男性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 4: ホワイトスポットを改善したい（30代男性・経営者）</h3>
-<p>主訴: 長年ホワイトスポットに悩んでいた</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./44.jpg" onclick="openLightbox(this)">
-<img src="./45.jpg" onclick="openLightbox(this)">
-<img src="./46.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',3)">
+<img src="./42.jpg">
+<div class="thumb-info"><h4>Case 4</h4><p>韓国アイドルスマイル（20代女性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 5: 真っ白の歯になりたい（30代男性・経営者）</h3>
-<p>主訴: 誰がどう見ても圧倒的な白さを目指したい</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./47.jpg" onclick="openLightbox(this)">
-<img src="./48.jpg" onclick="openLightbox(this)">
-<img src="./49.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',4)">
+<img src="./45.jpg">
+<div class="thumb-info"><h4>Case 5</h4><p>ホワイトスポット改善（30代男性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 6: 重度の損傷からの回復</h3>
-<p>重度の歯の損傷を削らずに改善</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./51.jpg" onclick="openLightbox(this)">
-<img src="./52.jpg" onclick="openLightbox(this)">
-<img src="./54.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',5)">
+<img src="./48.jpg">
+<div class="thumb-info"><h4>Case 6</h4><p>真っ白の歯になりたい（30代男性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 7: 歯並びは綺麗、形を整えたい（30代女性）</h3>
-<p>結婚式前で最短を希望</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./55.jpg" onclick="openLightbox(this)">
-<img src="./58.jpg" onclick="openLightbox(this)">
-<img src="./59.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',6)">
+<img src="./52.jpg">
+<div class="thumb-info"><h4>Case 7</h4><p>重度の損傷からの回復</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 8: 費用を抑えたい（30代女性）</h3>
-<p>デンタルローンを活用し最小限の治療を実現</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./57.jpg" onclick="openLightbox(this)">
-<img src="./60.jpg" onclick="openLightbox(this)">
-<img src="./61.jpg" onclick="openLightbox(this)">
-<img src="./63.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',7)">
+<img src="./54.jpg">
+<div class="thumb-info"><h4>Case 8</h4><p>ナチュラルを求めたい（40代男性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 9: 芸能人級の白さに（30代女性）</h3>
-<p>ホワイトニングよりも白く、最短3週間で</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./64.jpg" onclick="openLightbox(this)">
-<img src="./65.jpg" onclick="openLightbox(this)">
-<img src="./67.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',8)">
+<img src="./56.jpg">
+<div class="thumb-info"><h4>Case 9</h4><p>形を整えたい（30代女性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 10: 2本だけでも整えたい（40代男性・アメリカ在住）</h3>
-<p>すきっ歯を削らないで自然にしたい</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./68.jpg" onclick="openLightbox(this)">
-<img src="./69.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',9)">
+<img src="./58.jpg">
+<div class="thumb-info"><h4>Case 10</h4><p>費用を抑えたい（30代女性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 11: 矯正はしたくない、削りたくもない（20代女性）</h3>
-<p>妊娠中で体に負担をかけたくない</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./70.jpg" onclick="openLightbox(this)">
-<img src="./71.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',10)">
+<img src="./65.jpg">
+<div class="thumb-info"><h4>Case 11</h4><p>芸能人級の白さに（30代女性）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>Case 12: 他院治療後にブラックフィルム追加</h3>
-<p>他院での治療部位に追加施術</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./73.jpg" onclick="openLightbox(this)">
-<img src="./75.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',11)">
+<img src="./67.jpg">
+<div class="thumb-info"><h4>Case 12</h4><p>ホワイトスポット（韓国）</p></div>
 </div>
 
-<div class="carousel-case">
-<div class="carousel-header">
-<h3>韓国症例集</h3>
-<p>歯の延長・叢生・スマイルライン・ホワイトスポット・隙間など</p>
-</div>
-<div class="carousel-track-wrap">
-<button class="carousel-btn prev" onclick="slideCarousel(this,-1)">&#10094;</button>
-<div class="carousel-track">
-<img src="./77.jpg" onclick="openLightbox(this)">
-<img src="./78.jpg" onclick="openLightbox(this)">
-</div>
-<button class="carousel-btn next" onclick="slideCarousel(this,1)">&#10095;</button>
-</div>
+<div class="case-thumb" onclick="openSlideshow('bf',12)">
+<img src="./69.jpg">
+<div class="thumb-info"><h4>Case 13</h4><p>2本だけでも整えたい（40代男性）</p></div>
 </div>
 
+<div class="case-thumb" onclick="openSlideshow('bf',13)">
+<img src="./71.jpg">
+<div class="thumb-info"><h4>Case 14</h4><p>矯正したくない（20代女性）</p></div>
+</div>
+
+<div class="case-thumb" onclick="openSlideshow('bf',14)">
+<img src="./73.jpg">
+<div class="thumb-info"><h4>Case 15</h4><p>他院治療後にBF追加</p></div>
+</div>
+
+<div class="case-thumb" onclick="openSlideshow('bf',15)">
+<img src="./75.jpg">
+<div class="thumb-info"><h4>Case 16</h4><p>海外スタイルのベニア</p></div>
+</div>
+
+<div class="case-thumb" onclick="openSlideshow('bf',16)">
+<img src="./77.jpg">
+<div class="thumb-info"><h4>韓国症例集</h4><p>延長・叢生・スマイルライン等</p></div>
+</div>
+
+</div>
 </div>
 </section>
+
+<!-- Full-screen Slideshow -->
+<div class="slideshow" id="slideshow">
+<button class="slideshow-close" onclick="closeSlideshow()">&times;</button>
+<div class="slideshow-img-wrap">
+<button class="slideshow-nav prev" onclick="navSlide(-1)">&#10094;</button>
+<img id="ss-img" src="">
+<button class="slideshow-nav next" onclick="navSlide(1)">&#10095;</button>
+</div>
+<div class="slideshow-bottom">
+<div class="slideshow-caption">
+<h4 id="ss-title"></h4>
+</div>
+<div class="slideshow-counter"><span id="ss-cur">1</span> / <span id="ss-total">1</span></div>
+</div>
+<div class="slideshow-thumbs" id="ss-thumbs"></div>
+</div>
+
 <!-- Treatment Flow -->
 <div class="dark" id="flow">
 <section>
@@ -741,38 +581,173 @@ table.price-table tr:hover{background:#f9f9f9}
 <section id="price">
 <div class="section-title"><h2>料金表</h2></div>
 
-<h3 style="color:#C5A55A;margin-bottom:20px;text-align:center">La Briller ラブリエ</h3>
-<div style="overflow-x:auto">
-<table class="price-table">
-<tr><th>本数</th><th>定価（税込）</th><th>本数割（税込）</th><th>1本あたり</th></tr>
-<tr><td>上下20本</td><td>¥2,640,000</td><td>¥2,178,000</td><td>¥108,900</td></tr>
-<tr><td>上下16本</td><td>¥2,112,000</td><td>¥1,742,400</td><td>¥108,900</td></tr>
-<tr><td>上下14本</td><td>¥1,848,000</td><td>¥1,617,000</td><td>¥115,500</td></tr>
-<tr><td>上10本</td><td>¥1,320,000</td><td>¥1,155,000</td><td>¥115,500</td></tr>
-<tr><td>上8本</td><td>¥1,056,000</td><td>¥1,012,000</td><td>¥126,500</td></tr>
-<tr><td>上6本</td><td>¥792,000</td><td>¥759,000</td><td>¥126,500</td></tr>
-<tr><td>上2本</td><td>¥264,000</td><td>―</td><td>¥132,000</td></tr>
+<!-- La Briller -->
+<div class="price-block">
+<div class="price-header">
+<h3>LA BRILLER 料金表</h3>
+<span>― 通常価格（税込）</span>
+</div>
+<div class="price-wrap">
+<table class="ptbl">
+<thead>
+<tr>
+<th rowspan="2" style="width:60px">本数</th>
+<th rowspan="2" class="col-teika" style="min-width:130px">定価<span class="sub">合計 / 1本単価</span></th>
+<th class="col-set group-head">本数セット価格<span class="sub">割引 / 合計 / 1本</span></th>
+<th class="col-nose group-head">鼻下モニター価格<span class="sub">割引 / 合計 / 1本</span></th>
+<th class="col-face group-head">顔全体モニター価格<span class="sub">割引 / 合計 / 1本</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="num-cell"><span class="big">20</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥2,640,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-17%</span><br><span class="cell-price">¥2,178,000</span><br><span class="cell-per">¥108,900 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-25%</span><br><span class="cell-price">¥1,980,000</span><br><span class="cell-per">¥99,000 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-33%</span><br><span class="cell-price">¥1,760,000</span><br><span class="cell-per">¥88,000 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">16</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥2,112,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-17%</span><br><span class="cell-price">¥1,742,400</span><br><span class="cell-per">¥108,900 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-25%</span><br><span class="cell-price">¥1,584,000</span><br><span class="cell-per">¥99,000 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-33%</span><br><span class="cell-price">¥1,408,000</span><br><span class="cell-per">¥88,000 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">14</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,848,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥1,617,000</span><br><span class="cell-per">¥115,500 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥1,478,400</span><br><span class="cell-per">¥105,600 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-29%</span><br><span class="cell-price">¥1,309,000</span><br><span class="cell-per">¥93,500 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">10</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,320,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥1,155,000</span><br><span class="cell-per">¥115,500 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥1,056,000</span><br><span class="cell-per">¥105,600 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-29%</span><br><span class="cell-price">¥935,000</span><br><span class="cell-per">¥93,500 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">8</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,056,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥1,012,000</span><br><span class="cell-per">¥126,500 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥924,000</span><br><span class="cell-per">¥115,500 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-22%</span><br><span class="cell-price">¥818,400</span><br><span class="cell-per">¥102,300 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">6</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥792,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥759,000</span><br><span class="cell-per">¥126,500 / 本</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥693,000</span><br><span class="cell-per">¥115,500 / 本</span></td>
+<td class="face-cell"><span class="disc disc-face">-22%</span><br><span class="cell-price">¥613,800</span><br><span class="cell-per">¥102,300 / 本</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">2</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥264,000</div><div class="per">¥132,000 / 本</div></td>
+<td class="set-cell"><span class="定価">定価</span><br><span class="cell-price">¥264,000</span><br><span class="cell-per">¥132,000 / 本</span></td>
+<td class="nose-cell"><span class="定価">定価</span><br><span class="cell-price">¥264,000</span><br><span class="cell-per">¥132,000 / 本</span></td>
+<td class="face-cell"><span class="定価">定価</span><br><span class="cell-price">¥264,000</span><br><span class="cell-per">¥132,000 / 本</span></td>
+</tr>
+</tbody>
 </table>
 </div>
-<p style="text-align:center;color:#888;font-size:15px;margin-top:10px">※ガミースマイルOPE: ¥150,000（税抜）/ Zrクラウン: 1本¥86,000（税抜）</p>
+<p style="text-align:center;color:#888;font-size:12px;margin-top:10px">※ガミースマイルOPE: ¥150,000（税抜）/ Zrクラウン: 1本¥86,000（税抜）</p>
+</div>
 
-<h3 style="color:#C5A55A;margin:40px 0 20px;text-align:center">Blackfilm ブラックフィルム</h3>
-<div style="overflow-x:auto">
-<table class="price-table">
-<tr><th>本数</th><th>定価（税抜）</th><th>本数割（税抜）</th><th>1本あたり</th></tr>
-<tr><td>20本</td><td>¥5,500,000</td><td>カウンセリング時にご案内</td><td>¥275,000</td></tr>
-<tr><td>18本</td><td>¥4,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>16本</td><td>¥4,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>14本</td><td>¥3,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>12本</td><td>¥3,200,000</td><td>カウンセリング時にご案内</td><td>¥266,667</td></tr>
-<tr><td>10本</td><td>¥2,000,000</td><td>カウンセリング時にご案内</td><td>¥200,000</td></tr>
-<tr><td>8本</td><td>¥2,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>6本</td><td>¥1,500,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>4本</td><td>¥1,000,000</td><td>カウンセリング時にご案内</td><td>¥250,000</td></tr>
-<tr><td>2本</td><td>¥500,000</td><td>―</td><td>¥250,000</td></tr>
+<!-- Blackfilm -->
+<div class="price-block">
+<div class="price-header">
+<h3>BLACKFILM 料金表</h3>
+<span>― 通常価格</span>
+</div>
+<div class="price-wrap">
+<table class="ptbl">
+<thead>
+<tr>
+<th rowspan="2" style="width:60px">本数</th>
+<th rowspan="2" class="col-teika" style="min-width:150px">定価<span class="sub">合計 / 1本単価</span></th>
+<th class="col-set group-head">本数セット価格<span class="sub">割引 / 合計 / 1本</span></th>
+<th class="col-nose group-head">鼻下モニター価格<span class="sub">割引 / 合計 / 1本</span></th>
+<th class="col-face group-head">顔全体モニター価格<span class="sub">割引 / 合計 / 1本</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="num-cell"><span class="big">20</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥5,000,000</div><div class="tax">（税込 ¥5,500,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥4,400,000</span><br><span class="cell-tax">（税込 ¥4,840,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥4,000,000</span><br><span class="cell-tax">（税込 ¥4,400,000）</span><br><span class="cell-per">¥200,000 / 本（税込 ¥220,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-34%</span><br><span class="cell-price">¥3,300,000</span><br><span class="cell-tax">（税込 ¥3,630,000）</span><br><span class="cell-per">¥165,000 / 本（税込 ¥181,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">18</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥4,500,000</div><div class="tax">（税込 ¥4,950,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥3,960,000</span><br><span class="cell-tax">（税込 ¥4,356,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥3,600,000</span><br><span class="cell-tax">（税込 ¥3,960,000）</span><br><span class="cell-per">¥200,000 / 本（税込 ¥220,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-34%</span><br><span class="cell-price">¥2,970,000</span><br><span class="cell-tax">（税込 ¥3,267,000）</span><br><span class="cell-per">¥165,000 / 本（税込 ¥181,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">16</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥4,000,000</div><div class="tax">（税込 ¥4,400,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-12%</span><br><span class="cell-price">¥3,520,000</span><br><span class="cell-tax">（税込 ¥3,872,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-20%</span><br><span class="cell-price">¥3,200,000</span><br><span class="cell-tax">（税込 ¥3,520,000）</span><br><span class="cell-per">¥200,000 / 本（税込 ¥220,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-34%</span><br><span class="cell-price">¥2,640,000</span><br><span class="cell-tax">（税込 ¥2,904,000）</span><br><span class="cell-per">¥165,000 / 本（税込 ¥181,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">14</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥3,500,000</div><div class="tax">（税込 ¥3,850,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-8%</span><br><span class="cell-price">¥3,220,000</span><br><span class="cell-tax">（税込 ¥3,542,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥3,080,000</span><br><span class="cell-tax">（税込 ¥3,388,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-30%</span><br><span class="cell-price">¥2,450,000</span><br><span class="cell-tax">（税込 ¥2,695,000）</span><br><span class="cell-per">¥175,000 / 本（税込 ¥192,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">12</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥3,000,000</div><div class="tax">（税込 ¥3,300,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-8%</span><br><span class="cell-price">¥2,760,000</span><br><span class="cell-tax">（税込 ¥3,036,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥2,640,000</span><br><span class="cell-tax">（税込 ¥2,904,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-30%</span><br><span class="cell-price">¥2,100,000</span><br><span class="cell-tax">（税込 ¥2,310,000）</span><br><span class="cell-per">¥175,000 / 本（税込 ¥192,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">10</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥2,500,000</div><div class="tax">（税込 ¥2,750,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-8%</span><br><span class="cell-price">¥2,300,000</span><br><span class="cell-tax">（税込 ¥2,530,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-12%</span><br><span class="cell-price">¥2,200,000</span><br><span class="cell-tax">（税込 ¥2,420,000）</span><br><span class="cell-per">¥220,000 / 本（税込 ¥242,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-27%</span><br><span class="cell-price">¥1,750,000</span><br><span class="cell-tax">（税込 ¥1,925,000）</span><br><span class="cell-per">¥175,000 / 本（税込 ¥192,500）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">8</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥2,000,000</div><div class="tax">（税込 ¥2,200,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥1,920,000</span><br><span class="cell-tax">（税込 ¥2,112,000）</span><br><span class="cell-per">¥240,000 / 本（税込 ¥264,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-8%</span><br><span class="cell-price">¥1,840,000</span><br><span class="cell-tax">（税込 ¥2,024,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-27%</span><br><span class="cell-price">¥1,460,000</span><br><span class="cell-tax">（税込 ¥1,606,000）</span><br><span class="cell-per">¥182,500 / 本（税込 ¥200,750）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">6</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,500,000</div><div class="tax">（税込 ¥1,650,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥1,440,000</span><br><span class="cell-tax">（税込 ¥1,584,000）</span><br><span class="cell-per">¥240,000 / 本（税込 ¥264,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-8%</span><br><span class="cell-price">¥1,380,000</span><br><span class="cell-tax">（税込 ¥1,518,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-27%</span><br><span class="cell-price">¥1,095,000</span><br><span class="cell-tax">（税込 ¥1,204,500）</span><br><span class="cell-per">¥182,500 / 本（税込 ¥200,750）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">4</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥1,000,000</div><div class="tax">（税込 ¥1,100,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="disc disc-set">-4%</span><br><span class="cell-price">¥960,000</span><br><span class="cell-tax">（税込 ¥1,056,000）</span><br><span class="cell-per">¥240,000 / 本（税込 ¥264,000）</span></td>
+<td class="nose-cell"><span class="disc disc-nose">-8%</span><br><span class="cell-price">¥920,000</span><br><span class="cell-tax">（税込 ¥1,012,000）</span><br><span class="cell-per">¥230,000 / 本（税込 ¥253,000）</span></td>
+<td class="face-cell"><span class="disc disc-face">-27%</span><br><span class="cell-price">¥730,000</span><br><span class="cell-tax">（税込 ¥803,000）</span><br><span class="cell-per">¥182,500 / 本（税込 ¥200,750）</span></td>
+</tr>
+<tr>
+<td class="num-cell"><span class="big">2</span><span class="unit">本</span></td>
+<td class="teika-cell"><div class="main">¥500,000</div><div class="tax">（税込 ¥550,000）</div><div class="per">¥250,000 / 本（税込 ¥275,000）</div></td>
+<td class="set-cell"><span class="定価">定価</span><br><span class="cell-price">¥500,000</span><br><span class="cell-tax">（税込 ¥550,000）</span><br><span class="cell-per">¥250,000 / 本（税込 ¥275,000）</span></td>
+<td class="nose-cell"><span class="定価">定価</span><br><span class="cell-price">¥500,000</span><br><span class="cell-tax">（税込 ¥550,000）</span><br><span class="cell-per">¥250,000 / 本（税込 ¥275,000）</span></td>
+<td class="face-cell"><span class="定価">定価</span><br><span class="cell-price">¥500,000</span><br><span class="cell-tax">（税込 ¥550,000）</span><br><span class="cell-per">¥250,000 / 本（税込 ¥275,000）</span></td>
+</tr>
+</tbody>
 </table>
 </div>
-<p style="text-align:center;color:#888;font-size:15px;margin-top:10px">※モニター価格・各種割引についてはカウンセリング時にご案内いたします。</p>
+<p style="text-align:center;color:#888;font-size:12px;margin-top:10px">※モニター価格の詳細はカウンセリング時にご案内いたします。</p>
+</div>
+
 </section>
 <!-- Warranty -->
 <div class="dark" id="warranty">
@@ -859,30 +834,146 @@ table.price-table tr:hover{background:#f9f9f9}
 <p>※詳しくはカウンセリングにてご相談ください。</p>
 </div>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-<img id="lightbox-img" src="" alt="">
-</div>
+
 
 <script>
+// Case data
+var lovCases=[
+{title:'Case 1: 歯のガタツキ / 歯を白くしたい',desc:'上下16本 ¥1,264,000（税抜）',imgs:['./lovelier_img/slide15_00.jpg','./lovelier_img/slide15_01.jpg','./lovelier_img/slide15_02.jpg','./lovelier_img/slide15_03.jpg','./lovelier_img/slide15_04.jpg','./lovelier_img/slide15_05.jpg','./lovelier_img/slide16_00.jpg','./lovelier_img/slide16_01.jpg','./lovelier_img/slide16_02.jpg']},
+{title:'Case 2: 2番目の歯の隙間 / 歯の黄ばみ',desc:'上8本 ¥920,000（税抜）',imgs:['./lovelier_img/slide17_00.jpg','./lovelier_img/slide17_01.jpg','./lovelier_img/slide17_02.jpg','./lovelier_img/slide17_03.jpg']},
+{title:'Case 3: すきっ歯が気になる',desc:'上6本 ¥690,000（税抜）',imgs:['./lovelier_img/slide18_00.jpg','./lovelier_img/slide18_01.jpg','./lovelier_img/slide18_02.jpg']},
+{title:'Case 4: 歯のガタツキ / スマイルライン',desc:'上16本 ¥1,584,000（税抜）',imgs:['./lovelier_img/slide19_00.jpg','./lovelier_img/slide19_01.jpg','./lovelier_img/slide19_02.jpg']},
+{title:'Case 5: すきっ歯 / 歯を白くしたい',desc:'上8本 ¥816,000（税抜）',imgs:['./lovelier_img/slide20_00.jpg','./lovelier_img/slide20_01.jpg']},
+{title:'Case 6: ガミースマイル / 全体',desc:'上下20本+Zrクラウン4本+ガミーOPE',imgs:['./lovelier_img/slide22_00.png','./lovelier_img/slide22_01.png']},
+{title:'Case 7: 歯の黄ばみ・隙間',desc:'上顎8〜10本',imgs:['./lovelier_img/slide24_00.jpg','./lovelier_img/slide24_01.jpg','./lovelier_img/slide24_02.jpg','./lovelier_img/slide24_03.jpg','./lovelier_img/slide24_04.jpg']},
+{title:'Case 8: 矯正後のBT / 色味・ガタツキ',desc:'上下14〜16本',imgs:['./lovelier_img/slide25_00.jpg','./lovelier_img/slide25_01.jpg','./lovelier_img/slide25_02.jpg','./lovelier_img/slide25_03.jpg']},
+{title:'Case 9: 前歯2本の出っ歯・隙間',desc:'上顎2本 ¥264,000（税込）',imgs:['./lovelier_img/slide27_00.jpg','./lovelier_img/slide27_01.jpg','./lovelier_img/slide27_02.jpg','./lovelier_img/slide27_03.jpg']},
+{title:'Case 10: 矮小歯・隙間',desc:'右上1番2番 ¥264,000（税込）',imgs:['./lovelier_img/slide28_00.jpg','./lovelier_img/slide28_01.jpg']}
+];
+var bfCases=[
+{title:'Case 1: すき歯の悩み（20代女性）',desc:'すきっ歯を直したい',imgs:['./20.jpg','./21.jpg','./22.jpg','./23.jpg','./24.jpg','./25.jpg','./26.jpg']},
+{title:'Case 2: 矯正後の悩み（20代女性・歯科医師）',desc:'ブラックトライアングル、形・色を完璧にしたい',imgs:['./27.jpg','./28.jpg','./29.jpg','./30.jpg','./31.jpg']},
+{title:'Case 3: 絶対に削りたくない（30代男性・経営者）',desc:'削るセラミックは絶対にいやだ',imgs:['./32.jpg','./33.jpg','./34.jpg','./35.jpg','./36.jpg','./37.jpg','./38.jpg','./39.jpg']},
+{title:'Case 4: 韓国アイドルみたいなスマイル（20代女性）',desc:'他医院の修正もあり、完璧な歯の形・色へ',imgs:['./40.jpg','./41.jpg','./42.jpg','./43.jpg']},
+{title:'Case 5: ホワイトスポット改善（30代男性・経営者）',desc:'長年ホワイトスポットに悩んでいた',imgs:['./44.jpg','./45.jpg','./46.jpg']},
+{title:'Case 6: 真っ白の歯になりたい（30代男性・経営者）',desc:'圧倒的な白さを目指したい',imgs:['./47.jpg','./48.jpg','./49.jpg','./50.jpg']},
+{title:'Case 7: 重度の損傷からの回復',desc:'重度の歯の損傷を削らずに改善',imgs:['./51.jpg','./52.jpg']},
+{title:'Case 8: ナチュラルを求めたい（40代男性・会社員）',desc:'削らずに健康面を重視した自然な歯に',imgs:['./54.jpg']},
+{title:'Case 9: 形を整えたい（30代女性・歯科医療従事者）',desc:'結婚式前で最短を希望',imgs:['./55.jpg','./56.jpg']},
+{title:'Case 10: 費用を抑えたい（30代女性）',desc:'デンタルローンを活用し最小限の治療を実現',imgs:['./57.jpg','./58.jpg','./59.jpg','./60.jpg','./61.jpg','./62.jpg','./63.jpg']},
+{title:'Case 11: 芸能人級の白さに（30代女性）',desc:'最短3週間で',imgs:['./64.jpg','./65.jpg']},
+{title:'Case 12: ホワイトスポット（韓国）',desc:'ホワイトスポットの改善',imgs:['./66.jpg','./67.jpg']},
+{title:'Case 13: 2本だけでも整えたい（40代男性・アメリカ在住）',desc:'すきっ歯を削らないで自然にしたい',imgs:['./68.jpg','./69.jpg']},
+{title:'Case 14: 矯正はしたくない、削りたくもない（20代女性）',desc:'妊娠中で体に負担をかけたくない',imgs:['./70.jpg','./71.jpg']},
+{title:'Case 15: 他院治療後にBF追加',desc:'他院での治療部位に追加施術',imgs:['./72.jpg','./73.jpg']},
+{title:'Case 16: 海外スタイルのラミネートベニア',desc:'メキシコ・ブラジルスタイル',imgs:['./74.jpg','./75.jpg']},
+{title:'韓国症例集',desc:'延長・叢生・スマイルライン・ホワイトスポット等',imgs:['./76.jpg','./77.jpg','./78.jpg']}
+];
+var uploadedCases=[];
+var ssCases,ssIdx,ssImgIdx;
+
 function showCases(type){
 document.getElementById('cases-lovelier').style.display=type==='lovelier'?'block':'none';
 document.getElementById('cases-blackfilm').style.display=type==='blackfilm'?'block':'none';
 document.querySelectorAll('.case-tab').forEach(function(t){t.classList.remove('active')});
 event.target.classList.add('active');
 }
-function slideCarousel(btn,dir){
-var track=btn.parentElement.querySelector('.carousel-track');
-var scrollAmt=track.querySelector('img').offsetWidth+12;
-track.scrollBy({left:dir*scrollAmt,behavior:'smooth'});
+
+function openSlideshow(type,caseIdx){
+if(type==='lov') ssCases=lovCases;
+else if(type==='bf') ssCases=bfCases;
+else ssCases=uploadedCases;
+ssIdx=caseIdx;ssImgIdx=0;
+renderSlide();
+document.getElementById('slideshow').classList.add('active');
+document.body.style.overflow='hidden';
 }
-function openLightbox(el){
-document.getElementById('lightbox-img').src=el.src;
-document.getElementById('lightbox').classList.add('active');
+function closeSlideshow(){
+document.getElementById('slideshow').classList.remove('active');
+document.body.style.overflow='';
 }
-function closeLightbox(){
-document.getElementById('lightbox').classList.remove('active');
+function navSlide(dir){
+var c=ssCases[ssIdx];
+ssImgIdx+=dir;
+if(ssImgIdx<0) ssImgIdx=c.imgs.length-1;
+if(ssImgIdx>=c.imgs.length) ssImgIdx=0;
+renderSlide();
 }
+function jumpSlide(i){ssImgIdx=i;renderSlide();}
+function renderSlide(){
+var c=ssCases[ssIdx];
+document.getElementById('ss-img').src=c.imgs[ssImgIdx];
+document.getElementById('ss-title').textContent=c.title;
+document.getElementById('ss-desc').textContent=c.desc;
+document.getElementById('ss-cur').textContent=ssImgIdx+1;
+document.getElementById('ss-total').textContent=c.imgs.length;
+var th=document.getElementById('ss-thumbs');
+th.innerHTML='';
+c.imgs.forEach(function(src,i){
+var im=document.createElement('img');
+im.src=src;if(i===ssImgIdx)im.className='active';
+im.onclick=function(){jumpSlide(i);};
+th.appendChild(im);
+});
+}
+
+// Keyboard navigation
+document.addEventListener('keydown',function(e){
+if(!document.getElementById('slideshow').classList.contains('active'))return;
+if(e.key==='ArrowLeft')navSlide(-1);
+else if(e.key==='ArrowRight')navSlide(1);
+else if(e.key==='Escape')closeSlideshow();
+});
+
+// Touch swipe
+(function(){
+var sx,sy;
+var el=document.getElementById('slideshow');
+el.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+el.addEventListener('touchend',function(e){
+var dx=e.changedTouches[0].clientX-sx;
+var dy=e.changedTouches[0].clientY-sy;
+if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){
+if(dx<0)navSlide(1);else navSlide(-1);
+}
+},{passive:true});
+})();
+
+// Upload handler
+function handleUpload(e){
+var files=e.target.files;if(!files.length)return;
+var imgs=[];var loaded=0;
+Array.from(files).forEach(function(f){
+var r=new FileReader();
+r.onload=function(ev){
+imgs.push(ev.target.result);
+loaded++;
+if(loaded===files.length){
+var c={title:'アップロード症例 '+(uploadedCases.length+1),desc:files.length+'枚の写真',imgs:imgs};
+uploadedCases.push(c);
+renderUploaded();
+}
+};
+r.readAsDataURL(f);
+});
+}
+function renderUploaded(){
+var container=document.getElementById('uploaded-cases');
+container.innerHTML='';
+uploadedCases.forEach(function(c,i){
+var div=document.createElement('div');
+div.className='case-thumb';
+div.onclick=function(){openSlideshow('up',i);};
+var img=document.createElement('img');
+img.src=c.imgs[0];
+var info=document.createElement('div');
+info.className='thumb-info';
+info.innerHTML='<h4>'+c.title+'</h4><p>'+c.desc+'</p>';
+div.appendChild(img);div.appendChild(info);
+container.appendChild(div);
+});
+}
+
 document.querySelectorAll('.nav a').forEach(function(a){
 a.addEventListener('click',function(e){
 e.preventDefault();
@@ -890,6 +981,8 @@ var target=document.querySelector(this.getAttribute('href'));
 if(target)target.scrollIntoView({behavior:'smooth'});
 });
 });
+
+
 </script>
 </body>
 </html>
