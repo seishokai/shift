@@ -941,7 +941,7 @@ function chgMonth(d){
 /* ---- TABS ---- */
 function setTab(n){
   curTab=n;
-  if(n===9){['vA','vB','vC','vD','vE','vF','vG'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var vHEl=document.getElementById('vH');if(vHEl)vHEl.style.display='';document.querySelectorAll('.hdr-tab').forEach(function(t){t.classList.remove('on');});var t9el=document.getElementById('htab9');if(t9el)t9el.classList.add('on');var mnb9=document.querySelector('.month-nav-bar');if(mnb9)mnb9.style.display='';initKyuH();curTab=9;var lbl9=curY+'年'+(curM+1)+'月';['mLbl'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl9;});return;}
+  if(n===9){['vA','vB','vC','vD','vE','vF','vG'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});var vHEl=document.getElementById('vH');if(vHEl)vHEl.style.display='';document.querySelectorAll('.hdr-tab').forEach(function(t){t.classList.remove('on');});var t9el=document.getElementById('htab9');if(t9el)t9el.classList.add('on');var mnb9=document.querySelector('.month-nav-bar');if(mnb9)mnb9.style.display='';initKyuH();curTab=9;renderLegend();var lbl9=curY+'年'+(curM+1)+'月';['mLbl'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl9;});return;}
   var vHEl2=document.getElementById('vH');if(vHEl2)vHEl2.style.display='none';
   var viewIds=['vA','vB','vC','vD','vE','vF','vG'];
   [0,1,2,3,4,5,6].forEach(function(i){
@@ -964,8 +964,8 @@ function setTab(n){
 function renderLegend(){
   var el=document.getElementById('legend');
   if(!el)return;
-  /* シフト希望タブでは凡例を非表示 */
-  if(curTab===6){el.style.display='none';return;}
+  /* シフト希望・休診日タブでは凡例を非表示 */
+  if(curTab===6||curTab===9){el.style.display='none';return;}
   el.style.display='';
   el.innerHTML=CLINICS.map(function(c){
     return '<div class="leg"><div class="leg-dot" style="background:'+getCC(c.id).c+'"></div>'+c.n+'</div>';
@@ -2882,10 +2882,10 @@ function renderKyuH(){
   if(!tbl)return;
   var days=new Date(y,m,0).getDate();
   /* ヘッダー: 日付 | 曜日 | 医院1 | 医院2 | ... */
-  var h='<thead><tr><th style="position:sticky;left:0;z-index:6;background:#edebe6;min-width:54px;padding:6px 4px;font-size:11px;border:1px solid var(--border);">日付</th>';
+  var h='<thead><tr><th style="position:sticky;left:0;top:0;z-index:8;background:#edebe6;min-width:54px;padding:6px 4px;font-size:11px;border:1px solid var(--border);">日付</th>';
   CLINICS.forEach(function(c){
     var cc=getCC(c.id);
-    h+='<th style="padding:4px 6px;font-size:10px;font-weight:700;color:'+cc.c+';background:#edebe6;border:1px solid var(--border);min-width:44px;white-space:nowrap;">'+c.n+'</th>';
+    h+='<th style="position:sticky;top:0;z-index:7;padding:4px 6px;font-size:10px;font-weight:700;color:'+cc.c+';background:#edebe6;border:1px solid var(--border);min-width:44px;white-space:nowrap;">'+c.n+'</th>';
   });
   h+='</tr></thead><tbody>';
   for(var d=1;d<=days;d++){
