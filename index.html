@@ -696,8 +696,9 @@ let doctors = [
 let CLOSED = {komaki:[2],chiryu:[3],kyoto:[4],omori:[4],chaya:[4],toin:[0]};
 /* 祝日に休診の医院 */
 var HOL_CLOSED = ['esca','r','wiz','omori','toin'];
-/* 隔週日曜に休診の医院（第1・3日曜 ※要確認） */
-var BIWEEKLY_SUN_CLOSED = ['esca','r','wiz','omori'];
+/* 隔週日曜に休診（2グループ交互） */
+var SUN_GROUP_A = ['esca','r'];          /* 第1・3・5日曜休み */
+var SUN_GROUP_B = ['wiz','luminas','omori']; /* 第2・4日曜休み */
 
 /* 医院別休診日 (祝日+曜日定休。日曜はisClosed関数側で処理) */
 const CLOSED_DATES = {
@@ -757,10 +758,11 @@ function isClosed(dateStr,cid){
   if(cid&&CLOSED_DATES[cid]&&CLOSED_DATES[cid].includes(dateStr))return true;
   /* 曜日ベースの休診チェック */
   if(cid&&CLOSED[cid]&&CLOSED[cid].includes(w))return true;
-  /* 隔週日曜チェック（第1・3日曜） */
-  if(w===0&&cid&&BIWEEKLY_SUN_CLOSED.indexOf(cid)>=0){
+  /* 隔週日曜チェック（2グループ交互） */
+  if(w===0&&cid){
     var weekNum=Math.ceil(d.getDate()/7);
-    if(weekNum%2===1)return true;
+    if(weekNum%2===1&&SUN_GROUP_A.indexOf(cid)>=0)return true; /* 第1・3・5日曜: エスカ・アール */
+    if(weekNum%2===0&&SUN_GROUP_B.indexOf(cid)>=0)return true; /* 第2・4日曜: ウィズ・ルミナス・大森 */
   }
   /* 祝日チェック（指定医院のみ） */
   if(HOL.has(dateStr)&&cid&&HOL_CLOSED.indexOf(cid)>=0)return true;
