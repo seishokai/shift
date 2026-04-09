@@ -126,6 +126,8 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
   <div id="paintBar" style="flex-shrink:0;">
     <span id="paintLbl">医院を選んでセルをクリック</span>
     <span id="paintOpts"></span>
+    <button onclick="setPaintDel()" class="paint-opt" id="paintDelBtn" style="background:#f5f5f3;color:#ff6b6b;border-color:#ddd;">削除</button>
+    <button onclick="toggleBulkPanel()" class="paint-opt" id="paintBulkBtn" style="background:#f5f5f3;color:#e65100;border-color:#ddd;">一括</button>
     <button onclick="setPaint(null)" style="margin-left:auto;padding:3px 10px;border:none;background:#f0f0ee;color:#333;border-radius:8px;font-size:11px;cursor:pointer;">✕ 閉じる</button>
   </div>
   <div id="bulkPanel" style="display:none;background:#fff;border-bottom:2px solid #e65100;padding:10px 12px;flex-shrink:0;"></div>
@@ -417,7 +419,7 @@ function renderShifts(){
   h+='</tr></thead><tbody>';
 
   doctors.forEach(function(doc){
-    var nameClick=isAdmin?'openBulk(\''+doc.id+'\')':'goToPerson(\''+doc.id+'\')';
+    var nameClick=isAdmin?'openBulkFor(\''+doc.id+'\')':'goToPerson(\''+doc.id+'\')';
     var nameBg=bulkDocId===doc.id?'background:#fff3e0;':'';
     h+='<tr><td class="fix-left-body" style="font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;border-right:2px solid #bbb;cursor:pointer;color:#1a5276;'+nameBg+'" onclick="'+nameClick+'">'+doc.n+'</td>';
     for(var d=1;d<=days;d++){
@@ -538,16 +540,28 @@ function renderPaintBar(){
   });
   var kiboOn=paintClinic==='__kibokyu__';
   opts+='<button class="paint-opt" onclick="setPaint(\'__kibokyu__\')" style="background:'+(kiboOn?'#7b2d8b':'#f5f5f3')+';color:'+(kiboOn?'#fff':'#7b2d8b')+';border-color:'+(kiboOn?'#7b2d8b':'#ddd')+';">希望休</button>';
-  opts+='<button class="paint-opt" onclick="setPaintDel()" style="background:'+(paintClinic==='__del__'?'#b83030':'#f5f5f3')+';color:'+(paintClinic==='__del__'?'#fff':'#ff6b6b')+';border-color:'+(paintClinic==='__del__'?'#b83030':'#ddd')+';">削除</button>';
+  /* 削除・一括ボタンの状態更新 */
+  var delBtn=document.getElementById('paintDelBtn');
+  if(delBtn){delBtn.style.background=paintClinic==='__del__'?'#b83030':'#f5f5f3';delBtn.style.color=paintClinic==='__del__'?'#fff':'#ff6b6b';delBtn.style.borderColor=paintClinic==='__del__'?'#b83030':'#ddd';}
   document.getElementById('paintOpts').innerHTML=opts;
 }
 function setPaintDel(){paintClinic='__del__';renderPaintBar();renderShifts();}
+function toggleBulkPanel(){
+  var el=document.getElementById('bulkPanel');
+  if(el.style.display==='none'||!el.style.display){el.style.display='block';bulkDocId=null;bulkClinic=null;renderBulkPanel();}
+  else{el.style.display='none';}
+}
 
 /* ======= 一括入力パネル ======= */
 var bulkDocId=null,bulkClinic=null;
 function openBulk(docId){
   bulkDocId=docId;bulkClinic=null;
   renderBulkPanel();
+}
+function openBulkFor(docId){
+  document.getElementById('bulkPanel').style.display='block';
+  bulkDocId=docId;bulkClinic=null;
+  renderBulkPanel();renderShifts();
 }
 function renderBulkPanel(){
   var el=document.getElementById('bulkPanel');
