@@ -802,20 +802,39 @@ function loadDB(){
     showSb('オフライン - DBに接続できません','e');
   });
 }
+/* シフトデータのローカルバックアップ */
+function saveShiftsLocal(){
+  try{localStorage.setItem('seishokai_shifts',JSON.stringify(shifts));}catch(e){}
+}
+function loadShiftsLocal(){
+  try{
+    var s=localStorage.getItem('seishokai_shifts');
+    if(s){var saved=JSON.parse(s);Object.keys(saved).forEach(function(k){
+      if(!shifts[k])shifts[k]=saved[k];
+      else{saved[k].forEach(function(e){
+        var idx=shifts[k].findIndex(function(x){return x.docId===e.docId;});
+        if(idx>=0)shifts[k][idx]=e;else shifts[k].push(e);
+      });}
+    });}
+  }catch(e){}
+}
+
 var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
-  /* DELETE→INSERT 完全順番保証 */
-  var url=SB_URL+'/rest/v1/shifts';
-  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
-  return fetch(url+'?date_str=eq.'+encodeURIComponent(dateStr)+'&doc_id=eq.'+encodeURIComponent(docId),{method:'DELETE',headers:h})
+  /* まずローカルに保存（確実に消えない） */
+  saveShiftsLocal();
+  /* DELETE→INSERT */
+  var hd={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
+  var hp={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
+  return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE',headers:hd})
   .then(function(){
-    return fetch(url,{method:'POST',headers:h,body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})});
+    return fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:hp,body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})});
   }).then(function(r){
     _pendingSaves--;
     if(r.ok||r.status===201){if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}}
-    else{r.text().then(function(t){console.error('INSERT:',r.status,t);showSb('保存失敗','e');});}
-  }).catch(function(e){_pendingSaves--;console.error(e);showSb('通信エラー','e');});
+    else{r.text().then(function(t){console.error('保存:',r.status,t);showSb('DB保存失敗(ローカル保存済)','w');});}
+  }).catch(function(e){_pendingSaves--;console.error(e);showSb('通信エラー(ローカル保存済)','w');});
 }
 function dbDel(dateStr,docId){
   showSb('削除中...');
@@ -4623,6 +4642,7 @@ document.addEventListener('DOMContentLoaded',function(){
   ['vE','vG'].forEach(function(id){var v=document.getElementById(id);if(v)v.style.display='none';});
   renderAll();
   loadClosedDates();
+  loadShiftsLocal();
   loadDB().then(function(){renderAll();scheduleAutoBackup();loadKyumiLogFromDB().then(function(){if(curTab===3)renderD();});});
 });
 /* ---- チャット機能 ---- */
