@@ -822,19 +822,25 @@ function loadShiftsLocal(){
 var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
-  /* まずローカルに保存（確実に消えない） */
   saveShiftsLocal();
-  /* DELETE→INSERT */
-  var hd={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
-  var hp={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
-  return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE',headers:hd})
-  .then(function(){
-    return fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:hp,body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})});
+  /* テストで動作確認済みの書き方と完全に同じ */
+  var headers={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
+  /* 1. DELETE */
+  return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
+    method:'DELETE',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}
+  }).then(function(dr){
+    console.log('DEL:',dr.status);
+    /* 2. INSERT */
+    return fetch(SB_URL+'/rest/v1/shifts',{
+      method:'POST',headers:headers,
+      body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+    });
   }).then(function(r){
     _pendingSaves--;
+    console.log('INS:',r.status);
     if(r.ok||r.status===201){if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}}
-    else{r.text().then(function(t){console.error('保存:',r.status,t);showSb('DB保存失敗(ローカル保存済)','w');});}
-  }).catch(function(e){_pendingSaves--;console.error(e);showSb('通信エラー(ローカル保存済)','w');});
+    else{r.text().then(function(t){console.error('ERR:',t);showSb('保存失敗','e');});}
+  }).catch(function(e){_pendingSaves--;console.error('NET:',e);showSb('通信エラー','e');});
 }
 function dbDel(dateStr,docId){
   showSb('削除中...');
