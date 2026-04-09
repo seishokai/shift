@@ -670,7 +670,11 @@ function bulkApply(mode){
     if(mode==='weekend'&&w!==0&&w!==6)skip=true;
     if(typeof mode==='number'&&w!==mode)skip=true;
     if(skip)continue;
+    /* 既存の休み希望・有給・代休は上書きしない */
     if(!shifts[dateStr])shifts[dateStr]=[];
+    var existing=shifts[dateStr].find(function(s){return s.docId===bulkDocId;});
+    var keepIds=['yasumi','yukyu','daikyu'];
+    if(existing&&keepIds.indexOf(existing.clinicId)>=0)continue;
     var idx=shifts[dateStr].findIndex(function(s){return s.docId===bulkDocId;});
     var entry={docId:bulkDocId,clinicId:cid,memo:memo};
     if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
