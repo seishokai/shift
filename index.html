@@ -1134,6 +1134,20 @@ function refreshViews(tid){
   });
 }
 
+function shiftClearMonth(){
+  if(!confirm(curY+'年'+(curM+1)+'月の全シフトを削除しますか？\n（戻るボタンで復元可能）'))return;
+  globalSnapshot();
+  var days=dim(curY,curM);
+  for(var d=1;d<=days;d++){
+    var dds=ds(d);
+    if(shifts[dds]){
+      shifts[dds].forEach(function(s){dbDel(dds,s.docId);});
+      delete shifts[dds];
+    }
+  }
+  saveShiftsLocal();refreshViews('allViewWrap');renderAllView('allViewWrapView');
+  showSb((curM+1)+'月全削除','ok');
+}
 function shiftPaint(cid){
   window._shiftPaintClinic=cid;
   closeInlineEdit();
@@ -1337,6 +1351,7 @@ h+='<td'+eAttr2+' style="'+tdH+'background:'+cellBg+';width:36px;max-width:36px;
     /* 医院ボタン */
     paintBar+='<div style="display:flex;flex-wrap:wrap;gap:2px;">';
     paintBar+='<button onclick="shiftPaint(\'__del__\')" style="padding:2px 6px;border-radius:8px;border:1.5px solid '+(pc==='__del__'?'#b83030':'#ddd')+';background:'+(pc==='__del__'?'#b83030':'#fdf0ee')+';color:'+(pc==='__del__'?'#fff':'#b83030')+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">✕削除</button>';
+    paintBar+='<button onclick="shiftClearMonth()" style="padding:2px 6px;border-radius:8px;border:1.5px solid #b83030;background:#fdf0ee;color:#b83030;font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">月全削除</button>';
     CLINICS.forEach(function(c){
       var cc=getCC(c.id);var on=pc===c.id;
       paintBar+='<button onclick="shiftPaint(\''+c.id+'\')" style="padding:2px 6px;border-radius:8px;border:1.5px solid '+(on?cc.c:'#ddd')+';background:'+(on?cc.c:cc.b)+';color:'+(on?'#fff':cc.c)+';font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">'+c.n+'</button>';
