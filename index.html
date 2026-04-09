@@ -806,18 +806,34 @@ var _pendingSaves=0;
 function dbSave(dateStr,docId,cid,memo){
   _pendingSaves++;
   showSb('保存中...');
-  return fetch(SB_URL+'/rest/v1/shifts?on_conflict=date_str,doc_id',{
-    method:'POST',
-    headers:Object.assign({},SB_H,{Prefer:'resolution=merge-duplicates,return=minimal'}),
-    body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+  var h=Object.assign({},SB_H);
+  /* PATCH(UPDATE)を試行、失敗したらDELETE→INSERT */
+  return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
+    method:'PATCH',headers:Object.assign({},h,{Prefer:'return=minimal'}),
+    body:JSON.stringify({clinic_id:cid,memo:memo||''})
+  }).then(function(r){
+    if(r.status===404||r.status===406){
+      /* レコードなし→INSERT */
+      return fetch(SB_URL+'/rest/v1/shifts',{
+        method:'POST',headers:Object.assign({},h,{Prefer:'return=minimal'}),
+        body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+      });
+    }
+    return r;
   }).then(function(r){
     _pendingSaves--;
-    if(!r.ok)return r.text().then(function(t){throw new Error(r.status+':'+t);});
+    if(r&&!r.ok&&r.status!==204){
+      /* PATCH成功だが0行更新→INSERT */
+      return fetch(SB_URL+'/rest/v1/shifts',{
+        method:'POST',headers:Object.assign({},h,{Prefer:'return=minimal'}),
+        body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
+      }).then(function(){if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}});
+    }
     if(_pendingSaves<=0){_pendingSaves=0;showSb('✓','ok');}
   }).catch(function(e){
     _pendingSaves--;
-    console.error('保存失敗:',e.message);
-    showSb('保存失敗:'+e.message,'e');
+    console.error('保存失敗:',e);
+    showSb('保存失敗','e');
   });
 }
 function dbDel(dateStr,docId){
