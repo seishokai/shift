@@ -1149,7 +1149,7 @@ function refreshViews(tid){
 }
 
 function shiftClearMonth(){
-  if(!confirm(curY+'年'+(curM+1)+'月の全シフトを削除しますか？\n（戻るボタンで復元可能）'))return;
+  if(!confirm(curY+'年'+(curM+1)+'月の全シフトを削除しますか？'))return;
   globalSnapshot();
   var days=dim(curY,curM);
   for(var d=1;d<=days;d++){
@@ -1394,7 +1394,7 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
         /* 削除モード：列全削除（このドクターの今月全シフト） */
         var did=th.dataset.openDoc;
         var doc=doctors.find(function(d){return d.id===did;});
-        if(!confirm((doc?doc.n:'')+'の'+(curM+1)+'月シフトを全削除しますか？'))return;
+        /* 確認なしで即削除（戻るで復元可能） */
         globalSnapshot();
         for(var dd=1;dd<=dim(curY,curM);dd++){
           var dds=ds(dd);
@@ -1586,7 +1586,7 @@ el.innerHTML=paintBar+'<div style="overflow:auto;height:calc(100vh - '+(isAdmin?
         var dds=td.dataset.delDate;
         var dt=new Date(dds);
         var DOW9=['日','月','火','水','木','金','土'];
-        if(!confirm((dt.getMonth()+1)+'/'+dt.getDate()+'('+DOW9[dt.getDay()]+')の全シフトを削除しますか？'))return;
+        /* 確認なしで即削除（戻るで復元可能） */
         globalSnapshot();
         if(shifts[dds]){
           shifts[dds].forEach(function(s){dbDel(dds,s.docId);});
