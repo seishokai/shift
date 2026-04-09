@@ -803,6 +803,7 @@ function loadDB(){
   }).catch(function(e){
     console.warn('DB読み込み失敗:',e);
     Object.assign(shifts,EXCEL_DATA);
+    loadShiftsLocal();
     showSb('オフライン - DBに接続できません','e');
   });
 }
@@ -849,6 +850,7 @@ function dbSave(dateStr,docId,cid,memo){
   }).catch(function(e){_pendingSaves--;console.error(e);showSb('通信エラー','e');});
 }
 function dbDel(dateStr,docId){
+  saveShiftsLocalNow();
   showSb('削除中...');
   return sbReq('/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE'}
   ).then(function(){showSb('削除完了','ok');}).catch(function(){
@@ -4730,6 +4732,8 @@ document.addEventListener('DOMContentLoaded',function(){
   loadShiftsLocal();
   loadDB().then(function(){renderAll();scheduleAutoBackup();loadKyumiLogFromDB().then(function(){if(curTab===3)renderD();});});
 });
+/* ページ離脱時にlocalStorageに保存 */
+window.addEventListener('beforeunload',function(){saveShiftsLocal();saveClosedDates();});
 /* ---- チャット機能 ---- */
 var ANTHROPIC_API_KEY = ''; /* ここにAPIキーを設定 */
 var chatHistory = [];
