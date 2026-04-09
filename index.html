@@ -828,15 +828,17 @@ function loadDB(){
     if(!r.ok)throw new Error('DB読み込みエラー: '+r.status);
     return r.json();
   }).then(function(rows){
-    shifts={};
+    /* EXCEL_DATAをベースに、Supabaseデータで上書き */
+    shifts={};Object.assign(shifts,EXCEL_DATA);
     if(rows&&rows.length){
       rows.forEach(function(row){
         if(!shifts[row.date_str])shifts[row.date_str]=[];
-        shifts[row.date_str].push({docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''});
+        var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
+        var e={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
+        if(idx>=0)shifts[row.date_str][idx]=e;else shifts[row.date_str].push(e);
       });
-      showSb(rows.length+'件読込','ok');
+      showSb(rows.length+'件 + 初期データ読込','ok');
     } else {
-      Object.assign(shifts,EXCEL_DATA);
       showSb('初期データ読込','ok');
     }
     saveShiftsLocal();
