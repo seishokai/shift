@@ -122,14 +122,17 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 <div id="sb"></div>
 
 <!-- Tab 0: シフト表 -->
-<div id="tab0" class="grid-wrap">
-  <div id="paintBar">
+<div id="tab0" style="display:flex;flex-direction:column;height:calc(100vh - 52px);">
+  <div id="paintBar" style="flex-shrink:0;">
     <span id="paintLbl">医院を選んでセルをクリック</span>
     <span id="paintOpts"></span>
     <button onclick="setPaint(null)" style="margin-left:auto;padding:3px 10px;border:none;background:#f0f0ee;color:#333;border-radius:8px;font-size:11px;cursor:pointer;">✕ 閉じる</button>
   </div>
-  <div id="bulkPanel" style="display:none;background:#fff;border-bottom:2px solid #e65100;padding:10px 12px;"></div>
-  <table class="grid" id="shiftTable"></table>
+  <div id="bulkPanel" style="display:none;background:#fff;border-bottom:2px solid #e65100;padding:10px 12px;flex-shrink:0;"></div>
+  <div id="shiftScrollArea" style="flex:1;overflow:auto;">
+    <table class="grid" id="shiftTable"></table>
+  </div>
+  <div id="shiftFooter" style="flex-shrink:0;overflow:hidden;background:#edebe6;border-top:2px solid #bbb;"></div>
 </div>
 
 <!-- Tab 1: 医院別 -->
@@ -446,21 +449,26 @@ function renderShifts(){
     }
     h+='</tr>';
   });
-  /* 下部にも日付行 */
-  h+='<tr><td class="fix-left date-hdr" style="z-index:12;position:sticky;bottom:0;">日付</td>';
+  h+='</tbody>';
+  document.getElementById('shiftTable').innerHTML=h;
+  /* 下部固定日付行 */
+  var fh='<table class="grid" style="margin:0;"><tr><td class="fix-left date-hdr" style="background:#edebe6;">日付</td>';
   for(var d2=1;d2<=days;d2++){
     var dateStr2=ds(curY,curM,d2);
     var w2=new Date(curY,curM,d2).getDay();
     var isH2=HOL.has(dateStr2);
     var cls2=w2===0?'sun':w2===6?'sat':'';
     if(isH2)cls2='sun';
-    h+='<td class="date-hdr '+cls2+'" style="position:sticky;bottom:0;z-index:10;background:#edebe6;font-weight:600;padding:4px 2px;">'+d2+'<span style="font-size:8px;margin-left:1px;">'+DOW[w2]+'</span>';
-    if(isH2)h+='<span class="hol-badge">祝</span>';
-    h+='</td>';
+    fh+='<td class="date-hdr '+cls2+'" style="background:#edebe6;font-weight:600;">'+d2+'<span style="font-size:8px;margin-left:1px;">'+DOW[w2]+'</span>';
+    if(isH2)fh+='<span class="hol-badge">祝</span>';
+    fh+='</td>';
   }
-  h+='</tr>';
-  h+='</tbody>';
-  document.getElementById('shiftTable').innerHTML=h;
+  fh+='</tr></table>';
+  document.getElementById('shiftFooter').innerHTML=fh;
+  /* 横スクロール同期 */
+  var scroll=document.getElementById('shiftScrollArea');
+  var footer=document.getElementById('shiftFooter');
+  scroll.onscroll=function(){footer.scrollLeft=scroll.scrollLeft;};
   renderPaintBar();
 }
 
