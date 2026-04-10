@@ -173,9 +173,10 @@ function refreshFromSheet(){
       showSb('データが空または不正な形式です','e');
       return;
     }
-      /* 当月の日付キーをクリアしてからGASデータで上書き（削除反映） */
+      /* GASにデータがある場合のみ当月をクリアして上書き */
+      var hasData=Object.keys(data.shifts).length>0;
       var days=dim(curY,curM);
-      for(var d=1;d<=days;d++){var k=ds(curY,curM,d);shifts[k]=[];}
+      if(hasData){for(var d=1;d<=days;d++){var k=ds(curY,curM,d);shifts[k]=[];}}
       Object.keys(data.shifts).forEach(function(dateStr){
         if(!shifts[dateStr])shifts[dateStr]=[];
         var entries=data.shifts[dateStr];
@@ -211,7 +212,7 @@ function refreshFromSheet(){
 }
 
 /* ナビ */
-function chgMonth(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}updateMonthLbl();renderTab();}
+function chgMonth(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}updateMonthLbl();renderTab();refreshFromSheet();}
 function updateMonthLbl(){document.getElementById('monthLbl').textContent=curY+'年'+(curM+1)+'月';}
 function goToday(){curY=today.getFullYear();curM=today.getMonth();updateMonthLbl();renderTab();}
 function setTab(n){curTab=n;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',i===n);});['tab0','tab1','tab2','tab3','tab4','tab5'].forEach(function(id,i){document.getElementById(id).style.display=i===n?'':'none';});renderTab();}
