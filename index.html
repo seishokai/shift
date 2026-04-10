@@ -78,6 +78,7 @@ table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:1
   </div>
   <div style="display:flex;flex-wrap:wrap;gap:2px;">
     <button class="tab-btn on" onclick="setTab(0)">シフト表</button>
+    <button class="tab-btn" onclick="setTab(6)">シフト表(縦)</button>
     <button class="tab-btn" onclick="setTab(1)">医院別</button>
     <button class="tab-btn" onclick="setTab(2)">個人</button>
     <button class="tab-btn" onclick="setTab(3)">希望申請</button>
@@ -95,6 +96,7 @@ table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:1
 <div id="tab3" class="grid-wrap" style="display:none;padding:10px;"><div id="reqDocBar" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;"></div><div id="reqView"></div></div>
 <div id="tab4" class="grid-wrap" style="display:none"><table class="grid" id="closedTable"></table></div>
 <div id="tab5" class="grid-wrap" style="display:none;padding:12px;"><div id="summaryView"></div></div>
+<div id="tab6" class="grid-wrap" style="display:none;"><table class="grid" id="vertShiftTable"></table></div>
 
 <script>
 var GAS_URL='https://script.google.com/macros/s/AKfycbymkh4PvHgIj74kT90srf0WetZbmjL5QyyshfJ-9M68dHzOv4TodeqUTFwsHAtFtWDp/exec';
@@ -227,8 +229,8 @@ function refreshFromSheet(){
 function chgMonth(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}updateMonthLbl();renderTab();}
 function updateMonthLbl(){document.getElementById('monthLbl').textContent=curY+'年'+(curM+1)+'月';}
 function goToday(){curY=today.getFullYear();curM=today.getMonth();updateMonthLbl();renderTab();}
-function setTab(n){curTab=n;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',i===n);});['tab0','tab1','tab2','tab3','tab4','tab5'].forEach(function(id,i){document.getElementById(id).style.display=i===n?'':'none';});renderTab();}
-function renderTab(){if(curTab===0)renderShifts();else if(curTab===1)renderClinicView();else if(curTab===2)renderPersonView();else if(curTab===3)renderReqView();else if(curTab===4)renderClosed();else renderSummary();}
+function setTab(n){curTab=n;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',parseInt(b.getAttribute('onclick').match(/\d+/)[0])===n);});['tab0','tab1','tab2','tab3','tab4','tab5','tab6'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=id==='tab'+n?'':'none';});renderTab();}
+function renderTab(){if(curTab===0)renderShifts();else if(curTab===1)renderClinicView();else if(curTab===2)renderPersonView();else if(curTab===3)renderReqView();else if(curTab===4)renderClosed();else if(curTab===5)renderSummary();else if(curTab===6)renderVertShifts();}
 function goToPerson(docId){selPerson=docId;setTab(2);}
 
 /* Tab 0: シフト表（表示のみ） */
@@ -275,6 +277,49 @@ function renderShifts(){
 }
 /* Tab 1: 医院別カルーセル */
 var clinicViewMonth={};
+/* ===== Tab 6: シフト表（縦） ===== */
+function renderVertShifts(){
+  var days=dim(curY,curM);
+  var DOW2=['日','月','火','水','木','金','土'];
+  var h='<thead><tr><th class="fix-left" style="z-index:12;min-width:54px;background:#e0ddd6;">日付</th>';
+  doctors.forEach(function(doc){
+    h+='<th style="padding:3px 4px;font-size:10px;font-weight:700;min-width:36px;background:#e0ddd6;">'+doc.n+'</th>';
+  });
+  h+='</tr></thead><tbody>';
+  for(var d=1;d<=days;d++){
+    var dateStr=ds(curY,curM,d);
+    var w=new Date(curY,curM,d).getDay();
+    var isH=HOL.has(dateStr);
+    var numCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333';
+    var rowBg=w===0||isH?'#fff5f5':w===6?'#f0f5ff':'#fff';
+    var isT=today.getFullYear()===curY&&today.getMonth()===curM&&today.getDate()===d;
+    if(isT)rowBg='#fffde7';
+    h+='<tr style="background:'+rowBg+';">';
+    h+='<td class="fix-left-body" style="background:'+rowBg+';padding:4px 6px;font-weight:700;font-size:12px;color:'+numCol+';white-space:nowrap;border-right:2px solid #bbb;">'+d+'('+DOW2[w]+')';
+    if(isH)h+='<span class="hol-badge">祝</span>';
+    h+='</td>';
+    doctors.forEach(function(doc){
+      var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===doc.id;});
+      var bg='',txt='',col='';
+      if(sh){
+        var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
+        if(isKibo){bg='#f3e5f5';col='#7b2d8b';txt='希望休';}
+        else if(sh.clinicId==='yasumi'){bg='#eceff1';col='#78909c';txt='休み';}
+        else if(sh.clinicId==='yukyu'){bg='#eceff1';col='#e53935';txt='有給';}
+        else if(sh.clinicId==='daikyu'){bg='#eceff1';col='#1a5276';txt='代休';}
+        else if(sh.clinicId==='daishutsu'){bg='#777';col='#fff';txt='代出';}
+        else if(sh.clinicId==='kyushutsu'){bg='#e67e22';col='#fff';txt='休出';}
+        else if(sh.clinicId==='kibou_shutskin'){bg='#e8f5e9';col='#2e7d32';txt='出勤希望';}
+        else{var c=getCC(sh.clinicId);bg=c.c;col='#fff';txt=cname(sh.clinicId);}
+      }
+      h+='<td style="background:'+bg+';color:'+col+';font-weight:700;font-size:9px;text-align:center;height:26px;min-width:36px;">'+txt+'</td>';
+    });
+    h+='</tr>';
+  }
+  h+='</tbody>';
+  document.getElementById('vertShiftTable').innerHTML=h;
+}
+
 function renderClinicView(){
   var DOW=['日','月','火','水','木','金','土'];
   var h='';
