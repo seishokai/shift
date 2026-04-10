@@ -1436,7 +1436,9 @@ window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
 /* ======= Googleスプレッドシート同期 ======= */
 function syncToSheet(){
   if(!GAS_URL)return;
-  showSb('スプレッドシートに同期中...','');
+  var btn=document.getElementById('sheetSyncBtn');
+  if(btn)btn.textContent='📊同期中...';
+  showSb('スプレッドシート同期中...','');
   var entries=[];
   Object.keys(shifts).forEach(function(dateStr){
     if(dateStr.indexOf('__')===0)return;
@@ -1453,10 +1455,13 @@ function syncToSheet(){
   fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
     body:JSON.stringify({action:'writeBulk',entries:entries})
   }).then(function(){
+    if(btn)btn.textContent='📊同期✓';
     showSb('スプレッドシート同期完了 ('+entries.length+'件)','ok');
+    setTimeout(function(){if(btn)btn.textContent='📊同期';},3000);
   }).catch(function(e){
+    if(btn)btn.textContent='📊同期✗';
     showSb('スプレッドシート同期エラー','e');
-    console.error('GAS sync error:',e);
+    setTimeout(function(){if(btn)btn.textContent='📊同期';},3000);
   });
 }
 function loadFromSheet(month){
