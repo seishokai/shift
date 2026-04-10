@@ -286,16 +286,18 @@ function saveShifts(){
 function saveClosed(){
   try{var j=JSON.stringify(CLOSED_DATES);localStorage.setItem('seishokai_closed_v2',j);localStorage.setItem('seishokai_closed_v2_bak',j);}catch(e){console.error('saveClosed error:',e);showSb('休診日保存エラー','e');}
   try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){}
-  /* Supabaseにも保存 */
+  /* 全設定をSupabaseに保存 */
+  saveAllSettingsToDB();
+}
+function saveAllSettingsToDB(){
+  var settings={
+    closed_dates:CLOSED_DATES,
+    houmon_days:HOUMON_DAYS
+  };
   var h2={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'};
-  fetch(SB_URL+'/rest/v1/app_settings',{method:'POST',headers:h2,
-    body:JSON.stringify({key:'closed_dates',value:JSON.stringify(CLOSED_DATES)})
-  }).catch(function(){
-    /* テーブルが無い場合はshiftsテーブルに特殊行として保存 */
-    fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h2,
-      body:JSON.stringify({date_str:'__closed__',doc_id:'__system__',clinic_id:'__data__',memo:JSON.stringify(CLOSED_DATES)})
-    }).catch(function(){});
-  });
+  fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h2,
+    body:JSON.stringify({date_str:'__settings__',doc_id:'__system__',clinic_id:'__data__',memo:JSON.stringify(settings)})
+  }).catch(function(){});
 }
 function loadData(){
   showSb('読み込み中...');
@@ -342,20 +344,26 @@ function loadClosed(){
     if(s){var d=JSON.parse(s);Object.keys(d).forEach(function(k){CLOSED_DATES[k]=d[k];});}
   }catch(e){}
   try{var h=localStorage.getItem('seishokai_houmon_v2');if(h)HOUMON_DAYS=JSON.parse(h);}catch(e){}
-  /* Supabaseからも取得（localStorageが空の場合） */
+  /* localStorageに無い場合、Supabaseから全設定を復元 */
   if(!localStorage.getItem('seishokai_closed_v2')){
-    fetch(SB_URL+'/rest/v1/shifts?date_str=eq.__closed__&doc_id=eq.__system__&select=memo',{headers:Object.assign({},SB_H)})
-    .then(function(r){return r.json();})
-    .then(function(rows){
-      if(rows&&rows.length&&rows[0].memo){
-        var saved=JSON.parse(rows[0].memo);
-        Object.keys(saved).forEach(function(k){CLOSED_DATES[k]=saved[k];});
-        saveClosed();
-        renderTab();
-        showSb('休診日をDBから復元','ok');
-      }
-    }).catch(function(){});
+    loadAllSettingsFromDB();
   }
+}
+function loadAllSettingsFromDB(){
+  fetch(SB_URL+'/rest/v1/shifts?date_str=eq.__settings__&doc_id=eq.__system__&select=memo',{headers:Object.assign({},SB_H)})
+  .then(function(r){return r.json();})
+  .then(function(rows){
+    if(rows&&rows.length&&rows[0].memo){
+      var settings=JSON.parse(rows[0].memo);
+      if(settings.closed_dates){Object.keys(settings.closed_dates).forEach(function(k){CLOSED_DATES[k]=settings.closed_dates[k];});}
+      if(settings.houmon_days)HOUMON_DAYS=settings.houmon_days;
+      /* localStorageにも保存 */
+      try{localStorage.setItem('seishokai_closed_v2',JSON.stringify(CLOSED_DATES));}catch(e){}
+      try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){}
+      renderTab();
+      showSb('設定をDBから復元','ok');
+    }
+  }).catch(function(){});
 }
 
 /* Supabase保存（個別） */
@@ -401,7 +409,7 @@ function dbDel(dateStr,docId){
     showSb('DB削除通信エラー','e');
   });
 }
-function saveAll(){saveShifts();saveClosed();showSb('保存完了','ok');}
+function saveAll(){saveShifts();saveClosed();saveAllSettingsToDB();showSb('全データ保存完了','ok');}
 
 /* ======= Undo/Redo（localStorage永続化） ======= */
 function loadUndoStack(){
