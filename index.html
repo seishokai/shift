@@ -119,6 +119,7 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
     <button class="undo-btn" onclick="redo()">進む →</button>
     <button class="undo-btn" onclick="toggleHighlightEmpty()" id="hdrEmptyBtn" style="display:none;color:#2e7d32;font-weight:700;">空</button>
     <button class="save-btn" onclick="saveAll()" id="saveBtn" style="display:none">保存</button>
+    <button class="undo-btn" onclick="syncToSheet()" id="sheetSyncBtn" style="display:none;color:#2e7d32;font-weight:700;">📊同期</button>
     <button class="login-btn" onclick="toggleLogin()" id="loginBtn">ログイン</button>
   </div>
 </div>
@@ -177,6 +178,7 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 
 <script>
 /* ======= データ定数 ======= */
+var GAS_URL='https://script.google.com/macros/s/AKfycbymkh4PvHgIj74kT90srf0WetZbmjL5QyyshfJ-9M68dHzOv4TodeqUTFwsHAtFtWDp/exec';
 var SB_URL='https://trsugjpvhlkwjvtloype.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc3VnanB2aGxrd2p2dGxveXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc4ODQsImV4cCI6MjA5MDQzMzg4NH0.GASbFeN_dLduCw81DQen8e4Hwc0TkHrcZWbB8dgNsec';
 var SB_H={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
@@ -515,8 +517,10 @@ function saveAll(){
   function sendChunk(idx){
     if(idx>=chunks.length){
       if(failed>0)showSb('保存完了('+done+'件成功, '+failed+'件失敗)','e');
-      else showSb('全'+done+'件をSupabaseに保存完了','ok');
+      else showSb('全'+done+'件を保存完了','ok');
       _updateSaveStatus();
+      /* Googleスプレッドシートにも同期 */
+      syncToSheet();
       return;
     }
     showSb('送信中... '+(idx+1)+'/'+chunks.length+'チャンク','');
@@ -569,9 +573,9 @@ function redo(){
 
 /* ======= 認証 ======= */
 function toggleLogin(){
-  if(isAdmin){isAdmin=false;highlightEmpty=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('hdrEmptyBtn').style.display='none';document.getElementById('tabSettings').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;if(curTab===6)setTab(0);else renderTab();return;}
+  if(isAdmin){isAdmin=false;highlightEmpty=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('hdrEmptyBtn').style.display='none';document.getElementById('tabSettings').style.display='none';document.getElementById('sheetSyncBtn').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;if(curTab===6)setTab(0);else renderTab();return;}
   var pw=prompt('パスワード');
-  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';document.getElementById('hdrEmptyBtn').style.display='';document.getElementById('tabSettings').style.display='';renderTab();}
+  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';document.getElementById('hdrEmptyBtn').style.display='';document.getElementById('tabSettings').style.display='';document.getElementById('sheetSyncBtn').style.display='';renderTab();}
   else if(pw!==null)alert('パスワードが違います');
 }
 
@@ -1428,6 +1432,55 @@ updateMonthLbl();
 loadUndoStack();
 loadData().then(function(){renderTab();});
 window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
+
+/* ======= Googleスプレッドシート同期 ======= */
+function syncToSheet(){
+  if(!GAS_URL)return;
+  showSb('スプレッドシートに同期中...','');
+  var entries=[];
+  Object.keys(shifts).forEach(function(dateStr){
+    if(dateStr.indexOf('__')===0)return;
+    var parts=dateStr.split('-');
+    var month=parts[0]+'-'+parts[1];
+    var day=parseInt(parts[2]);
+    shifts[dateStr].forEach(function(s){
+      var doc=doctors.find(function(d){return d.id===s.docId;});
+      if(!doc)return;
+      var clinicName=shiftLabel(s);
+      entries.push({month:month,docName:doc.n,day:day,value:clinicName});
+    });
+  });
+  fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'writeBulk',entries:entries})
+  }).then(function(){
+    showSb('スプレッドシート同期完了 ('+entries.length+'件)','ok');
+  }).catch(function(e){
+    showSb('スプレッドシート同期エラー','e');
+    console.error('GAS sync error:',e);
+  });
+}
+function loadFromSheet(month){
+  if(!GAS_URL)return Promise.resolve();
+  return fetch(GAS_URL+'?action=read&month='+month,{mode:'cors'})
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data&&data.shifts){
+      Object.keys(data.shifts).forEach(function(dateStr){
+        data.shifts[dateStr].forEach(function(entry){
+          var doc=doctors.find(function(d){return d.n===entry.docName;});
+          if(!doc)return;
+          var cl=ALL.find(function(a){return a.n===entry.clinic;});
+          var cid=cl?cl.id:entry.clinic;
+          if(!shifts[dateStr])shifts[dateStr]=[];
+          var idx=shifts[dateStr].findIndex(function(s){return s.docId===doc.id;});
+          var e={docId:doc.id,clinicId:cid,memo:''};
+          if(idx>=0)shifts[dateStr][idx]=e;else shifts[dateStr].push(e);
+        });
+      });
+      saveShifts();
+    }
+  }).catch(function(e){console.warn('GAS load error:',e);});
+}
 
 /* ======= リアルタイム同期（15秒ごと） ======= */
 var _lastSyncHash='';
