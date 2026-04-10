@@ -7,7 +7,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:#f5f5f3;color:#1a1a18;font-size:13px;}
-.hdr{background:#fff;border-bottom:1px solid #ddd;padding:6px 12px;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;position:sticky;top:0;z-index:100;overflow-x:auto;}
+.hdr{background:#fff;border-bottom:1px solid #ddd;padding:6px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
 .tab-btn{padding:6px 14px;border:none;background:#f0f0ee;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:#666;white-space:nowrap;}
 .tab-btn.on{background:#1a1a18;color:#fff;}
 .month-nav{display:flex;align-items:center;gap:4px;}
@@ -54,12 +54,13 @@ table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:1
 .cc-yasumi{--cc:#999;--cb:#f2f2f0;}.cc-yukyu{--cc:#c0392b;--cb:#f0f0ee;}
 .cc-daikyu{--cc:#1a5276;--cb:#e8f4fd;}.cc-daishutsu{--cc:#555;--cb:#f0f0ee;}
 .cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
+.cc-kibou_shutskin{--cc:#2e7d32;--cb:#e8f5e9;}.cc-kibou_clinic{--cc:#1a5276;--cb:#e8f4fd;}
 @media(max-width:768px){
   .hdr{padding:4px 8px;gap:4px;}
   .tab-btn{padding:4px 8px;font-size:10px;}
   .month-nav span{font-size:12px;min-width:80px;}
   .refresh-btn{padding:4px 10px;font-size:10px;}
-  .grid-wrap{height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;}
+  .grid-wrap{height:calc(100vh - 82px);-webkit-overflow-scrolling:touch;}
   .shift-cell{width:26px;min-width:26px;height:22px;font-size:7px!important;}
   .date-hdr{min-width:26px!important;font-size:8px!important;}
   .pcal-cell{min-height:64px;font-size:10px;}
@@ -75,7 +76,7 @@ table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:1
     <span id="monthLbl" onclick="goToday()" title="今月に戻る"></span>
     <button onclick="chgMonth(1)">›</button>
   </div>
-  <div style="display:flex;gap:2px;">
+  <div style="display:flex;flex-wrap:wrap;gap:2px;">
     <button class="tab-btn on" onclick="setTab(0)">シフト表</button>
     <button class="tab-btn" onclick="setTab(1)">医院別</button>
     <button class="tab-btn" onclick="setTab(2)">個人</button>
@@ -210,7 +211,7 @@ function goToPerson(docId){selPerson=docId;setTab(2);}
 function renderShifts(){
   var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'];
   var isToday=function(d){return today.getFullYear()===curY&&today.getMonth()===curM&&today.getDate()===d;};
-  var restIds=new Set(['yasumi','yukyu','daikyu','daishutsu','kyushutsu','kibou_shutskin']);
+  var restIds=new Set(['yasumi','yukyu','daikyu','kibou_shutskin']);
   var h='<thead><tr><th class="fix-left date-hdr" style="z-index:12;">日付</th>';
   for(var d=1;d<=days;d++){var dateStr=ds(curY,curM,d),w=new Date(curY,curM,d).getDay(),isH=HOL.has(dateStr),cls=w===0||isH?'sun':w===6?'sat':'';
     h+='<th class="date-hdr '+cls+(isToday(d)?' today-hdr':'')+'">'+d+'<span style="font-size:8px;margin-left:1px;">'+DOW[w]+'</span>'+(isH?'<span class="hol-badge">祝</span>':'')+'</th>';}
@@ -256,7 +257,7 @@ function renderClinicView(){
   CLINICS.forEach(function(cl){
     var cid=cl.id,col=getCC(cid);
     var mOff=clinicViewMonth[cid]||0,sY=curY,sM=curM+mOff;
-    if(sM>11){sM-=12;sY++;}if(sM<0){sM+=12;sY--;}
+    while(sM>11){sM-=12;sY++;}while(sM<0){sM+=12;sY--;}
     var days=dim(sY,sM);
     h+='<div style="flex:0 0 280px;scroll-snap-align:start;border:2px solid '+col.c+';border-radius:12px;background:#fff;overflow:hidden;">';
     h+='<div style="background:'+col.c+';color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:center;gap:8px;">';
@@ -343,13 +344,14 @@ function renderReqView(){
   for(var d2=1;d2<=days;d2++){var ds2=ds(curY,curM,d2);var ex=(shifts[ds2]||[]).find(function(s){return s.docId===reqDocId;});if(ex)reqs.push({d:d2,ds:ds2,w:new Date(curY,curM,d2).getDay(),sh:ex});}
   if(reqs.length){h+='<div style="margin-top:16px;border-top:2px solid #eee;padding-top:12px;"><h4 style="font-size:13px;font-weight:700;margin-bottom:8px;">現在の登録状況</h4><table style="border-collapse:collapse;width:100%;font-size:12px;"><tbody>';
     reqs.forEach(function(r){var isKibo=r.sh.clinicId==='yasumi'&&r.sh.memo==='希望';var bgCol=isKibo?'#7b2d8b':r.sh.clinicId==='yasumi'?'#999':r.sh.clinicId==='yukyu'?'#e53935':getCC(r.sh.clinicId).c;
-      h+='<tr style="border-bottom:1px solid #eee;"><td style="padding:4px 8px;font-weight:700;color:'+(r.w===0?'#e05252':r.w===6?'#4a7fd4':'#333')+';width:70px;">'+r.d+'('+DOW2[r.w]+')</td><td style="padding:4px 8px;"><span style="background:'+bgCol+';color:#fff;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;">'+shiftLabel(r.sh)+'</span></td></tr>';});
+      h+='<tr style="border-bottom:1px solid #eee;"><td style="padding:4px 8px;font-weight:700;color:'+(r.w===0?'#e05252':r.w===6?'#4a7fd4':'#333')+';width:70px;">'+r.d+'('+DOW2[r.w]+')</td><td style="padding:4px 8px;"><span style="background:'+bgCol+';color:#fff;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;">'+shiftLabel(r.sh)+'</span></td><td style="padding:4px 8px;text-align:right;"><button onclick="cancelReq(\''+r.ds+'\')" style="padding:3px 10px;border:1px solid #e53935;background:#fff;color:#e53935;border-radius:6px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">取消</button></td></tr>';});
     h+='</tbody></table></div>';}
   document.getElementById('reqView').innerHTML=h;
 }
 function toggleReqDate(dateStr){reqSelDates.has(dateStr)?reqSelDates.delete(dateStr):reqSelDates.add(dateStr);renderReqView();}
 function submitReq(){
   if(!reqDocId||!reqSelDates.size)return;
+  if(reqType==='kibou_clinic'&&!reqClinicId){showSb('希望医院を選んでください','e');return;}
   var doc=doctors.find(function(d){return d.id===reqDocId;});
   var reqs=[];
   reqSelDates.forEach(function(dateStr){
@@ -373,6 +375,20 @@ function submitReq(){
     body:JSON.stringify({action:'writeRequests',requests:reqs})
   }).then(function(){showSb('シフト希望を申請しました','ok');}).catch(function(){showSb('申請エラー','e');});
   reqSelDates.clear();renderReqView();
+}
+function cancelReq(dateStr){
+  if(!reqDocId)return;
+  var doc=doctors.find(function(d){return d.id===reqDocId;});
+  if(!confirm(doc.n+'の'+dateStr+'の登録を取り消しますか？'))return;
+  if(shifts[dateStr]){
+    shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==reqDocId;});
+    if(!shifts[dateStr].length)delete shifts[dateStr];
+  }
+  try{localStorage.setItem('seishokai_shifts_v2',JSON.stringify(shifts));}catch(e){}
+  fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'cancelRequest',docName:doc.n,date:dateStr})
+  }).then(function(){showSb('取り消しました','ok');}).catch(function(){showSb('取消エラー','e');});
+  renderReqView();
 }
 
 /* Tab 4: 休診日 */
