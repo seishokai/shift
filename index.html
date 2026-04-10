@@ -23,11 +23,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',san
 .undo-btn{padding:5px 10px;border:1px solid #ddd;background:#fff;border-radius:8px;font-family:inherit;font-size:11px;cursor:pointer;}
 /* ステータスバー */
 #sb{display:none;position:fixed;top:50px;right:12px;z-index:200;padding:6px 16px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+/* 同期ボタン状態 */
+.sync-done{background:#2e7d32!important;color:#fff!important;border-color:#2e7d32!important;}
+.sync-ing{background:#1565c0!important;color:#fff!important;border-color:#1565c0!important;animation:syncPulse 1s infinite;}
+.sync-err{background:#b83030!important;color:#fff!important;border-color:#b83030!important;}
+.sync-need{background:#e65100!important;color:#fff!important;border-color:#e65100!important;}
+@keyframes syncPulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+/* 今日ハイライト */
+.today-col{background:#fffde7!important;box-shadow:inset 0 0 0 1px #fdd835;}
+.today-hdr{background:#fdd835!important;color:#333!important;font-weight:800!important;}
+/* 出勤人数フッター */
+.doc-count-cell{font-size:9px;font-weight:700;padding:2px 1px!important;position:sticky;bottom:0;z-index:10;}
+/* 今月ボタン */
+.today-btn{padding:5px 10px;border:1px solid #ddd;background:#fff;border-radius:8px;font-family:inherit;font-size:11px;cursor:pointer;font-weight:600;color:#1a5276;}
+.today-btn:hover{background:#e3f2fd;}
+/* 勤務日数バッジ */
+.work-count-badge{display:inline-block;background:#e8f5e9;color:#2e7d32;font-size:9px;font-weight:700;border-radius:4px;padding:1px 4px;margin-left:4px;min-width:18px;text-align:center;}
 /* テーブル共通 */
 .grid-wrap{overflow:auto;height:calc(100vh - 52px);}
 table.grid{border-collapse:collapse;white-space:nowrap;}
 table.grid th,table.grid td{border:1px solid #d0d0cc;padding:0;text-align:center;font-size:10px;}
-table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:10;padding:4px 2px;}
+table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:10;padding:4px 2px;border-bottom:2px solid #bbb;}
 .fix-left{position:sticky;left:0;z-index:11;background:#edebe6;}
 .fix-left-body{position:sticky;left:0;z-index:5;background:#fff;}
 /* シフトセル */
@@ -76,14 +92,17 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 .req-type.on{border-color:#7b2d8b;background:#7b2d8b;color:#fff;}
 /* モバイル対応 */
 @media(max-width:768px){
-  .hdr{padding:4px 8px;gap:4px;}
+  .hdr{padding:4px 6px;gap:3px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .hdr h1{font-size:13px;}
-  .hdr-tabs{gap:1px;}
-  .tab-btn{padding:4px 8px;font-size:10px;}
-  .month-nav span{font-size:12px;min-width:80px;}
-  .hdr-right{gap:3px;}
-  .undo-btn,.login-btn{padding:4px 8px;font-size:10px;}
-  .save-btn{padding:4px 10px;font-size:10px;}
+  .hdr-tabs{gap:1px;flex-shrink:0;}
+  .tab-btn{padding:4px 6px;font-size:9px;white-space:nowrap;}
+  .month-nav{flex-shrink:0;}
+  .month-nav button{width:28px;height:28px;font-size:16px;}
+  .month-nav span{font-size:11px;min-width:70px;}
+  .hdr-right{gap:2px;flex-shrink:0;}
+  .undo-btn,.login-btn{padding:3px 6px;font-size:9px;}
+  .save-btn{padding:3px 8px;font-size:9px;}
+  .today-btn{padding:3px 6px;font-size:9px;}
   .grid-wrap{height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;}
   .shift-cell{width:26px;min-width:26px;height:22px;font-size:7px!important;line-height:22px!important;}
   .date-hdr{min-width:26px!important;font-size:8px!important;}
@@ -104,6 +123,7 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
     <button onclick="chgMonth(-1)">‹</button>
     <span id="monthLbl"></span>
     <button onclick="chgMonth(1)">›</button>
+    <button class="today-btn" onclick="goToday()">今月</button>
   </div>
   <div class="hdr-tabs">
     <button class="tab-btn on" onclick="setTab(0)">シフト表</button>
@@ -238,6 +258,9 @@ var curY=2026,curM=5,curTab=0,isAdmin=false;
 var paintClinic=null;
 var undoStack=[],redoStack=[];
 var today=new Date();
+var _syncState='idle'; /* idle, synced, syncing, error, need */
+var _syncedOnce=false;
+var _dataChangedSinceSync=false;
 var HOUMON_DAYS={}; /* {'2026-06':['2026-06-01','2026-06-03',...]} */
 
 /* ======= ユーティリティ ======= */
@@ -254,6 +277,21 @@ function showSb(msg,type){
   el.style.display='block';el.textContent=msg;
   el.style.background=type==='ok'?'#2e7d32':type==='e'?'#b83030':'#555';
   if(type==='ok')setTimeout(function(){el.style.display='none';},2500);
+}
+
+function updateSyncBtn(){
+  var btn=document.getElementById('sheetSyncBtn');
+  if(!btn)return;
+  btn.className='undo-btn';
+  if(_syncState==='syncing'){btn.textContent='📊同期中...';btn.classList.add('sync-ing');}
+  else if(_syncState==='error'){btn.textContent='📊同期\u2717';btn.classList.add('sync-err');}
+  else if(_syncState==='need'){btn.textContent='📊要同期';btn.classList.add('sync-need');}
+  else if(_syncState==='synced'){btn.textContent='📊同期済';btn.classList.add('sync-done');}
+  else{btn.textContent='📊同期';btn.style.color='#2e7d32';btn.style.fontWeight='700';}
+}
+function markDataChanged(){
+  if(_syncedOnce&&_syncState==='synced'){_syncState='need';_dataChangedSinceSync=true;updateSyncBtn();}
+  else if(_syncedOnce){_dataChangedSinceSync=true;}
 }
 
 /* ======= 休診日判定 ======= */
@@ -481,6 +519,7 @@ setInterval(function(){
 
 function dbSave(dateStr,docId,cid,memo){
   _lastEditTs=Date.now();
+  markDataChanged();
   saveShifts();
   var key=dateStr+'_'+docId;
   _trackRecentKey(key);
@@ -490,6 +529,7 @@ function dbSave(dateStr,docId,cid,memo){
 
 function dbDel(dateStr,docId){
   _lastEditTs=Date.now();
+  markDataChanged();
   saveShifts();
   var key=dateStr+'_'+docId;
   _trackRecentKey(key);
@@ -584,6 +624,7 @@ function toggleLogin(){
 
 /* ======= ナビ ======= */
 function chgMonth(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}updateMonthLbl();renderTab();}
+function goToday(){var t=new Date();curY=t.getFullYear();curM=t.getMonth();updateMonthLbl();renderTab();}
 function updateMonthLbl(){document.getElementById('monthLbl').textContent=curY+'年'+(curM+1)+'月';}
 function setTab(n){
   curTab=n;
@@ -605,6 +646,8 @@ function renderTab(){
 function renderShifts(){
   var days=dim(curY,curM);
   var DOW=['日','月','火','水','木','金','土'];
+  var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var restIdsCount=new Set(['yasumi','yukyu','daikyu']);
   var h='<thead><tr><th class="fix-left date-hdr" style="z-index:12;">日付</th>';
   for(var d=1;d<=days;d++){
     var dateStr=ds(curY,curM,d);
@@ -612,29 +655,40 @@ function renderShifts(){
     var isH=HOL.has(dateStr);
     var cls=w===0?'sun':w===6?'sat':'';
     if(isH)cls='sun';
-    h+='<th class="date-hdr '+cls+'">'+d+'<span style="font-size:8px;margin-left:1px;">'+DOW[w]+'</span>';
+    var isToday=dateStr===todayStr;
+    h+='<th class="date-hdr '+cls+(isToday?' today-hdr':'')+'">'+(isToday?'<b>':'')+d+'<span style="font-size:8px;margin-left:1px;">'+DOW[w]+'</span>'+(isToday?'</b>':'');
     if(isH)h+='<span class="hol-badge">祝</span>';
     h+='</th>';
   }
-  h+='<th class="date-hdr" style="z-index:12;position:sticky;right:0;background:#edebe6;">名前</th>';
+  h+='<th class="date-hdr" style="z-index:12;position:sticky;right:0;background:#e0ddd6;">名前</th>';
   h+='</tr></thead>';
 
   h+='<tbody>';
-  doctors.forEach(function(doc){
+  doctors.forEach(function(doc,rowIdx){
     var nameClick=isAdmin?'openBulkFor(\''+doc.id+'\')':'goToPerson(\''+doc.id+'\')';
     var nameBg=bulkDocId===doc.id?'background:#fff3e0;':'';
-    h+='<tr><td class="fix-left-body" style="font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;border-right:2px solid #bbb;cursor:pointer;color:#1a5276;'+nameBg+'" onclick="'+nameClick+'">'+doc.n+'</td>';
+    var altBg=rowIdx%2===1?'background:#fafaf8;':'';
+    /* 出勤日数計算 */
+    var workCount=0;
+    for(var dd=1;dd<=days;dd++){
+      var dds=ds(curY,curM,dd);
+      var sh2=(shifts[dds]||[]).find(function(s){return s.docId===doc.id;});
+      if(sh2&&!restIdsCount.has(sh2.clinicId))workCount++;
+    }
+    var nameAltBg=rowIdx%2===1&&!bulkDocId?'background:#fafaf8;':'';
+    h+='<tr><td class="fix-left-body" style="font-size:11px;font-weight:700;padding:2px 4px;white-space:nowrap;border-right:2px solid #bbb;cursor:pointer;color:#1a5276;'+(nameBg||nameAltBg)+'" onclick="'+nameClick+'">'+doc.n+'<span class="work-count-badge">'+workCount+'</span></td>';
     for(var d=1;d<=days;d++){
       var dateStr=ds(curY,curM,d);
       var w=new Date(curY,curM,d).getDay();
       var isH=HOL.has(dateStr);
+      var isToday=dateStr===todayStr;
       var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===doc.id;});
       var bg='',txt='',col='';
       if(sh){
         var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
         var restCheck=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
         var onClosedDay=restCheck.indexOf(sh.clinicId)<0&&isClosed(dateStr,sh.clinicId);
-        if(onClosedDay){bg='#ff0000';col='#fff';txt='⚠'+cname(sh.clinicId);}
+        if(onClosedDay){bg='#ff0000';col='#fff';txt='\u26a0'+cname(sh.clinicId);}
         else if(isKibo){bg='#f3e5f5';col='#7b2d8b';txt='希望休';}
         else if(sh.clinicId==='yasumi'){bg='#eceff1';col='#78909c';txt='休み';}
         else if(sh.clinicId==='yukyu'){bg='#eceff1';col='#e53935';txt='有給';}
@@ -644,25 +698,39 @@ function renderShifts(){
         else if(sh.clinicId==='houmon'){bg='#2c6e8a';col='#fff';txt='訪問';}
         else{var c=getCC(sh.clinicId);bg=c.c;col='#fff';txt=cname(sh.clinicId);}
       } else {
-        /* 空セル：休診医院数を表示 */
         var closedCount=CLINICS.filter(function(c){return isClosed(dateStr,c.id);}).length;
-        var rowBg=w===0||isH?'#fff5f5':w===6?'#f0f5ff':'';
+        var rowBg=w===0||isH?'#fff5f5':w===6?'#f0f5ff':rowIdx%2===1?'#fafaf8':'';
         if(closedCount>=CLINICS.length){bg='#f0efed';col='#bbb';txt='全休';}
         else{bg=rowBg;col='';txt='';}
       }
-      /* 空ハイライトモード */
       var opacity='',extraStyle='';
       if(highlightEmpty&&sh){opacity='opacity:.15;';}
       if(highlightEmpty&&!sh&&txt!=='全休'){bg='#2e7d32';col='#fff';txt='空';extraStyle='font-size:10px!important;text-shadow:0 0 2px rgba(0,0,0,.3);';}
+      var todayBorder=isToday?'box-shadow:inset 0 0 0 1px #fdd835;':'';
       var click=isAdmin?'onclick="cellClick(\''+dateStr+'\',\''+doc.id+'\')"':'';
-      h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;overflow:hidden;'+opacity+extraStyle+'" '+click+'>'+txt+'</td>';
+      h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;overflow:hidden;'+opacity+extraStyle+todayBorder+'" '+click+'>'+txt+'</td>';
     }
-    h+='<td style="position:sticky;right:0;z-index:5;background:#fff;font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;border-left:2px solid #bbb;color:#1a5276;cursor:pointer;" onclick="goToPerson(\''+doc.id+'\')">'+doc.n+'</td>';
+    var rightAltBg=rowIdx%2===1?'background:#fafaf8;':'background:#fff;';
+    h+='<td style="position:sticky;right:0;z-index:5;'+rightAltBg+'font-size:11px;font-weight:700;padding:2px 4px;white-space:nowrap;border-left:2px solid #bbb;color:#1a5276;cursor:pointer;" onclick="goToPerson(\''+doc.id+'\')">'+doc.n+'<span class="work-count-badge">'+workCount+'</span></td>';
     h+='</tr>';
   });
   h+='</tbody>';
-  /* 下部日付行（tfoot sticky bottom） */
-  h+='<tfoot><tr>';
+  /* 出勤人数行 */
+  h+='<tfoot>';
+  h+='<tr>';
+  h+='<td class="fix-left doc-count-cell" style="z-index:12;position:sticky;bottom:26px;background:#e8f5e9;color:#2e7d32;font-weight:800;border-right:2px solid #bbb;">出勤</td>';
+  for(var dc=1;dc<=days;dc++){
+    var dcStr=ds(curY,curM,dc);
+    var dcW=new Date(curY,curM,dc).getDay();
+    var dcH=HOL.has(dcStr);
+    var workingCount=(shifts[dcStr]||[]).filter(function(s){return !restIdsCount.has(s.clinicId);}).length;
+    var dcBg=dcStr===todayStr?'#fff9c4':'#e8f5e9';
+    h+='<td class="doc-count-cell" style="position:sticky;bottom:26px;background:'+dcBg+';color:'+(workingCount>0?'#2e7d32':'#bbb')+';font-size:10px;">'+workingCount+'</td>';
+  }
+  h+='<td class="doc-count-cell" style="position:sticky;right:0;bottom:26px;z-index:12;background:#e8f5e9;color:#2e7d32;font-weight:800;">出勤</td>';
+  h+='</tr>';
+  /* 下部日付行 */
+  h+='<tr>';
   h+='<td class="fix-left" style="z-index:12;position:sticky;bottom:0;background:#ddd;font-size:9px;font-weight:700;padding:4px 2px;">日付</td>';
   for(var d2=1;d2<=days;d2++){
     var dateStr2=ds(curY,curM,d2);
@@ -670,7 +738,8 @@ function renderShifts(){
     var isH2=HOL.has(dateStr2);
     var cls2=w2===0?'sun':w2===6?'sat':'';
     if(isH2)cls2='sun';
-    h+='<td class="date-hdr '+cls2+'" style="position:sticky;bottom:0;background:#ddd;font-weight:700;">'+d2+'<span style="font-size:8px;margin-left:1px;">'+DOW[w2]+'</span>';
+    var isToday2=dateStr2===todayStr;
+    h+='<td class="date-hdr '+cls2+(isToday2?' today-hdr':'')+'" style="position:sticky;bottom:0;background:'+(isToday2?'#fdd835':'#ddd')+';font-weight:700;">'+d2+'<span style="font-size:8px;margin-left:1px;">'+DOW[w2]+'</span>';
     if(isH2)h+='<span class="hol-badge">祝</span>';
     h+='</td>';
   }
@@ -1440,8 +1509,7 @@ window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
 /* ======= Googleスプレッドシート同期 ======= */
 function syncToSheet(){
   if(!GAS_URL)return;
-  var btn=document.getElementById('sheetSyncBtn');
-  if(btn)btn.textContent='📊同期中...';
+  _syncState='syncing';updateSyncBtn();
   showSb('スプレッドシート同期中...','');
   var entries=[];
   Object.keys(shifts).forEach(function(dateStr){
@@ -1483,13 +1551,11 @@ function syncToSheet(){
     body:JSON.stringify({action:'writeRequests',requests:reqs})
   });
   Promise.all([p1,p2,p3]).then(function(){
-    if(btn)btn.textContent='📊同期✓';
+    _syncState='synced';_syncedOnce=true;_dataChangedSinceSync=false;updateSyncBtn();
     showSb('同期完了 ('+entries.length+'件)','ok');
-    setTimeout(function(){if(btn)btn.textContent='📊同期';},3000);
   }).catch(function(){
-    if(btn)btn.textContent='📊同期✗';
+    _syncState='error';updateSyncBtn();
     showSb('同期エラー','e');
-    setTimeout(function(){if(btn)btn.textContent='📊同期';},3000);
   });
 }
 function loadFromSheet(month){
