@@ -173,8 +173,10 @@ function refreshFromSheet(){
       showSb('データが空または不正な形式です','e');
       return;
     }
-      /* GASデータを追加・更新のみ（既存データは消さない） */
+      /* 当月データをGASで完全置換（データがある場合のみ） */
       var days=dim(curY,curM);
+      var gasHasData=Object.keys(data.shifts).length>0;
+      if(gasHasData){for(var dd=1;dd<=days;dd++){shifts[ds(curY,curM,dd)]=[];}}
       Object.keys(data.shifts).forEach(function(dateStr){
         if(!shifts[dateStr])shifts[dateStr]=[];
         var entries=data.shifts[dateStr];
@@ -189,9 +191,7 @@ function refreshFromSheet(){
           if(entry.clinic==='希望休'){cid='yasumi';memo='希望';}
           else if(entry.clinic==='出勤希望'){cid='kibou_shutskin';}
           else if(entry.clinic==='訪問'){cid='houmon';}
-          var existIdx=shifts[dateStr].findIndex(function(s){return s.docId===doc.id;});
-          if(existIdx>=0)shifts[dateStr][existIdx]={docId:doc.id,clinicId:cid,memo:memo};
-          else shifts[dateStr].push({docId:doc.id,clinicId:cid,memo:memo});
+          shifts[dateStr].push({docId:doc.id,clinicId:cid,memo:memo});
         });
       });
       if(data.closedDates&&typeof data.closedDates==='object'){
