@@ -1482,6 +1482,20 @@ function loadFromSheet(month){
   }).catch(function(e){console.warn('GAS load error:',e);});
 }
 
+/* 自動同期: 30秒ごとに変更があればスプレッドシートに同期 */
+var _lastSheetSyncHash='';
+var _sheetSyncPending=false;
+function autoSyncToSheet(){
+  var hash=JSON.stringify(shifts).length+'_'+Object.keys(shifts).length;
+  if(hash===_lastSheetSyncHash)return;
+  if(_sheetSyncPending)return;
+  _sheetSyncPending=true;
+  _lastSheetSyncHash=hash;
+  syncToSheet();
+  setTimeout(function(){_sheetSyncPending=false;},10000);
+}
+setInterval(autoSyncToSheet,30000);
+
 /* ======= リアルタイム同期（15秒ごと） ======= */
 var _lastSyncHash='';
 var _lastEditTs=0; /* 最後のローカル編集タイムスタンプ */
