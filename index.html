@@ -112,6 +112,7 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
     <button class="tab-btn" onclick="setTab(3)">希望申請</button>
     <button class="tab-btn" onclick="setTab(4)">休診日</button>
     <button class="tab-btn" onclick="setTab(5)">集計</button>
+    <button class="tab-btn" onclick="setTab(6)" id="tabSettings" style="display:none">設定</button>
   </div>
   <div class="hdr-right">
     <button class="undo-btn" onclick="undo()">← 戻す</button>
@@ -167,6 +168,11 @@ table.grid th{background:#edebe6;font-weight:600;position:sticky;top:0;z-index:1
 <!-- Tab 5: 集計 -->
 <div id="tab5" class="grid-wrap" style="display:none;padding:12px;">
   <div id="summaryView"></div>
+</div>
+
+<!-- Tab 6: 設定 -->
+<div id="tab6" class="grid-wrap" style="display:none;padding:12px;">
+  <div id="settingsView"></div>
 </div>
 
 <script>
@@ -292,7 +298,9 @@ function saveClosed(){
 function saveAllSettingsToDB(){
   var settings={
     closed_dates:CLOSED_DATES,
-    houmon_days:HOUMON_DAYS
+    houmon_days:HOUMON_DAYS,
+    doctors:doctors,
+    clinics:CLINICS
   };
   var h2={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'};
   fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h2,
@@ -357,6 +365,8 @@ function loadAllSettingsFromDB(){
       var settings=JSON.parse(rows[0].memo);
       if(settings.closed_dates){Object.keys(settings.closed_dates).forEach(function(k){CLOSED_DATES[k]=settings.closed_dates[k];});}
       if(settings.houmon_days)HOUMON_DAYS=settings.houmon_days;
+      if(settings.doctors&&settings.doctors.length)doctors=settings.doctors;
+      if(settings.clinics&&settings.clinics.length){CLINICS=settings.clinics;ALL=CLINICS.concat(STATUSES);}
       /* localStorageにも保存 */
       try{localStorage.setItem('seishokai_closed_v2',JSON.stringify(CLOSED_DATES));}catch(e){}
       try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){}
@@ -447,9 +457,9 @@ function redo(){
 
 /* ======= 認証 ======= */
 function toggleLogin(){
-  if(isAdmin){isAdmin=false;highlightEmpty=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('hdrEmptyBtn').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;renderTab();return;}
+  if(isAdmin){isAdmin=false;highlightEmpty=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('hdrEmptyBtn').style.display='none';document.getElementById('tabSettings').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;if(curTab===6)setTab(0);else renderTab();return;}
   var pw=prompt('パスワード');
-  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';document.getElementById('hdrEmptyBtn').style.display='';renderTab();}
+  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';document.getElementById('hdrEmptyBtn').style.display='';document.getElementById('tabSettings').style.display='';renderTab();}
   else if(pw!==null)alert('パスワードが違います');
 }
 
@@ -459,7 +469,7 @@ function updateMonthLbl(){document.getElementById('monthLbl').textContent=curY+'
 function setTab(n){
   curTab=n;
   document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',i===n);});
-  ['tab0','tab1','tab2','tab3','tab4','tab5'].forEach(function(id,i){document.getElementById(id).style.display=i===n?(i===0?'flex':''):'none';});
+  ['tab0','tab1','tab2','tab3','tab4','tab5','tab6'].forEach(function(id,i){var el=document.getElementById(id);if(el)el.style.display=i===n?(i===0?'flex':''):'none';});
   renderTab();
 }
 function renderTab(){
@@ -468,7 +478,8 @@ function renderTab(){
   else if(curTab===2)renderPersonView();
   else if(curTab===3)renderReqView();
   else if(curTab===4)renderClosed();
-  else renderSummary();
+  else if(curTab===5)renderSummary();
+  else if(curTab===6)renderSettings();
 }
 
 /* ======= Tab 0: シフト表 ======= */
@@ -1185,6 +1196,104 @@ function submitReq(){
   renderReqView();
 }
 
+/* ======= Tab 6: 設定 ======= */
+function renderSettings(){
+  var h='<h3 style="font-size:16px;font-weight:800;margin-bottom:12px;">設定</h3>';
+  /* ドクター管理 */
+  h+='<div style="margin-bottom:20px;">';
+  h+='<h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">ドクター一覧（'+doctors.length+'名）</h4>';
+  h+='<table style="border-collapse:collapse;width:100%;max-width:600px;font-size:12px;"><thead><tr><th style="text-align:left;padding:4px 8px;border-bottom:2px solid #ddd;">名前</th><th style="padding:4px 8px;border-bottom:2px solid #ddd;">院長</th><th style="padding:4px 8px;border-bottom:2px solid #ddd;width:60px;">操作</th></tr></thead><tbody>';
+  doctors.forEach(function(doc,i){
+    var dirName=doc.dir?cname(doc.dir):'';
+    h+='<tr style="border-bottom:1px solid #eee;">';
+    h+='<td style="padding:4px 8px;font-weight:600;">'+doc.n+'</td>';
+    h+='<td style="padding:4px 8px;text-align:center;color:#666;">'+(dirName||'-')+'</td>';
+    h+='<td style="padding:4px 8px;text-align:center;"><button onclick="removeDoctor('+i+')" style="border:none;background:#fdf0ee;color:#b83030;padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;">削除</button></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  h+='<div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">';
+  h+='<input id="newDocName" placeholder="名前" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;width:100px;">';
+  h+='<select id="newDocDir" style="padding:6px;border:1px solid #ddd;border-radius:8px;font-size:11px;"><option value="">院長でない</option>';
+  CLINICS.forEach(function(c){h+='<option value="'+c.id+'">'+c.n+'院長</option>';});
+  h+='</select>';
+  h+='<button onclick="addDoctor()" style="padding:6px 14px;border:none;background:#2e7d32;color:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">追加</button>';
+  h+='</div></div>';
+  /* 医院管理 */
+  h+='<div style="margin-bottom:20px;">';
+  h+='<h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">医院一覧（'+CLINICS.length+'院）</h4>';
+  h+='<table style="border-collapse:collapse;width:100%;max-width:600px;font-size:12px;"><thead><tr><th style="text-align:left;padding:4px 8px;border-bottom:2px solid #ddd;">名前</th><th style="padding:4px 8px;border-bottom:2px solid #ddd;">ID</th><th style="padding:4px 8px;border-bottom:2px solid #ddd;width:60px;">操作</th></tr></thead><tbody>';
+  CLINICS.forEach(function(cl,i){
+    var col=getCC(cl.id);
+    h+='<tr style="border-bottom:1px solid #eee;">';
+    h+='<td style="padding:4px 8px;font-weight:700;color:'+col.c+';">'+cl.n+'</td>';
+    h+='<td style="padding:4px 8px;color:#999;font-size:10px;">'+cl.id+'</td>';
+    h+='<td style="padding:4px 8px;text-align:center;"><button onclick="removeClinic('+i+')" style="border:none;background:#fdf0ee;color:#b83030;padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;">削除</button></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  h+='<div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">';
+  h+='<input id="newClinicName" placeholder="医院名" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;width:100px;">';
+  h+='<input id="newClinicId" placeholder="ID（英字）" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;width:100px;">';
+  h+='<input id="newClinicColor" type="color" value="#666666" style="width:36px;height:32px;border:1px solid #ddd;border-radius:8px;">';
+  h+='<button onclick="addClinic()" style="padding:6px 14px;border:none;background:#2e7d32;color:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">追加</button>';
+  h+='</div></div>';
+  document.getElementById('settingsView').innerHTML=h;
+}
+function addDoctor(){
+  var name=document.getElementById('newDocName').value.trim();
+  if(!name){showSb('名前を入力','e');return;}
+  var dir=document.getElementById('newDocDir').value;
+  var id='d'+(Date.now()%100000);
+  var doc={id:id,n:name};
+  if(dir)doc.dir=dir;
+  doctors.push(doc);
+  saveAllSettingsToDB();saveCustomLists();
+  showSb(name+'を追加','ok');renderSettings();
+}
+function removeDoctor(i){
+  if(!confirm(doctors[i].n+'を削除しますか？'))return;
+  doctors.splice(i,1);
+  saveAllSettingsToDB();saveCustomLists();
+  showSb('削除しました','ok');renderSettings();
+}
+function addClinic(){
+  var name=document.getElementById('newClinicName').value.trim();
+  var id=document.getElementById('newClinicId').value.trim().toLowerCase();
+  var color=document.getElementById('newClinicColor').value;
+  if(!name||!id){showSb('名前とIDを入力','e');return;}
+  if(CLINICS.find(function(c){return c.id===id;})){showSb('このIDは既に存在します','e');return;}
+  CLINICS.push({id:id,n:name});
+  ALL=CLINICS.concat(STATUSES);
+  /* 動的にCSS追加 */
+  var style=document.createElement('style');
+  style.textContent='.cc-'+id+'{--cc:'+color+';--cb:'+color+'20;}';
+  document.head.appendChild(style);
+  _ccCache={};
+  saveAllSettingsToDB();saveCustomLists();
+  showSb(name+'を追加','ok');renderSettings();
+}
+function removeClinic(i){
+  if(!confirm(CLINICS[i].n+'を削除しますか？'))return;
+  CLINICS.splice(i,1);ALL=CLINICS.concat(STATUSES);
+  saveAllSettingsToDB();saveCustomLists();
+  showSb('削除しました','ok');renderSettings();
+}
+function saveCustomLists(){
+  var data={doctors:doctors,clinics:CLINICS};
+  try{localStorage.setItem('seishokai_lists_v2',JSON.stringify(data));}catch(e){}
+}
+function loadCustomLists(){
+  try{
+    var s=localStorage.getItem('seishokai_lists_v2');
+    if(s){
+      var data=JSON.parse(s);
+      if(data.doctors&&data.doctors.length)doctors=data.doctors;
+      if(data.clinics&&data.clinics.length){CLINICS=data.clinics;ALL=CLINICS.concat(STATUSES);}
+    }
+  }catch(e){}
+}
+
 /* ======= 削除モード対応 ======= */
 var origCellClick=cellClick;
 cellClick=function(dateStr,docId){
@@ -1202,6 +1311,7 @@ cellClick=function(dateStr,docId){
 };
 
 /* ======= 初期化 ======= */
+loadCustomLists();
 updateMonthLbl();
 loadUndoStack();
 loadData().then(function(){renderTab();});
