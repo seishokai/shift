@@ -344,7 +344,7 @@ function renderReqView(){
   var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'],firstDow=new Date(curY,curM,1).getDay();
   var h='<h3 style="font-size:15px;font-weight:800;margin-bottom:8px;">'+doc.n+'｜'+(curM+1)+'月 シフト希望</h3>';
   h+='<div style="margin-bottom:10px;">';
-  [{id:'yasumi',n:'休み希望',col:'#999'},{id:'yukyu',n:'有給',col:'#e53935'},{id:'daishutsu',n:'代出',col:'#555'},{id:'houmon1',n:'訪1',col:'#2c6e8a'},{id:'houmon2',n:'訪2',col:'#4a9bb5'},{id:'kibou_shutskin',n:'出勤希望',col:'#2e7d32'},{id:'kibou_clinic',n:'希望医院',col:'#1a5276'}].forEach(function(t){
+  [{id:'yasumi',n:'休み希望',col:'#ff9800'},{id:'yukyu',n:'有給',col:'#e53935'},{id:'daishutsu',n:'代出',col:'#795548'},{id:'houmon1',n:'訪1',col:'#2c6e8a'},{id:'houmon2',n:'訪2',col:'#4a9bb5'},{id:'kibou_shutskin',n:'出勤希望',col:'#2e7d32'},{id:'kibou_clinic',n:'希望医院',col:'#1565c0'}].forEach(function(t){
     h+='<button class="req-type'+(reqType===t.id?' on':'')+'" onclick="reqType=\''+t.id+'\';renderReqView();" style="'+(reqType===t.id?'border-color:'+t.col+';background:'+t.col:'')+'">'+t.n+'</button>';});
   h+='</div>';
   if(reqType==='kibou_clinic'){h+='<div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:4px;">';CLINICS.forEach(function(c){var col=getCC(c.id),on=reqClinicId===c.id;h+='<button onclick="reqClinicId=\''+c.id+'\';renderReqView();" style="padding:5px 10px;border-radius:10px;border:2px solid '+(on?col.c:'#ddd')+';background:'+(on?col.c:'#fff')+';color:'+(on?'#fff':col.c)+';font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">'+c.n+'</button>';});h+='</div>';}
