@@ -285,7 +285,17 @@ function saveShifts(){
 }
 function saveClosed(){
   try{var j=JSON.stringify(CLOSED_DATES);localStorage.setItem('seishokai_closed_v2',j);localStorage.setItem('seishokai_closed_v2_bak',j);}catch(e){console.error('saveClosed error:',e);showSb('休診日保存エラー','e');}
-  try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){console.error('saveHoumon error:',e);}
+  try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){}
+  /* Supabaseにも保存 */
+  var h2={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'};
+  fetch(SB_URL+'/rest/v1/app_settings',{method:'POST',headers:h2,
+    body:JSON.stringify({key:'closed_dates',value:JSON.stringify(CLOSED_DATES)})
+  }).catch(function(){
+    /* テーブルが無い場合はshiftsテーブルに特殊行として保存 */
+    fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h2,
+      body:JSON.stringify({date_str:'__closed__',doc_id:'__system__',clinic_id:'__data__',memo:JSON.stringify(CLOSED_DATES)})
+    }).catch(function(){});
+  });
 }
 function loadData(){
   showSb('読み込み中...');
@@ -332,6 +342,20 @@ function loadClosed(){
     if(s){var d=JSON.parse(s);Object.keys(d).forEach(function(k){CLOSED_DATES[k]=d[k];});}
   }catch(e){}
   try{var h=localStorage.getItem('seishokai_houmon_v2');if(h)HOUMON_DAYS=JSON.parse(h);}catch(e){}
+  /* Supabaseからも取得（localStorageが空の場合） */
+  if(!localStorage.getItem('seishokai_closed_v2')){
+    fetch(SB_URL+'/rest/v1/shifts?date_str=eq.__closed__&doc_id=eq.__system__&select=memo',{headers:Object.assign({},SB_H)})
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if(rows&&rows.length&&rows[0].memo){
+        var saved=JSON.parse(rows[0].memo);
+        Object.keys(saved).forEach(function(k){CLOSED_DATES[k]=saved[k];});
+        saveClosed();
+        renderTab();
+        showSb('休診日をDBから復元','ok');
+      }
+    }).catch(function(){});
+  }
 }
 
 /* Supabase保存（個別） */
