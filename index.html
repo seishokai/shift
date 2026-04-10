@@ -139,7 +139,6 @@ table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:1
     <button class="undo-btn" onclick="redo()">進む →</button>
     <button class="undo-btn" onclick="toggleHighlightEmpty()" id="hdrEmptyBtn" style="display:none;color:#2e7d32;font-weight:700;">空</button>
     <button class="save-btn" onclick="saveAll()" id="saveBtn" style="display:none">保存</button>
-    <button class="undo-btn" onclick="syncToSheet()" id="sheetSyncBtn" style="display:none;color:#2e7d32;font-weight:700;">📊同期</button>
     <button class="login-btn" onclick="toggleLogin()" id="loginBtn">ログイン</button>
   </div>
 </div>
@@ -280,14 +279,14 @@ function showSb(msg,type){
 }
 
 function updateSyncBtn(){
-  var btn=document.getElementById('sheetSyncBtn');
+  var btn=document.getElementById('saveBtn');
   if(!btn)return;
-  btn.className='undo-btn';
-  if(_syncState==='syncing'){btn.textContent='📊同期中...';btn.classList.add('sync-ing');}
-  else if(_syncState==='error'){btn.textContent='📊同期\u2717';btn.classList.add('sync-err');}
-  else if(_syncState==='need'){btn.textContent='📊要同期';btn.classList.add('sync-need');}
-  else if(_syncState==='synced'){btn.textContent='📊同期済';btn.classList.add('sync-done');}
-  else{btn.textContent='📊同期';btn.style.color='#2e7d32';btn.style.fontWeight='700';}
+  btn.className='save-btn';
+  if(_syncState==='syncing'){btn.textContent='保存中...';}
+  else if(_syncState==='error'){btn.textContent='保存エラー';btn.style.background='#b83030';}
+  else if(_syncState==='need'){btn.textContent='要保存';btn.style.background='#e65100';}
+  else if(_syncState==='synced'){btn.textContent='保存済✓';btn.style.background='#2e7d32';}
+  else{btn.textContent='保存';btn.style.background='#2e7d32';}
 }
 function markDataChanged(){
   if(_syncedOnce&&_syncState==='synced'){_syncState='need';_dataChangedSinceSync=true;updateSyncBtn();}
@@ -616,9 +615,9 @@ function redo(){
 
 /* ======= 認証 ======= */
 function toggleLogin(){
-  if(isAdmin){isAdmin=false;highlightEmpty=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('hdrEmptyBtn').style.display='none';document.getElementById('tabSettings').style.display='none';document.getElementById('sheetSyncBtn').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;if(curTab===6)setTab(0);else renderTab();return;}
+  if(isAdmin){isAdmin=false;highlightEmpty=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('hdrEmptyBtn').style.display='none';document.getElementById('tabSettings').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;if(curTab===6)setTab(0);else renderTab();return;}
   var pw=prompt('パスワード');
-  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';document.getElementById('hdrEmptyBtn').style.display='';document.getElementById('tabSettings').style.display='';document.getElementById('sheetSyncBtn').style.display='';renderTab();}
+  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';document.getElementById('hdrEmptyBtn').style.display='';document.getElementById('tabSettings').style.display='';renderTab();}
   else if(pw!==null)alert('パスワードが違います');
 }
 
