@@ -164,13 +164,22 @@ function refreshFromSheet(){
   fetch(GAS_URL+'?action=read&month='+month)
   .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
   .then(function(data){
-    if(data&&data.shifts){
+    if(!data||typeof data!=='object'||!data.shifts||typeof data.shifts!=='object'){
+      btn.textContent='\u26A0 データなし';btn.style.background='#e65100';btn.disabled=false;
+      setTimeout(function(){btn.textContent='\uD83D\uDD04 更新';btn.style.background='#1565c0';},3000);
+      renderTab();
+      showSb('データが空または不正な形式です','e');
+      return;
+    }
       /* 当月の日付キーをクリアしてからGASデータで上書き（削除反映） */
       var days=dim(curY,curM);
-      for(var d=1;d<=days;d++){var k=ds(curY,curM,d);if(shifts[k])shifts[k]=[];}
+      for(var d=1;d<=days;d++){var k=ds(curY,curM,d);shifts[k]=[];}
       Object.keys(data.shifts).forEach(function(dateStr){
         if(!shifts[dateStr])shifts[dateStr]=[];
-        data.shifts[dateStr].forEach(function(entry){
+        var entries=data.shifts[dateStr];
+        if(!Array.isArray(entries))return;
+        entries.forEach(function(entry){
+          if(!entry||!entry.docName)return;
           var doc=doctors.find(function(d){return d.n===entry.docName;});
           if(!doc)return;
           var cl=ALL.find(function(a){return a.n===entry.clinic||a.id===entry.clinic;});
@@ -182,12 +191,11 @@ function refreshFromSheet(){
           shifts[dateStr].push({docId:doc.id,clinicId:cid,memo:memo});
         });
       });
-      if(data.closedDates){
+      if(data.closedDates&&typeof data.closedDates==='object'){
         Object.keys(data.closedDates).forEach(function(k){CLOSED_DATES[k]=data.closedDates[k];});
         try{localStorage.setItem('seishokai_closed_v2',JSON.stringify(CLOSED_DATES));}catch(e){}
       }
       try{localStorage.setItem('seishokai_shifts_v2',JSON.stringify(shifts));}catch(e){}
-    }
     btn.textContent='✓ 更新済';btn.style.background='#2e7d32';btn.disabled=false;
     setTimeout(function(){btn.textContent='🔄 更新';btn.style.background='#1565c0';},2000);
     renderTab();
@@ -288,7 +296,7 @@ function renderPersonView(){
   if(!selPerson){document.getElementById('personView').innerHTML='<p style="color:#999;text-align:center;padding:40px;">ドクターを選んでください</p>';return;}
   var doc=doctors.find(function(d){return d.id===selPerson;});
   var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'],firstDow=new Date(curY,curM,1).getDay();
-  var restIds=new Set(['yasumi','yukyu','daikyu']);var workDays=0;
+  var restIds=new Set(['yasumi','yukyu','daikyu','kibou_shutskin']);var workDays=0;
   for(var d=1;d<=days;d++){var sh=(shifts[ds(curY,curM,d)]||[]).find(function(s){return s.docId===selPerson;});if(sh&&!restIds.has(sh.clinicId))workDays++;}
   var h='<h3 style="font-size:18px;font-weight:800;margin-bottom:4px;">'+doc.n+'｜'+(curM+1)+'月</h3>';
   h+='<p style="font-size:12px;color:#666;margin-bottom:10px;">出勤 <b style="color:#2e7d32;font-size:16px;">'+workDays+'</b> 日</p>';
@@ -407,7 +415,7 @@ function renderClosed(){
 
 /* Tab 5: 集計 */
 function renderSummary(){
-  var days=dim(curY,curM),restIds=new Set(['yasumi','yukyu','daikyu']);
+  var days=dim(curY,curM),restIds=new Set(['yasumi','yukyu','daikyu','kibou_shutskin']);
   var h='<h3 style="font-size:14px;font-weight:700;margin-bottom:8px;">ドクター別出勤日数（'+(curM+1)+'月）</h3>';
   h+='<table class="sum-tbl"><thead><tr><th>ドクター</th><th>出勤</th><th>休み</th><th>有給</th><th>希望休</th></tr></thead><tbody>';
   doctors.forEach(function(doc){var work=0,off=0,yuk=0,kibo=0;
