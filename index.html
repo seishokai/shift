@@ -335,8 +335,11 @@ function loadClosed(){
 }
 
 /* Supabase保存（個別） */
+var _pendingSaves={};
 function dbSave(dateStr,docId,cid,memo){
   saveShifts();
+  var key=dateStr+'_'+docId;
+  _pendingSaves[key]=true;
   var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
   fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h,
     body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
@@ -348,14 +351,25 @@ function dbSave(dateStr,docId,cid,memo){
     }
     return r;
   }).then(function(r){
+    delete _pendingSaves[key];
     if(r.ok||r.status===201||r.status===204)showSb('✓','ok');
     else showSb('保存失敗','e');
-  }).catch(function(){showSb('通信エラー','e');});
+  }).catch(function(){delete _pendingSaves[key];showSb('通信エラー','e');});
 }
+var _pendingDeletes={};
 function dbDel(dateStr,docId){
   saveShifts();
+  var key=dateStr+'_'+docId;
+  _pendingDeletes[key]=true;
   var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
-  fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE',headers:h}).catch(function(){});
+  fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE',headers:h})
+  .then(function(r){
+    delete _pendingDeletes[key];
+    if(!r.ok&&r.status!==404)showSb('DB削除失敗('+r.status+')','e');
+  }).catch(function(){
+    delete _pendingDeletes[key];
+    showSb('DB削除通信エラー','e');
+  });
 }
 function saveAll(){saveShifts();saveClosed();showSb('保存完了','ok');}
 
@@ -1156,16 +1170,24 @@ window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
 /* ======= リアルタイム同期（15秒ごと） ======= */
 var _lastSyncHash='';
 function syncFromDB(){
+  if(Object.keys(_pendingDeletes).length>0||Object.keys(_pendingSaves).length>0)return; /* 保存/削除処理中はスキップ */
   fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{headers:Object.assign({},SB_H)})
   .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
   .then(function(rows){
-    if(!rows||!rows.length)return;
-    var hash=rows.length+'_'+rows[rows.length-1].date_str;
+    if(!rows)return;
+    /* 改善されたハッシュ: 全行のIDと内容を含む */
+    var hashParts=[];
+    rows.forEach(function(row){hashParts.push(row.date_str+'|'+row.doc_id+'|'+row.clinic_id+'|'+(row.memo||''));});
+    hashParts.sort();
+    var hash=rows.length+'_'+hashParts.join(';').length+'_'+(hashParts.length?hashParts[0]+hashParts[hashParts.length-1]:'');
     if(hash===_lastSyncHash)return; /* 変更なし */
     _lastSyncHash=hash;
     /* Supabaseデータをshiftsにマージ（Supabaseが優先） */
     var changed=false;
+    /* Supabaseに存在するエントリのセットを作る */
+    var dbEntries={};
     rows.forEach(function(row){
+      dbEntries[row.date_str+'_'+row.doc_id]=true;
       if(!shifts[row.date_str])shifts[row.date_str]=[];
       var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
       var entry={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
@@ -1176,6 +1198,16 @@ function syncFromDB(){
       } else {
         shifts[row.date_str].push(entry);changed=true;
       }
+    });
+    /* Supabaseに存在しないエントリをローカルから削除（削除の同期） */
+    Object.keys(shifts).forEach(function(dateStr){
+      if(!Array.isArray(shifts[dateStr]))return;
+      var before=shifts[dateStr].length;
+      shifts[dateStr]=shifts[dateStr].filter(function(s){
+        return dbEntries[dateStr+'_'+s.docId];
+      });
+      if(shifts[dateStr].length!==before)changed=true;
+      if(!shifts[dateStr].length)delete shifts[dateStr];
     });
     if(changed){
       saveShifts();
