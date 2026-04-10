@@ -245,7 +245,7 @@ function cc(id){var el=document.createElement('div');el.className='cc-'+id;docum
 var _ccCache={};
 function getCC(id){if(!_ccCache[id])_ccCache[id]=cc(id);return _ccCache[id];}
 function cname(id){if(!id)return'';var p=ALL.find(function(x){return x.id===id;});return p?p.n:id;}
-function shiftLabel(sh){if(!sh)return'';if(sh.clinicId==='yasumi'&&sh.memo==='希望')return'希望休';if(sh.clinicId==='kibou_shutskin')return'出勤希望';return cname(sh.clinicId);}
+function shiftLabel(sh){if(!sh)return'';if(sh.clinicId==='yasumi'&&sh.memo==='希望')return'希望休';if(sh.clinicId==='kibou_shutskin')return'出勤希望';if(sh.clinicId==='houmon')return'訪問';return cname(sh.clinicId);}
 function ds(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
 function dim(y,m){return new Date(y,m+1,0).getDate();}
 function showSb(msg,type){
@@ -638,6 +638,7 @@ function renderShifts(){
         else if(sh.clinicId==='daikyu'){bg='#eceff1';col='#1a5276';txt='代休';}
         else if(sh.clinicId==='daishutsu'){bg='#777';col='#fff';txt='代出';}
         else if(sh.clinicId==='kibou_shutskin'){bg='#e8f5e9';col='#2e7d32';txt='出勤希望';}
+        else if(sh.clinicId==='houmon'){bg='#2c6e8a';col='#fff';txt='訪問';}
         else{var c=getCC(sh.clinicId);bg=c.c;col='#fff';txt=cname(sh.clinicId);}
       } else {
         /* 空セル：休診医院数を表示 */
