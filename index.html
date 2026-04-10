@@ -275,7 +275,7 @@ function showSb(msg,type){
   if(!msg){el.style.display='none';return;}
   el.style.display='block';el.textContent=msg;
   el.style.background=type==='ok'?'#2e7d32':type==='e'?'#b83030':'#555';
-  if(type==='ok')setTimeout(function(){el.style.display='none';},2500);
+  setTimeout(function(){el.style.display='none';},type==='e'?4000:2500);
 }
 
 function updateSyncBtn(){
