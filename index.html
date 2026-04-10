@@ -1527,9 +1527,10 @@ function syncToSheet(){
       entries.push({month:month,docName:doc.n,day:day,value:clinicName});
     });
   });
-  /* シフト同期 */
+  /* シフト同期（ドクター順を保持） */
+  var docOrder=doctors.map(function(d){return d.n;});
   var p1=fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({action:'writeBulk',entries:entries})
+    body:JSON.stringify({action:'writeBulk',entries:entries,docOrder:docOrder})
   });
   /* 休診日同期 */
   var p2=fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
