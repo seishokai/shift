@@ -121,9 +121,8 @@ table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:1
 <div class="hdr">
   <div class="month-nav">
     <button onclick="chgMonth(-1)">‹</button>
-    <span id="monthLbl"></span>
+    <span id="monthLbl" onclick="goToday()" style="cursor:pointer;" title="クリックで今月に戻る"></span>
     <button onclick="chgMonth(1)">›</button>
-    <button onclick="goToday()" style="border:1px solid #ddd;background:#fff;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:600;color:#1a5276;cursor:pointer;white-space:nowrap;height:30px;">今月</button>
   </div>
   <div class="hdr-tabs">
     <button class="tab-btn on" onclick="setTab(0)">シフト表</button>
