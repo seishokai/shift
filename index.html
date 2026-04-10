@@ -1592,7 +1592,8 @@ function autoSyncToSheet(){
   syncToSheet();
   setTimeout(function(){_sheetSyncPending=false;},10000);
 }
-setInterval(autoSyncToSheet,30000);
+/* 自動同期は無効化（保存ボタンで手動同期のみ） */
+/* setInterval(autoSyncToSheet,30000); */
 
 /* ======= リアルタイム同期（15秒ごと） ======= */
 var _lastSyncHash='';
