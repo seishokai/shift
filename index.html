@@ -280,8 +280,11 @@ function countEntries(obj){var n=0;Object.keys(obj).forEach(function(k){if(Array
 
 function saveShifts(){
   try{
-    /* システムキーを除去 */
-    Object.keys(shifts).forEach(function(k){if(k.indexOf('__')===0)delete shifts[k];});
+    /* 不正キーを除去 */
+    Object.keys(shifts).forEach(function(k){
+      if(k.indexOf('__')===0||!/^\d{4}-\d{2}-\d{2}$/.test(k))delete shifts[k];
+      var y=parseInt(k.split('-')[0]);if(y<2025||y>2030)delete shifts[k];
+    });
     var cnt=countEntries(shifts);
     if(cnt===0){
       var old=localStorage.getItem('seishokai_shifts_v2');
@@ -1443,6 +1446,9 @@ function syncToSheet(){
   var entries=[];
   Object.keys(shifts).forEach(function(dateStr){
     if(dateStr.indexOf('__')===0)return;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dateStr))return;
+    var y=parseInt(dateStr.split('-')[0]);
+    if(y<2025||y>2030)return;
     var parts=dateStr.split('-');
     var month=parts[0]+'-'+parts[1];
     var day=parseInt(parts[2]);
