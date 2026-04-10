@@ -189,7 +189,9 @@ function refreshFromSheet(){
           if(entry.clinic==='希望休'){cid='yasumi';memo='希望';}
           else if(entry.clinic==='出勤希望'){cid='kibou_shutskin';}
           else if(entry.clinic==='訪問'){cid='houmon';}
-          shifts[dateStr].push({docId:doc.id,clinicId:cid,memo:memo});
+          var existIdx=shifts[dateStr].findIndex(function(s){return s.docId===doc.id;});
+          if(existIdx>=0)shifts[dateStr][existIdx]={docId:doc.id,clinicId:cid,memo:memo};
+          else shifts[dateStr].push({docId:doc.id,clinicId:cid,memo:memo});
         });
       });
       if(data.closedDates&&typeof data.closedDates==='object'){
