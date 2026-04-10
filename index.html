@@ -278,6 +278,8 @@ function countEntries(obj){var n=0;Object.keys(obj).forEach(function(k){if(Array
 
 function saveShifts(){
   try{
+    /* システムキーを除去 */
+    Object.keys(shifts).forEach(function(k){if(k.indexOf('__')===0)delete shifts[k];});
     var cnt=countEntries(shifts);
     if(cnt===0){
       var old=localStorage.getItem('seishokai_shifts_v2');
@@ -331,7 +333,7 @@ function loadData(){
   .then(function(rows){
     shifts={};Object.assign(shifts,EXCEL_DATA);
     if(rows&&rows.length){
-      rows.forEach(function(row){
+      rows.filter(function(row){return row.date_str.indexOf('__')!==0&&row.doc_id.indexOf('__')!==0;}).forEach(function(row){
         if(!shifts[row.date_str])shifts[row.date_str]=[];
         var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
         var e={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
@@ -1328,6 +1330,8 @@ function syncFromDB(){
   .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
   .then(function(rows){
     if(!rows)return;
+    /* システム行を除外 */
+    rows=rows.filter(function(row){return row.date_str.indexOf('__')!==0&&row.doc_id.indexOf('__')!==0;});
     /* 再度チェック: fetch中に編集が入った場合は適用しない */
     if(Object.keys(_pendingSaves).length>0||Object.keys(_pendingDeletes).length>0)return;
     if(Date.now()-_lastEditTs<5000)return;
