@@ -378,50 +378,160 @@ function loadAllSettingsFromDB(){
   }).catch(function(){});
 }
 
-/* Supabase保存（個別） */
+/* Supabase保存（個別）- リトライキュー付き */
 var _pendingSaves={};
+var _pendingDeletes={};
+var _saveQueue=[];   /* {type:'save'|'del', dateStr, docId, cid, memo, retries} */
+var _saveQueueRunning=false;
+
+function _updateSaveStatus(){
+  var n=_saveQueue.length;
+  var el=document.getElementById('sb');
+  var saveBtn=document.getElementById('saveBtn');
+  if(n>0){
+    if(saveBtn)saveBtn.textContent='保存 (未保存:'+n+'件)';
+    /* Don't overwrite other transient messages, just update button */
+  } else {
+    if(saveBtn&&saveBtn.style.display!=='none')saveBtn.textContent='保存';
+  }
+}
+
+function _enqueue(item){
+  /* De-duplicate: remove existing entry for same key */
+  var key=item.dateStr+'_'+item.docId;
+  _saveQueue=_saveQueue.filter(function(q){return (q.dateStr+'_'+q.docId)!==key;});
+  item.retries=item.retries||0;
+  _saveQueue.push(item);
+  _updateSaveStatus();
+}
+
+function _processQueue(){
+  if(_saveQueueRunning||!_saveQueue.length)return;
+  _saveQueueRunning=true;
+  var item=_saveQueue[0];
+  var key=item.dateStr+'_'+item.docId;
+
+  if(item.type==='save'){
+    _pendingSaves[key]=true;
+    var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal,resolution=merge-duplicates'};
+    fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h,
+      body:JSON.stringify({date_str:item.dateStr,doc_id:item.docId,clinic_id:item.cid,memo:item.memo||''})
+    }).then(function(r){
+      if(r.status===409){
+        var h2={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
+        return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+item.dateStr+'&doc_id=eq.'+item.docId,{
+          method:'PATCH',headers:h2,body:JSON.stringify({clinic_id:item.cid,memo:item.memo||''})
+        });
+      }
+      return r;
+    }).then(function(r){
+      delete _pendingSaves[key];
+      if(r.ok||r.status===201||r.status===204){
+        _saveQueue.shift(); /* success - remove from queue */
+        _updateSaveStatus();
+      } else {
+        /* failed - keep in queue for retry */
+        item.retries++;
+        showSb('保存失敗(リトライ予定:'+_saveQueue.length+'件)','e');
+      }
+      _saveQueueRunning=false;
+      if(_saveQueue.length)setTimeout(_processQueue,500);
+    }).catch(function(){
+      delete _pendingSaves[key];
+      item.retries++;
+      showSb('通信エラー(未保存:'+_saveQueue.length+'件)','e');
+      _saveQueueRunning=false;
+    });
+  } else if(item.type==='del'){
+    _pendingDeletes[key]=true;
+    var hd={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
+    fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+item.dateStr+'&doc_id=eq.'+item.docId,{method:'DELETE',headers:hd})
+    .then(function(r){
+      delete _pendingDeletes[key];
+      if(r.ok||r.status===204||r.status===404){
+        _saveQueue.shift();
+        _updateSaveStatus();
+      } else {
+        item.retries++;
+        showSb('DB削除失敗(リトライ予定:'+_saveQueue.length+'件)','e');
+      }
+      _saveQueueRunning=false;
+      if(_saveQueue.length)setTimeout(_processQueue,500);
+    }).catch(function(){
+      delete _pendingDeletes[key];
+      item.retries++;
+      showSb('DB削除通信エラー(未保存:'+_saveQueue.length+'件)','e');
+      _saveQueueRunning=false;
+    });
+  }
+}
+
+/* Retry queue every 10 seconds */
+setInterval(function(){
+  if(_saveQueue.length&&!_saveQueueRunning){
+    _processQueue();
+  }
+  _updateSaveStatus();
+},10000);
+
 function dbSave(dateStr,docId,cid,memo){
   _lastEditTs=Date.now();
   saveShifts();
   var key=dateStr+'_'+docId;
-  _pendingSaves[key]=true;
   _trackRecentKey(key);
-  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal,resolution=merge-duplicates'};
-  fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h,
-    body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
-  }).then(function(r){
-    if(r.status===409){
-      /* upsertが使えない場合のフォールバック */
-      var h2={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
-      return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
-        method:'PATCH',headers:h2,body:JSON.stringify({clinic_id:cid,memo:memo||''})
-      });
-    }
-    return r;
-  }).then(function(r){
-    delete _pendingSaves[key];
-    if(r.ok||r.status===201||r.status===204)showSb('✓','ok');
-    else showSb('保存失敗','e');
-  }).catch(function(){delete _pendingSaves[key];showSb('通信エラー','e');});
+  _enqueue({type:'save',dateStr:dateStr,docId:docId,cid:cid,memo:memo||''});
+  _processQueue();
 }
-var _pendingDeletes={};
+
 function dbDel(dateStr,docId){
   _lastEditTs=Date.now();
   saveShifts();
   var key=dateStr+'_'+docId;
-  _pendingDeletes[key]=true;
   _trackRecentKey(key);
-  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
-  fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE',headers:h})
-  .then(function(r){
-    delete _pendingDeletes[key];
-    if(!r.ok&&r.status!==404)showSb('DB削除失敗('+r.status+')','e');
-  }).catch(function(){
-    delete _pendingDeletes[key];
-    showSb('DB削除通信エラー','e');
-  });
+  _enqueue({type:'del',dateStr:dateStr,docId:docId});
+  _processQueue();
 }
-function saveAll(){saveShifts();saveClosed();saveAllSettingsToDB();showSb('全データ保存完了','ok');}
+
+/* 保存ボタン: 全シフトをSupabaseにバッチupsert（200件ずつ） */
+function saveAll(){
+  saveShifts();saveClosed();saveAllSettingsToDB();
+  showSb('全データをSupabaseに送信中...','');
+  var rows=[];
+  Object.keys(shifts).forEach(function(dateStr){
+    if(dateStr.indexOf('__')===0)return;
+    if(!Array.isArray(shifts[dateStr]))return;
+    shifts[dateStr].forEach(function(s){
+      rows.push({date_str:dateStr,doc_id:s.docId,clinic_id:s.clinicId,memo:s.memo||''});
+    });
+  });
+  if(!rows.length){showSb('保存するデータがありません','e');return;}
+  /* Clear pending queue since we're doing a full sync */
+  _saveQueue=[];_updateSaveStatus();
+  var chunkSize=200;
+  var chunks=[];
+  for(var i=0;i<rows.length;i+=chunkSize){chunks.push(rows.slice(i,i+chunkSize));}
+  var done=0,failed=0;
+  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal,resolution=merge-duplicates'};
+  function sendChunk(idx){
+    if(idx>=chunks.length){
+      if(failed>0)showSb('保存完了('+done+'件成功, '+failed+'件失敗)','e');
+      else showSb('全'+done+'件をSupabaseに保存完了','ok');
+      _updateSaveStatus();
+      return;
+    }
+    showSb('送信中... '+(idx+1)+'/'+chunks.length+'チャンク','');
+    fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h,body:JSON.stringify(chunks[idx])})
+    .then(function(r){
+      if(r.ok||r.status===201||r.status===204){done+=chunks[idx].length;}
+      else{failed+=chunks[idx].length;}
+      sendChunk(idx+1);
+    }).catch(function(){
+      failed+=chunks[idx].length;
+      sendChunk(idx+1);
+    });
+  }
+  sendChunk(0);
+}
 
 /* ======= Undo/Redo（localStorage永続化） ======= */
 function loadUndoStack(){
@@ -1323,7 +1433,7 @@ window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
 var _lastSyncHash='';
 var _lastEditTs=0; /* 最後のローカル編集タイムスタンプ */
 function syncFromDB(){
-  if(Object.keys(_pendingDeletes).length>0||Object.keys(_pendingSaves).length>0)return; /* 保存/削除処理中はスキップ */
+  if(Object.keys(_pendingDeletes).length>0||Object.keys(_pendingSaves).length>0||_saveQueue.length>0)return; /* 保存/削除処理中またはキュー未消化はスキップ */
   /* 最後の編集から5秒以内は同期しない（未送信の変更を保護） */
   if(Date.now()-_lastEditTs<5000)return;
   fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{headers:Object.assign({},SB_H)})
@@ -1333,7 +1443,7 @@ function syncFromDB(){
     /* システム行を除外 */
     rows=rows.filter(function(row){return row.date_str.indexOf('__')!==0&&row.doc_id.indexOf('__')!==0;});
     /* 再度チェック: fetch中に編集が入った場合は適用しない */
-    if(Object.keys(_pendingSaves).length>0||Object.keys(_pendingDeletes).length>0)return;
+    if(Object.keys(_pendingSaves).length>0||Object.keys(_pendingDeletes).length>0||_saveQueue.length>0)return;
     if(Date.now()-_lastEditTs<5000)return;
     /* 改善されたハッシュ: 全行の内容を確実に含む */
     var hashParts=[];
@@ -1359,20 +1469,8 @@ function syncFromDB(){
         shifts[row.date_str].push(entry);changed=true;
       }
     });
-    /* Supabaseに存在しないエントリをローカルから削除（削除の同期） */
-    /* ただし、最近編集されたエントリは保護する */
-    Object.keys(shifts).forEach(function(dateStr){
-      if(!Array.isArray(shifts[dateStr]))return;
-      var before=shifts[dateStr].length;
-      shifts[dateStr]=shifts[dateStr].filter(function(s){
-        var key=dateStr+'_'+s.docId;
-        /* 最近保存/削除されたキーはDB同期で消さない */
-        if(_recentDbKeys[key])return true;
-        return dbEntries[key];
-      });
-      if(shifts[dateStr].length!==before)changed=true;
-      if(!shifts[dateStr].length)delete shifts[dateStr];
-    });
+    /* SAFETY: ローカルデータは削除しない。Supabaseからは追加・更新のみ行う */
+    /* ローカルにあってSupabaseに無いエントリはそのまま保持する */
     if(changed){
       saveShifts();
       renderTab();
