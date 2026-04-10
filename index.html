@@ -155,7 +155,19 @@ function isClosed(dateStr,cid){
 
 /* データ読込 */
 function loadClosed(){try{var s=localStorage.getItem('seishokai_closed_v2');if(s){var d=JSON.parse(s);Object.keys(d).forEach(function(k){CLOSED_DATES[k]=d[k];});}}catch(e){}}
-function loadCache(){try{var s=localStorage.getItem('seishokai_shifts_v2');if(s){shifts=JSON.parse(s);}}catch(e){}}
+function loadCache(){
+  try{var s=localStorage.getItem('seishokai_shifts_v2');if(s){shifts=JSON.parse(s);}}catch(e){}
+  dedup();
+}
+function dedup(){
+  Object.keys(shifts).forEach(function(k){
+    if(!Array.isArray(shifts[k]))return;
+    var seen={},clean=[];
+    shifts[k].forEach(function(s){if(!seen[s.docId]){seen[s.docId]=true;clean.push(s);}});
+    shifts[k]=clean;
+  });
+  try{localStorage.setItem('seishokai_shifts_v2',JSON.stringify(shifts));}catch(e){}
+}
 
 function refreshFromSheet(){
   var btn=document.getElementById('refreshBtn');
@@ -198,7 +210,7 @@ function refreshFromSheet(){
         Object.keys(data.closedDates).forEach(function(k){CLOSED_DATES[k]=data.closedDates[k];});
         try{localStorage.setItem('seishokai_closed_v2',JSON.stringify(CLOSED_DATES));}catch(e){}
       }
-      try{localStorage.setItem('seishokai_shifts_v2',JSON.stringify(shifts));}catch(e){}
+      dedup();
     var elapsed=((Date.now()-startTime)/1000).toFixed(1);
     btn.textContent='✓ 更新済';btn.style.background='#2e7d32';btn.disabled=false;
     setTimeout(function(){btn.textContent='🔄 更新';btn.style.background='#1565c0';},2000);
