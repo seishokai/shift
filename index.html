@@ -1459,15 +1459,36 @@ function syncToSheet(){
       entries.push({month:month,docName:doc.n,day:day,value:clinicName});
     });
   });
-  fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+  /* シフト同期 */
+  var p1=fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
     body:JSON.stringify({action:'writeBulk',entries:entries})
-  }).then(function(){
+  });
+  /* 休診日同期 */
+  var p2=fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'writeClosed',closedData:CLOSED_DATES})
+  });
+  /* シフト希望同期 */
+  var reqs=[];
+  var restIds5=['yasumi','yukyu','daikyu'];
+  Object.keys(shifts).forEach(function(dateStr){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dateStr))return;
+    (shifts[dateStr]||[]).forEach(function(s){
+      if(s.memo==='希望'||restIds5.indexOf(s.clinicId)>=0||s.clinicId==='kibou_shutskin'){
+        var doc=doctors.find(function(d){return d.id===s.docId;});
+        if(doc)reqs.push({docName:doc.n,date:dateStr,type:shiftLabel(s)});
+      }
+    });
+  });
+  var p3=fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+    body:JSON.stringify({action:'writeRequests',requests:reqs})
+  });
+  Promise.all([p1,p2,p3]).then(function(){
     if(btn)btn.textContent='📊同期✓';
-    showSb('スプレッドシート同期完了 ('+entries.length+'件)','ok');
+    showSb('同期完了 ('+entries.length+'件)','ok');
     setTimeout(function(){if(btn)btn.textContent='📊同期';},3000);
-  }).catch(function(e){
+  }).catch(function(){
     if(btn)btn.textContent='📊同期✗';
-    showSb('スプレッドシート同期エラー','e');
+    showSb('同期エラー','e');
     setTimeout(function(){if(btn)btn.textContent='📊同期';},3000);
   });
 }
