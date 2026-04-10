@@ -337,16 +337,20 @@ function loadClosed(){
 /* Supabase保存（個別） */
 var _pendingSaves={};
 function dbSave(dateStr,docId,cid,memo){
+  _lastEditTs=Date.now();
   saveShifts();
   var key=dateStr+'_'+docId;
   _pendingSaves[key]=true;
-  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
+  _trackRecentKey(key);
+  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal,resolution=merge-duplicates'};
   fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h,
     body:JSON.stringify({date_str:dateStr,doc_id:docId,clinic_id:cid,memo:memo||''})
   }).then(function(r){
     if(r.status===409){
+      /* upsertが使えない場合のフォールバック */
+      var h2={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
       return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{
-        method:'PATCH',headers:h,body:JSON.stringify({clinic_id:cid,memo:memo||''})
+        method:'PATCH',headers:h2,body:JSON.stringify({clinic_id:cid,memo:memo||''})
       });
     }
     return r;
@@ -358,9 +362,11 @@ function dbSave(dateStr,docId,cid,memo){
 }
 var _pendingDeletes={};
 function dbDel(dateStr,docId){
+  _lastEditTs=Date.now();
   saveShifts();
   var key=dateStr+'_'+docId;
   _pendingDeletes[key]=true;
+  _trackRecentKey(key);
   var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
   fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+dateStr+'&doc_id=eq.'+docId,{method:'DELETE',headers:h})
   .then(function(r){
@@ -390,6 +396,7 @@ function snapshot(){
 }
 function undo(){
   if(!undoStack.length){showSb('これ以上戻せません','e');return;}
+  _lastEditTs=Date.now();
   redoStack.push({s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)});
   var snap=undoStack.pop();
   shifts=JSON.parse(snap.s);CLOSED_DATES=JSON.parse(snap.c);
@@ -398,6 +405,7 @@ function undo(){
 }
 function redo(){
   if(!redoStack.length){showSb('これ以上進めません','e');return;}
+  _lastEditTs=Date.now();
   undoStack.push({s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)});
   var snap=redoStack.pop();
   shifts=JSON.parse(snap.s);CLOSED_DATES=JSON.parse(snap.c);
@@ -1169,17 +1177,23 @@ window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
 
 /* ======= リアルタイム同期（15秒ごと） ======= */
 var _lastSyncHash='';
+var _lastEditTs=0; /* 最後のローカル編集タイムスタンプ */
 function syncFromDB(){
   if(Object.keys(_pendingDeletes).length>0||Object.keys(_pendingSaves).length>0)return; /* 保存/削除処理中はスキップ */
+  /* 最後の編集から5秒以内は同期しない（未送信の変更を保護） */
+  if(Date.now()-_lastEditTs<5000)return;
   fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{headers:Object.assign({},SB_H)})
   .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
   .then(function(rows){
     if(!rows)return;
-    /* 改善されたハッシュ: 全行のIDと内容を含む */
+    /* 再度チェック: fetch中に編集が入った場合は適用しない */
+    if(Object.keys(_pendingSaves).length>0||Object.keys(_pendingDeletes).length>0)return;
+    if(Date.now()-_lastEditTs<5000)return;
+    /* 改善されたハッシュ: 全行の内容を確実に含む */
     var hashParts=[];
     rows.forEach(function(row){hashParts.push(row.date_str+'|'+row.doc_id+'|'+row.clinic_id+'|'+(row.memo||''));});
     hashParts.sort();
-    var hash=rows.length+'_'+hashParts.join(';').length+'_'+(hashParts.length?hashParts[0]+hashParts[hashParts.length-1]:'');
+    var hash=hashParts.join(';');
     if(hash===_lastSyncHash)return; /* 変更なし */
     _lastSyncHash=hash;
     /* Supabaseデータをshiftsにマージ（Supabaseが優先） */
@@ -1200,11 +1214,15 @@ function syncFromDB(){
       }
     });
     /* Supabaseに存在しないエントリをローカルから削除（削除の同期） */
+    /* ただし、最近編集されたエントリは保護する */
     Object.keys(shifts).forEach(function(dateStr){
       if(!Array.isArray(shifts[dateStr]))return;
       var before=shifts[dateStr].length;
       shifts[dateStr]=shifts[dateStr].filter(function(s){
-        return dbEntries[dateStr+'_'+s.docId];
+        var key=dateStr+'_'+s.docId;
+        /* 最近保存/削除されたキーはDB同期で消さない */
+        if(_recentDbKeys[key])return true;
+        return dbEntries[key];
       });
       if(shifts[dateStr].length!==before)changed=true;
       if(!shifts[dateStr].length)delete shifts[dateStr];
@@ -1215,6 +1233,12 @@ function syncFromDB(){
       showSb('他の管理者の変更を同期','ok');
     }
   }).catch(function(){});
+}
+/* 最近DB操作したキーを30秒間保護 */
+var _recentDbKeys={};
+function _trackRecentKey(key){
+  _recentDbKeys[key]=Date.now();
+  setTimeout(function(){delete _recentDbKeys[key];},30000);
 }
 setInterval(syncFromDB,15000); /* 15秒ごと */
 setTimeout(syncFromDB,3000); /* 起動3秒後に初回同期 */
