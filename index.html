@@ -1650,8 +1650,9 @@ function _trackRecentKey(key){
   _recentDbKeys[key]=Date.now();
   setTimeout(function(){delete _recentDbKeys[key];},30000);
 }
-setInterval(syncFromDB,15000); /* 15秒ごと */
-setTimeout(syncFromDB,3000); /* 起動3秒後に初回同期 */
+/* Supabase同期は無効化（スプレッドシートがバックアップ）*/
+/* setInterval(syncFromDB,15000); */
+/* setTimeout(syncFromDB,3000); */
 </script>
 </body>
 </html>
