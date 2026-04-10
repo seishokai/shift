@@ -7,201 +7,96 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans',sans-serif;background:#f5f5f3;color:#1a1a18;font-size:13px;}
-/* ヘッダー */
-.hdr{background:#fff;border-bottom:1px solid #ddd;padding:6px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
-.hdr h1{font-size:15px;font-weight:800;white-space:nowrap;}
-.hdr-tabs{display:flex;gap:2px;}
-.tab-btn{padding:6px 14px;border:none;background:#f0f0ee;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:#666;}
+.hdr{background:#fff;border-bottom:1px solid #ddd;padding:6px 12px;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;position:sticky;top:0;z-index:100;overflow-x:auto;}
+.tab-btn{padding:6px 14px;border:none;background:#f0f0ee;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:#666;white-space:nowrap;}
 .tab-btn.on{background:#1a1a18;color:#fff;}
 .month-nav{display:flex;align-items:center;gap:4px;}
 .month-nav button{width:34px;height:32px;border:1px solid #ddd;background:#fff;border-radius:8px;font-size:18px;cursor:pointer;font-weight:700;}
-.month-nav span{font-size:17px;font-weight:800;min-width:120px;text-align:center;color:#1a5276;}
+.month-nav span{font-size:17px;font-weight:800;min-width:120px;text-align:center;color:#1a5276;cursor:pointer;}
 .hdr-right{display:flex;align-items:center;gap:6px;margin-left:auto;}
-.save-btn{padding:6px 16px;border:none;background:#2e7d32;color:#fff;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;}
-.save-btn:hover{background:#1b5e20;}
-.login-btn{padding:5px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;font-family:inherit;font-size:11px;cursor:pointer;}
-.undo-btn{padding:5px 10px;border:1px solid #ddd;background:#fff;border-radius:8px;font-family:inherit;font-size:11px;cursor:pointer;}
-/* ステータスバー */
+.refresh-btn{padding:6px 16px;border:none;background:#1565c0;color:#fff;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.refresh-btn:hover{background:#0d47a1;}
 #sb{display:none;position:fixed;top:50px;right:12px;z-index:200;padding:6px 16px;border-radius:8px;font-size:12px;font-weight:600;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15);}
-/* 同期ボタン状態 */
-.sync-done{background:#2e7d32!important;color:#fff!important;border-color:#2e7d32!important;}
-.sync-ing{background:#1565c0!important;color:#fff!important;border-color:#1565c0!important;animation:syncPulse 1s infinite;}
-.sync-err{background:#b83030!important;color:#fff!important;border-color:#b83030!important;}
-.sync-need{background:#e65100!important;color:#fff!important;border-color:#e65100!important;}
-@keyframes syncPulse{0%,100%{opacity:1;}50%{opacity:.6;}}
-/* 今日ハイライト */
-.today-col{background:#fffde7!important;box-shadow:inset 0 0 0 1px #fdd835;}
 .today-hdr{background:#fdd835!important;color:#333!important;font-weight:800!important;}
-/* 出勤人数フッター */
-.doc-count-cell{font-size:9px;font-weight:700;padding:2px 1px!important;position:sticky;bottom:0;z-index:10;}
-/* 今月ボタン */
-.today-btn{padding:3px 6px;border:1px solid #ddd;background:#fff;border-radius:6px;font-family:inherit;font-size:10px;cursor:pointer;font-weight:600;color:#1a5276;white-space:nowrap;}
-.today-btn:hover{background:#e3f2fd;}
-/* 勤務日数バッジ */
-.work-count-badge{display:inline-block;background:#e8f5e9;color:#2e7d32;font-size:9px;font-weight:700;border-radius:4px;padding:1px 4px;margin-left:4px;min-width:18px;text-align:center;}
-/* テーブル共通 */
+.work-count-badge{display:inline-block;background:#e8f5e9;color:#2e7d32;font-size:9px;font-weight:700;border-radius:4px;padding:1px 4px;margin-left:4px;}
 .grid-wrap{overflow:auto;height:calc(100vh - 52px);}
 table.grid{border-collapse:collapse;white-space:nowrap;}
 table.grid th,table.grid td{border:1px solid #d0d0cc;padding:0;text-align:center;font-size:10px;}
 table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:10;padding:4px 2px;border-bottom:2px solid #bbb;}
 .fix-left{position:sticky;left:0;z-index:11;background:#edebe6;}
 .fix-left-body{position:sticky;left:0;z-index:5;background:#fff;}
-/* シフトセル */
-.shift-cell{width:32px;min-width:32px;height:24px;cursor:pointer;user-select:none;transition:opacity .1s;}
-.shift-cell:hover{opacity:.8;}
-/* 日付ヘッダー */
-.date-hdr{writing-mode:horizontal-tb;min-width:32px;padding:2px 1px !important;font-size:9px;}
-.sun{color:#e05252;background:#fff5f5 !important;}.sat{color:#4a7fd4;background:#f0f5ff !important;}
+.shift-cell{width:32px;min-width:32px;height:24px;user-select:none;}
+.date-hdr{min-width:32px;padding:2px 1px!important;font-size:9px;}
+.sun{color:#e05252;background:#fff5f5!important;}.sat{color:#4a7fd4;background:#f0f5ff!important;}
 .hol-badge{background:#e05252;color:#fff;font-size:7px;border-radius:3px;padding:0 3px;margin-left:1px;}
-/* ペイントバー */
-#paintBar{display:none;position:sticky;top:0;z-index:50;background:#fff;color:#333;padding:6px 10px;font-size:12px;border-bottom:2px solid #ddd;box-shadow:0 2px 6px rgba(0,0,0,.08);}
-#paintBar .paint-opt{padding:4px 10px;border-radius:10px;border:2px solid transparent;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;margin:0 2px;}
-/* 休診日セル */
-.closed-cell{width:50px;min-width:50px;height:26px;cursor:pointer;user-select:none;font-weight:700;font-size:10px;}
-.closed-cell:hover{opacity:.8;}
-/* 集計 */
-.sum-tbl{border-collapse:collapse;width:100%;}
-.sum-tbl th,.sum-tbl td{border:1px solid #d0d0cc;padding:4px 6px;text-align:center;font-size:11px;}
-.sum-tbl th{background:#edebe6;font-weight:600;}
-/* 色 */
-.cc-esca{--cc:#c0392b;--cb:#fdf0ee;}.cc-r{--cc:#7030a0;--cb:#f5eef8;}
-.cc-wiz{--cc:#1e8449;--cb:#e9f7ef;}.cc-luminas{--cc:#27ae60;--cb:#e8f5e9;}
-.cc-chaya{--cc:#d4a017;--cb:#fef9e7;}.cc-asano{--cc:#85200c;--cb:#fdf3ea;}
-.cc-chiryu{--cc:#0a6b8a;--cb:#e0f2f8;}.cc-komaki{--cc:#d81b60;--cb:#fce4ec;}
-.cc-yagoto{--cc:#8b4513;--cb:#f9ece2;}.cc-yagoto1{--cc:#9b6b3a;--cb:#f7ead8;}.cc-yagoto2{--cc:#a0522d;--cb:#faf0e6;}.cc-omori{--cc:#1f6b4e;--cb:#e4f4ed;}
-.cc-kyoto{--cc:#6b3a87;--cb:#f2ecf8;}.cc-ginza{--cc:#7d6608;--cb:#f8f3e2;}
-.cc-houmon1{--cc:#2c6e8a;--cb:#e6eef5;}.cc-houmon2{--cc:#4a9bb5;--cb:#e8f2f6;}.cc-toin{--cc:#b85c00;--cb:#fff3e0;}
-.cc-yasumi{--cc:#999;--cb:#f2f2f0;}.cc-yukyu{--cc:#c0392b;--cb:#f0f0ee;}
-.cc-daikyu{--cc:#1a5276;--cb:#e8f4fd;}.cc-daishutsu{--cc:#555;--cb:#f0f0ee;}
-.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
-/* 医院別ビュー */
-.clinic-card{background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid #ddd;}
-.clinic-card h4{font-size:13px;margin-bottom:6px;}
-.doc-chip{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:700;margin:2px;}
-/* 個人ビュー */
+.closed-cell{width:50px;min-width:50px;height:26px;font-weight:700;font-size:10px;}
 .person-sel{padding:8px 16px;border-radius:16px;border:1.5px solid #ddd;background:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;margin:2px;}
 .person-sel.on{background:#1a1a18;color:#fff;border-color:#1a1a18;}
 .pcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .pcal-cell{border-radius:8px;min-height:90px;padding:6px;background:#fff;border:1px solid #eee;font-size:12px;}
 .pcal-cell.sun{background:#fff5f5;}.pcal-cell.sat{background:#f0f5ff;}
-/* シフト希望 */
+.doc-chip{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:700;margin:2px;}
 .req-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .req-cell{border-radius:8px;min-height:50px;padding:6px 4px;background:#fff;border:2px solid #eee;cursor:pointer;text-align:center;font-size:11px;font-weight:600;}
 .req-cell.sel{border-color:#7b2d8b;background:#f3e5f5;}
 .req-type{padding:8px 14px;border-radius:12px;border:2px solid #ddd;background:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin:3px;}
 .req-type.on{border-color:#7b2d8b;background:#7b2d8b;color:#fff;}
-/* モバイル対応 */
+.sum-tbl{border-collapse:collapse;width:100%;}
+.sum-tbl th,.sum-tbl td{border:1px solid #d0d0cc;padding:4px 6px;text-align:center;font-size:11px;}
+.sum-tbl th{background:#edebe6;font-weight:600;}
+.cc-esca{--cc:#c0392b;--cb:#fdf0ee;}.cc-r{--cc:#7030a0;--cb:#f5eef8;}
+.cc-wiz{--cc:#1e8449;--cb:#e9f7ef;}.cc-luminas{--cc:#27ae60;--cb:#e8f5e9;}
+.cc-chaya{--cc:#d4a017;--cb:#fef9e7;}.cc-asano{--cc:#85200c;--cb:#fdf3ea;}
+.cc-chiryu{--cc:#0a6b8a;--cb:#e0f2f8;}.cc-komaki{--cc:#d81b60;--cb:#fce4ec;}
+.cc-yagoto{--cc:#8b4513;--cb:#f9ece2;}.cc-yagoto1{--cc:#9b6b3a;--cb:#f7ead8;}.cc-yagoto2{--cc:#a0522d;--cb:#faf0e6;}
+.cc-omori{--cc:#1f6b4e;--cb:#e4f4ed;}.cc-kyoto{--cc:#6b3a87;--cb:#f2ecf8;}.cc-ginza{--cc:#7d6608;--cb:#f8f3e2;}
+.cc-houmon1{--cc:#2c6e8a;--cb:#e6eef5;}.cc-houmon2{--cc:#4a9bb5;--cb:#e8f2f6;}.cc-toin{--cc:#b85c00;--cb:#fff3e0;}
+.cc-yasumi{--cc:#999;--cb:#f2f2f0;}.cc-yukyu{--cc:#c0392b;--cb:#f0f0ee;}
+.cc-daikyu{--cc:#1a5276;--cb:#e8f4fd;}.cc-daishutsu{--cc:#555;--cb:#f0f0ee;}
+.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
 @media(max-width:768px){
-  .hdr{padding:4px 6px;gap:3px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .hdr h1{font-size:13px;}
-  .hdr-tabs{gap:1px;flex-shrink:0;}
-  .tab-btn{padding:4px 6px;font-size:9px;white-space:nowrap;}
-  .month-nav{flex-shrink:0;}
-  .month-nav button{width:28px;height:28px;font-size:16px;}
-  .month-nav span{font-size:11px;min-width:70px;}
-  .hdr-right{gap:2px;flex-shrink:0;}
-  .undo-btn,.login-btn{padding:3px 6px;font-size:9px;}
-  .save-btn{padding:3px 8px;font-size:9px;}
-  .today-btn{padding:3px 6px;font-size:9px;}
+  .hdr{padding:4px 8px;gap:4px;}
+  .tab-btn{padding:4px 8px;font-size:10px;}
+  .month-nav span{font-size:12px;min-width:80px;}
+  .refresh-btn{padding:4px 10px;font-size:10px;}
   .grid-wrap{height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;}
-  .shift-cell{width:26px;min-width:26px;height:22px;font-size:7px!important;line-height:22px!important;}
+  .shift-cell{width:26px;min-width:26px;height:22px;font-size:7px!important;}
   .date-hdr{min-width:26px!important;font-size:8px!important;}
-  #paintBar{flex-wrap:wrap;gap:4px;}
-  #paintBar .paint-opt{padding:3px 7px;font-size:9px;margin:1px;}
-  #clinicSidePanel{display:none!important;}
   .pcal-cell{min-height:64px;font-size:10px;}
   .person-sel{padding:5px 10px;font-size:11px;}
-  .doc-chip{font-size:10px;padding:2px 6px;}
-  .req-cell{min-height:44px;font-size:10px;}
 }
-@media print{.hdr,#paintBar,#sb{display:none!important;}.grid-wrap{height:auto;overflow:visible;}}
+@media print{.hdr,#sb{display:none!important;}.grid-wrap{height:auto;overflow:visible;}}
 </style>
 </head>
 <body>
 <div class="hdr">
   <div class="month-nav">
     <button onclick="chgMonth(-1)">‹</button>
-    <span id="monthLbl" onclick="goToday()" style="cursor:pointer;" title="クリックで今月に戻る"></span>
+    <span id="monthLbl" onclick="goToday()" title="今月に戻る"></span>
     <button onclick="chgMonth(1)">›</button>
   </div>
-  <div class="hdr-tabs">
+  <div style="display:flex;gap:2px;">
     <button class="tab-btn on" onclick="setTab(0)">シフト表</button>
     <button class="tab-btn" onclick="setTab(1)">医院別</button>
     <button class="tab-btn" onclick="setTab(2)">個人</button>
     <button class="tab-btn" onclick="setTab(3)">希望申請</button>
     <button class="tab-btn" onclick="setTab(4)">休診日</button>
     <button class="tab-btn" onclick="setTab(5)">集計</button>
-    <button class="tab-btn" onclick="setTab(6)" id="tabSettings" style="display:none">設定</button>
   </div>
   <div class="hdr-right">
-    <button class="undo-btn" onclick="undo()">← 戻す</button>
-    <button class="undo-btn" onclick="redo()">進む →</button>
-    <button class="undo-btn" onclick="toggleHighlightEmpty()" id="hdrEmptyBtn" style="display:none;color:#2e7d32;font-weight:700;">空</button>
-    <button class="save-btn" onclick="saveAll()" id="saveBtn" style="display:none">保存</button>
-    <button class="login-btn" onclick="toggleLogin()" id="loginBtn">ログイン</button>
+    <button class="refresh-btn" onclick="refreshFromSheet()" id="refreshBtn">🔄 更新</button>
   </div>
 </div>
 <div id="sb"></div>
-
-<!-- Tab 0: シフト表 -->
-<div id="tab0" style="display:flex;flex-direction:column;height:calc(100vh - 52px);">
-  <div id="paintBar" style="flex-shrink:0;">
-    <span id="paintLbl">医院を選んでセルをクリック</span>
-    <span id="paintOpts"></span>
-    <button onclick="setPaintDel()" class="paint-opt" id="paintDelBtn" style="background:#f5f5f3;color:#ff6b6b;border-color:#ddd;">削除</button>
-    <button onclick="toggleBulkPanel()" class="paint-opt" id="paintBulkBtn" style="background:#f5f5f3;color:#e65100;border-color:#ddd;">一括</button>
-    <button onclick="toggleHighlightEmpty()" class="paint-opt" id="paintEmptyBtn" style="background:#f5f5f3;color:#2e7d32;border-color:#ddd;">空</button>
-    <button onclick="setPaint(null)" style="margin-left:auto;padding:3px 10px;border:none;background:#f0f0ee;color:#333;border-radius:8px;font-size:11px;cursor:pointer;">✕ 閉じる</button>
-  </div>
-  <div id="bulkPanel" style="display:none;background:#fff;border-bottom:2px solid #e65100;padding:10px 12px;flex-shrink:0;"></div>
-  <div style="display:flex;flex:1;overflow:hidden;">
-    <div id="shiftScrollArea" style="flex:1;overflow:auto;">
-      <table class="grid" id="shiftTable"></table>
-    </div>
-    <div id="clinicSidePanel" style="display:none;width:280px;flex-shrink:0;overflow-y:auto;border-left:2px solid #ddd;background:#fff;padding:6px;font-size:11px;"></div>
-  </div>
-</div>
-
-<!-- Tab 1: 医院別 -->
-<div id="tab1" class="grid-wrap" style="display:none;padding:10px;">
-  <div id="clinicCarousel" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;-webkit-overflow-scrolling:touch;padding-bottom:8px;"></div>
-</div>
-
-<!-- Tab 2: 個人 -->
-<div id="tab2" class="grid-wrap" style="display:none;padding:10px;">
-  <div id="personSelBar" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;"></div>
-  <div id="personView"></div>
-</div>
-
-<!-- Tab 3: シフト希望 -->
-<div id="tab3" class="grid-wrap" style="display:none;padding:10px;">
-  <div id="reqDocBar" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;"></div>
-  <div id="reqView"></div>
-</div>
-
-<!-- Tab 4: 休診日 -->
-<div id="tab4" class="grid-wrap" style="display:none">
-  <table class="grid" id="closedTable"></table>
-</div>
-
-<!-- Tab 5: 集計 -->
-<div id="tab5" class="grid-wrap" style="display:none;padding:12px;">
-  <div id="summaryView"></div>
-</div>
-
-<!-- Tab 6: 設定 -->
-<div id="tab6" class="grid-wrap" style="display:none;padding:12px;">
-  <div id="settingsView"></div>
-</div>
+<div id="tab0" class="grid-wrap"><table class="grid" id="shiftTable"></table></div>
+<div id="tab1" class="grid-wrap" style="display:none;padding:10px;"><div id="clinicCarousel" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;-webkit-overflow-scrolling:touch;padding-bottom:8px;"></div></div>
+<div id="tab2" class="grid-wrap" style="display:none;padding:10px;"><div id="personSelBar" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;"></div><div id="personView"></div></div>
+<div id="tab3" class="grid-wrap" style="display:none;padding:10px;"><div id="reqDocBar" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;"></div><div id="reqView"></div></div>
+<div id="tab4" class="grid-wrap" style="display:none"><table class="grid" id="closedTable"></table></div>
+<div id="tab5" class="grid-wrap" style="display:none;padding:12px;"><div id="summaryView"></div></div>
 
 <script>
-/* ======= データ定数 ======= */
 var GAS_URL='https://script.google.com/macros/s/AKfycbymkh4PvHgIj74kT90srf0WetZbmjL5QyyshfJ-9M68dHzOv4TodeqUTFwsHAtFtWDp/exec';
-var SB_URL='https://trsugjpvhlkwjvtloype.supabase.co';
-var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc3VnanB2aGxrd2p2dGxveXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc4ODQsImV4cCI6MjA5MDQzMzg4NH0.GASbFeN_dLduCw81DQen8e4Hwc0TkHrcZWbB8dgNsec';
-var SB_H={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
-var ADMIN_PW='koike';
-
 var CLINICS=[
   {id:'esca',n:'ｴｽｶ'},{id:'r',n:'ｱｰﾙ'},
   {id:'wiz',n:'ｳｨｽﾞ'},{id:'luminas',n:'ﾙﾐﾅｽ'},
@@ -212,20 +107,13 @@ var CLINICS=[
   {id:'asano',n:'ｱｻﾉ'},{id:'yagoto1',n:'八事1'},{id:'yagoto2',n:'八事2'},
   {id:'houmon1',n:'訪1'},{id:'houmon2',n:'訪2'},{id:'toin',n:'東員'}
 ];
-var STATUSES=[
-  {id:'yasumi',n:'休み'},{id:'yukyu',n:'有給'},
-  {id:'daikyu',n:'代休'},{id:'daishutsu',n:'代出'},
-  {id:'kyushutsu',n:'休日出勤'}
-];
+var STATUSES=[{id:'yasumi',n:'休み'},{id:'yukyu',n:'有給'},{id:'daikyu',n:'代休'},{id:'daishutsu',n:'代出'},{id:'kyushutsu',n:'休日出勤'}];
 var ALL=CLINICS.concat(STATUSES);
-
 var doctors=[
-  /* 院長（dir=担当医院ID） */
   {id:'d1',n:'越知',dir:'esca'},{id:'d2',n:'荒木',dir:'chaya'},
   {id:'d3',n:'山田',dir:'luminas'},{id:'d4',n:'古田',dir:'r'},
   {id:'d5',n:'原',dir:'wiz'},{id:'d6',n:'竹内',dir:'komaki'},
   {id:'d7',n:'大西',dir:'chiryu'},{id:'d8',n:'田村',dir:'yagoto'},
-  /* 一般 */
   {id:'d9',n:'立松'},{id:'d10',n:'武内'},{id:'d11',n:'長谷川'},
   {id:'d12',n:'永江'},{id:'d13',n:'れみ'},{id:'d14',n:'西村'},
   {id:'d15',n:'鈴木'},{id:'d16',n:'星野'},{id:'d17',n:'綱島'},
@@ -236,458 +124,99 @@ var doctors=[
   {id:'d30',n:'太田'},{id:'d31',n:'鶴田'},{id:'d32',n:'木村'},
   {id:'d33',n:'浦野'},{id:'d34',n:'明石'}
 ];
-
-/* 休診ルール */
 var CLOSED_WEEKDAY={komaki:[2],chiryu:[3],kyoto:[4],omori:[4],chaya:[4],toin:[0]};
 var HOL_CLOSED=['esca','r','wiz','omori','toin'];
-var SUN_A=['esca','r'];
-var SUN_B=['wiz','luminas','omori'];
-var HOL=new Set(['2026-01-01','2026-01-12','2026-02-11','2026-02-23','2026-03-20',
-  '2026-04-29','2026-05-03','2026-05-04','2026-05-05','2026-05-06',
-  '2026-07-20','2026-08-11','2026-09-21','2026-09-22','2026-09-23',
-  '2026-10-12','2026-11-03','2026-11-23','2026-12-23']);
-
-var EXCEL_DATA={};
-
-/* ======= 状態管理 ======= */
-var shifts={};
+var SUN_A=['esca','r'];var SUN_B=['wiz','luminas','omori'];
+var HOL=new Set(['2026-01-01','2026-01-12','2026-02-11','2026-02-23','2026-03-20','2026-04-29','2026-05-03','2026-05-04','2026-05-05','2026-05-06','2026-07-20','2026-08-11','2026-09-21','2026-09-22','2026-09-23','2026-10-12','2026-11-03','2026-11-23','2026-12-23']);
 var CLOSED_DATES={};
-var curY=2026,curM=5,curTab=0,isAdmin=false;
-var paintClinic=null;
-var undoStack=[],redoStack=[];
+var shifts={},curY=2026,curM=5,curTab=0;
 var today=new Date();
-var _syncState='idle'; /* idle, synced, syncing, error, need */
-var _syncedOnce=false;
-var _dataChangedSinceSync=false;
-var HOUMON_DAYS={}; /* {'2026-06':['2026-06-01','2026-06-03',...]} */
 
-/* ======= ユーティリティ ======= */
-function cc(id){var el=document.createElement('div');el.className='cc-'+id;document.body.appendChild(el);var s=getComputedStyle(el);var c=s.getPropertyValue('--cc').trim()||'#999';var b=s.getPropertyValue('--cb').trim()||'#f0f0f0';document.body.removeChild(el);return{c:c,b:b};}
+/* ユーティリティ */
 var _ccCache={};
-function getCC(id){if(!_ccCache[id])_ccCache[id]=cc(id);return _ccCache[id];}
+function getCC(id){if(!_ccCache[id]){var el=document.createElement('div');el.className='cc-'+id;document.body.appendChild(el);var s=getComputedStyle(el);_ccCache[id]={c:s.getPropertyValue('--cc').trim()||'#999',b:s.getPropertyValue('--cb').trim()||'#f0f0f0'};document.body.removeChild(el);}return _ccCache[id];}
 function cname(id){if(!id)return'';var p=ALL.find(function(x){return x.id===id;});return p?p.n:id;}
 function shiftLabel(sh){if(!sh)return'';if(sh.clinicId==='yasumi'&&sh.memo==='希望')return'希望休';if(sh.clinicId==='kibou_shutskin')return'出勤希望';if(sh.clinicId==='houmon')return'訪問';return cname(sh.clinicId);}
 function ds(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
 function dim(y,m){return new Date(y,m+1,0).getDate();}
-function showSb(msg,type){
-  var el=document.getElementById('sb');
-  if(!msg){el.style.display='none';return;}
-  el.style.display='block';el.textContent=msg;
-  el.style.background=type==='ok'?'#2e7d32':type==='e'?'#b83030':'#555';
-  setTimeout(function(){el.style.display='none';},type==='e'?4000:2500);
-}
+function showSb(msg,type){var el=document.getElementById('sb');if(!msg){el.style.display='none';return;}el.style.display='block';el.textContent=msg;el.style.background=type==='ok'?'#2e7d32':type==='e'?'#b83030':'#555';setTimeout(function(){el.style.display='none';},type==='e'?4000:2500);}
 
-function updateSyncBtn(){
-  var btn=document.getElementById('saveBtn');
-  if(!btn)return;
-  btn.className='save-btn';
-  if(_syncState==='syncing'){btn.textContent='保存中...';}
-  else if(_syncState==='error'){btn.textContent='保存エラー';btn.style.background='#b83030';}
-  else if(_syncState==='need'){btn.textContent='要保存';btn.style.background='#e65100';}
-  else if(_syncState==='synced'){btn.textContent='保存済✓';btn.style.background='#2e7d32';}
-  else{btn.textContent='保存';btn.style.background='#2e7d32';}
-}
-function markDataChanged(){
-  if(_syncedOnce&&_syncState==='synced'){_syncState='need';_dataChangedSinceSync=true;updateSyncBtn();}
-  else if(_syncedOnce){_dataChangedSinceSync=true;}
-}
-
-/* ======= 休診日判定 ======= */
 function isClosed(dateStr,cid){
   var d=new Date(dateStr),w=d.getDay();
   if(cid&&CLOSED_DATES[cid+'_open']&&CLOSED_DATES[cid+'_open'].indexOf(dateStr)>=0)return false;
   if(cid&&CLOSED_DATES[cid]&&CLOSED_DATES[cid].indexOf(dateStr)>=0)return true;
   if(cid&&CLOSED_WEEKDAY[cid]&&CLOSED_WEEKDAY[cid].indexOf(w)>=0)return true;
-  if(w===0&&cid){
-    var inA=SUN_A.indexOf(cid)>=0,inB=SUN_B.indexOf(cid)>=0;
-    if(inA||inB){
-      var ref=Date.UTC(2026,5,7),cur=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());
-      var wk=Math.round((cur-ref)/(7*864e5));
-      if(((wk%2)+2)%2===0&&inA)return true;
-      if(((wk%2)+2)%2!==0&&inB)return true;
-    }
-  }
+  if(w===0&&cid){var inA=SUN_A.indexOf(cid)>=0,inB=SUN_B.indexOf(cid)>=0;if(inA||inB){var ref=Date.UTC(2026,5,7),cur=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate());var wk=Math.round((cur-ref)/(7*864e5));if(((wk%2)+2)%2===0&&inA)return true;if(((wk%2)+2)%2!==0&&inB)return true;}}
   if(HOL.has(dateStr)&&cid&&HOL_CLOSED.indexOf(cid)>=0)return true;
   return false;
 }
 
-/* ======= データ永続化（防弾仕様） ======= */
-function countEntries(obj){var n=0;Object.keys(obj).forEach(function(k){if(Array.isArray(obj[k]))n+=obj[k].length;});return n;}
+/* データ読込 */
+function loadClosed(){try{var s=localStorage.getItem('seishokai_closed_v2');if(s){var d=JSON.parse(s);Object.keys(d).forEach(function(k){CLOSED_DATES[k]=d[k];});}}catch(e){}}
+function loadCache(){try{var s=localStorage.getItem('seishokai_shifts_v2');if(s){shifts=JSON.parse(s);}}catch(e){}}
 
-function saveShifts(){
-  try{
-    /* 不正キーを除去 */
-    Object.keys(shifts).forEach(function(k){
-      if(k.indexOf('__')===0||!/^\d{4}-\d{2}-\d{2}$/.test(k))delete shifts[k];
-      var y=parseInt(k.split('-')[0]);if(y<2025||y>2030)delete shifts[k];
-    });
-    var cnt=countEntries(shifts);
-    if(cnt===0){
-      var old=localStorage.getItem('seishokai_shifts_v2');
-      if(old&&countEntries(JSON.parse(old))>5){console.warn('BLOCKED: empty save');return;}
-    }
-    var j=JSON.stringify(shifts);
-    localStorage.setItem('seishokai_shifts_v2',j);
-    localStorage.setItem('seishokai_shifts_v2_bak',j);
-    localStorage.setItem('seishokai_shifts_v2_ts',new Date().toISOString());
-  }catch(e){console.error('saveShifts error:',e);showSb('保存エラー: ストレージ容量不足の可能性','e');}
-}
-function saveClosed(){
-  try{var j=JSON.stringify(CLOSED_DATES);localStorage.setItem('seishokai_closed_v2',j);localStorage.setItem('seishokai_closed_v2_bak',j);}catch(e){console.error('saveClosed error:',e);showSb('休診日保存エラー','e');}
-  try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){}
-  /* 全設定をSupabaseに保存 */
-  saveAllSettingsToDB();
-}
-function saveAllSettingsToDB(){
-  var settings={
-    closed_dates:CLOSED_DATES,
-    houmon_days:HOUMON_DAYS,
-    doctors:doctors,
-    clinics:CLINICS
-  };
-  var h2={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'};
-  fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h2,
-    body:JSON.stringify({date_str:'__settings__',doc_id:'__system__',clinic_id:'__data__',memo:JSON.stringify(settings)})
-  }).catch(function(){});
-}
-function loadData(){
-  showSb('読み込み中...');
-  /* 1. localStorage */
-  var ls;
-  try{ls=localStorage.getItem('seishokai_shifts_v2');}catch(e){}
-  if(!ls){try{ls=localStorage.getItem('seishokai_shifts_v2_bak');}catch(e){}}
-  if(ls){
-    try{
-      var p=JSON.parse(ls);
-      if(countEntries(p)>0){
-        shifts=p;
-        var ts=localStorage.getItem('seishokai_shifts_v2_ts')||'';
-        showSb(countEntries(shifts)+'件読込','ok');
-        loadClosed();
-        return Promise.resolve();
-      }
-    }catch(e){}
-  }
-  /* 2. Supabase + EXCEL_DATA */
-  return fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{headers:Object.assign({},SB_H)})
-  .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
-  .then(function(rows){
-    shifts={};Object.assign(shifts,EXCEL_DATA);
-    if(rows&&rows.length){
-      rows.filter(function(row){return row.date_str.indexOf('__')!==0&&row.doc_id.indexOf('__')!==0;}).forEach(function(row){
-        if(!shifts[row.date_str])shifts[row.date_str]=[];
-        var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
-        var e={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
-        if(idx>=0)shifts[row.date_str][idx]=e;else shifts[row.date_str].push(e);
-      });
-    }
-    saveShifts();
-    showSb(countEntries(shifts)+'件読込','ok');
-  }).catch(function(){
-    shifts={};Object.assign(shifts,EXCEL_DATA);
-    showSb('初期データ使用','e');
-  }).then(function(){loadClosed();});
-}
-function loadClosed(){
-  try{
-    var s=localStorage.getItem('seishokai_closed_v2');
-    if(!s)s=localStorage.getItem('seishokai_closed_v2_bak');
-    if(s){var d=JSON.parse(s);Object.keys(d).forEach(function(k){CLOSED_DATES[k]=d[k];});}
-  }catch(e){}
-  try{var h=localStorage.getItem('seishokai_houmon_v2');if(h)HOUMON_DAYS=JSON.parse(h);}catch(e){}
-  /* localStorageに無い場合、Supabaseから全設定を復元 */
-  if(!localStorage.getItem('seishokai_closed_v2')){
-    loadAllSettingsFromDB();
-  }
-}
-function loadAllSettingsFromDB(){
-  fetch(SB_URL+'/rest/v1/shifts?date_str=eq.__settings__&doc_id=eq.__system__&select=memo',{headers:Object.assign({},SB_H)})
+function refreshFromSheet(){
+  var btn=document.getElementById('refreshBtn');
+  btn.textContent='読込中...';btn.style.background='#555';
+  var month=curY+'-'+String(curM+1).padStart(2,'0');
+  fetch(GAS_URL+'?action=read&month='+month)
   .then(function(r){return r.json();})
-  .then(function(rows){
-    if(rows&&rows.length&&rows[0].memo){
-      var settings=JSON.parse(rows[0].memo);
-      if(settings.closed_dates){Object.keys(settings.closed_dates).forEach(function(k){CLOSED_DATES[k]=settings.closed_dates[k];});}
-      if(settings.houmon_days)HOUMON_DAYS=settings.houmon_days;
-      if(settings.doctors&&settings.doctors.length)doctors=settings.doctors;
-      if(settings.clinics&&settings.clinics.length){CLINICS=settings.clinics;ALL=CLINICS.concat(STATUSES);}
-      /* localStorageにも保存 */
-      try{localStorage.setItem('seishokai_closed_v2',JSON.stringify(CLOSED_DATES));}catch(e){}
-      try{localStorage.setItem('seishokai_houmon_v2',JSON.stringify(HOUMON_DAYS));}catch(e){}
-      renderTab();
-      showSb('設定をDBから復元','ok');
-    }
-  }).catch(function(){});
-}
-
-/* Supabase保存（個別）- リトライキュー付き */
-var _pendingSaves={};
-var _pendingDeletes={};
-var _saveQueue=[];   /* {type:'save'|'del', dateStr, docId, cid, memo, retries} */
-var _saveQueueRunning=false;
-
-function _updateSaveStatus(){
-  var n=_saveQueue.length;
-  var el=document.getElementById('sb');
-  var saveBtn=document.getElementById('saveBtn');
-  if(n>0){
-    if(saveBtn)saveBtn.textContent='保存 (未保存:'+n+'件)';
-    /* Don't overwrite other transient messages, just update button */
-  } else {
-    if(saveBtn&&saveBtn.style.display!=='none')saveBtn.textContent='保存';
-  }
-}
-
-function _enqueue(item){
-  /* De-duplicate: remove existing entry for same key */
-  var key=item.dateStr+'_'+item.docId;
-  _saveQueue=_saveQueue.filter(function(q){return (q.dateStr+'_'+q.docId)!==key;});
-  item.retries=item.retries||0;
-  _saveQueue.push(item);
-  _updateSaveStatus();
-}
-
-function _processQueue(){
-  if(_saveQueueRunning||!_saveQueue.length)return;
-  _saveQueueRunning=true;
-  var item=_saveQueue[0];
-  var key=item.dateStr+'_'+item.docId;
-
-  if(item.type==='save'){
-    _pendingSaves[key]=true;
-    var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal,resolution=merge-duplicates'};
-    fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h,
-      body:JSON.stringify({date_str:item.dateStr,doc_id:item.docId,clinic_id:item.cid,memo:item.memo||''})
-    }).then(function(r){
-      if(r.status===409){
-        var h2={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'};
-        return fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+item.dateStr+'&doc_id=eq.'+item.docId,{
-          method:'PATCH',headers:h2,body:JSON.stringify({clinic_id:item.cid,memo:item.memo||''})
+  .then(function(data){
+    if(data&&data.shifts){
+      Object.keys(data.shifts).forEach(function(dateStr){
+        if(!shifts[dateStr])shifts[dateStr]=[];
+        data.shifts[dateStr].forEach(function(entry){
+          var doc=doctors.find(function(d){return d.n===entry.docName;});
+          if(!doc)return;
+          var cl=ALL.find(function(a){return a.n===entry.clinic;});
+          var cid=cl?cl.id:entry.clinic;
+          var memo='';
+          if(entry.clinic==='希望休'){cid='yasumi';memo='希望';}
+          else if(entry.clinic==='出勤希望'){cid='kibou_shutskin';}
+          var idx=shifts[dateStr].findIndex(function(s){return s.docId===doc.id;});
+          var e={docId:doc.id,clinicId:cid,memo:memo};
+          if(idx>=0)shifts[dateStr][idx]=e;else shifts[dateStr].push(e);
         });
-      }
-      return r;
-    }).then(function(r){
-      delete _pendingSaves[key];
-      if(r.ok||r.status===201||r.status===204){
-        _saveQueue.shift(); /* success - remove from queue */
-        _updateSaveStatus();
-      } else {
-        /* failed - keep in queue for retry */
-        item.retries++;
-        showSb('保存失敗(リトライ予定:'+_saveQueue.length+'件)','e');
-      }
-      _saveQueueRunning=false;
-      if(_saveQueue.length)setTimeout(_processQueue,500);
-    }).catch(function(){
-      delete _pendingSaves[key];
-      item.retries++;
-      showSb('通信エラー(未保存:'+_saveQueue.length+'件)','e');
-      _saveQueueRunning=false;
-    });
-  } else if(item.type==='del'){
-    _pendingDeletes[key]=true;
-    var hd={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY};
-    fetch(SB_URL+'/rest/v1/shifts?date_str=eq.'+item.dateStr+'&doc_id=eq.'+item.docId,{method:'DELETE',headers:hd})
-    .then(function(r){
-      delete _pendingDeletes[key];
-      if(r.ok||r.status===204||r.status===404){
-        _saveQueue.shift();
-        _updateSaveStatus();
-      } else {
-        item.retries++;
-        showSb('DB削除失敗(リトライ予定:'+_saveQueue.length+'件)','e');
-      }
-      _saveQueueRunning=false;
-      if(_saveQueue.length)setTimeout(_processQueue,500);
-    }).catch(function(){
-      delete _pendingDeletes[key];
-      item.retries++;
-      showSb('DB削除通信エラー(未保存:'+_saveQueue.length+'件)','e');
-      _saveQueueRunning=false;
-    });
-  }
-}
-
-/* Retry queue every 10 seconds */
-setInterval(function(){
-  if(_saveQueue.length&&!_saveQueueRunning){
-    _processQueue();
-  }
-  _updateSaveStatus();
-},10000);
-
-function dbSave(dateStr,docId,cid,memo){
-  _lastEditTs=Date.now();
-  markDataChanged();
-  saveShifts();
-  var key=dateStr+'_'+docId;
-  _trackRecentKey(key);
-  _enqueue({type:'save',dateStr:dateStr,docId:docId,cid:cid,memo:memo||''});
-  _processQueue();
-}
-
-function dbDel(dateStr,docId){
-  _lastEditTs=Date.now();
-  markDataChanged();
-  saveShifts();
-  var key=dateStr+'_'+docId;
-  _trackRecentKey(key);
-  _enqueue({type:'del',dateStr:dateStr,docId:docId});
-  _processQueue();
-}
-
-/* 保存ボタン: 全シフトをSupabaseにバッチupsert（200件ずつ） */
-function saveAll(){
-  saveShifts();saveClosed();saveAllSettingsToDB();
-  showSb('全データをSupabaseに送信中...','');
-  var rows=[];
-  Object.keys(shifts).forEach(function(dateStr){
-    if(dateStr.indexOf('__')===0)return;
-    if(!Array.isArray(shifts[dateStr]))return;
-    shifts[dateStr].forEach(function(s){
-      rows.push({date_str:dateStr,doc_id:s.docId,clinic_id:s.clinicId,memo:s.memo||''});
-    });
+      });
+      try{localStorage.setItem('seishokai_shifts_v2',JSON.stringify(shifts));}catch(e){}
+    }
+    btn.textContent='✓ 更新済';btn.style.background='#2e7d32';
+    setTimeout(function(){btn.textContent='🔄 更新';btn.style.background='#1565c0';},2000);
+    renderTab();
+    showSb('スプレッドシートから読込完了','ok');
+  }).catch(function(e){
+    btn.textContent='✗ エラー';btn.style.background='#b83030';
+    setTimeout(function(){btn.textContent='🔄 更新';btn.style.background='#1565c0';},3000);
+    showSb('読込エラー','e');
   });
-  if(!rows.length){showSb('保存するデータがありません','e');return;}
-  /* Clear pending queue since we're doing a full sync */
-  _saveQueue=[];_updateSaveStatus();
-  var chunkSize=200;
-  var chunks=[];
-  for(var i=0;i<rows.length;i+=chunkSize){chunks.push(rows.slice(i,i+chunkSize));}
-  var done=0,failed=0;
-  var h={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal,resolution=merge-duplicates'};
-  function sendChunk(idx){
-    if(idx>=chunks.length){
-      if(failed>0)showSb('保存完了('+done+'件成功, '+failed+'件失敗)','e');
-      else showSb('全'+done+'件を保存完了','ok');
-      _updateSaveStatus();
-      /* Googleスプレッドシートにも同期 */
-      syncToSheet();
-      return;
-    }
-    showSb('送信中... '+(idx+1)+'/'+chunks.length+'チャンク','');
-    fetch(SB_URL+'/rest/v1/shifts',{method:'POST',headers:h,body:JSON.stringify(chunks[idx])})
-    .then(function(r){
-      if(r.ok||r.status===201||r.status===204){done+=chunks[idx].length;}
-      else{failed+=chunks[idx].length;}
-      sendChunk(idx+1);
-    }).catch(function(){
-      failed+=chunks[idx].length;
-      sendChunk(idx+1);
-    });
-  }
-  sendChunk(0);
 }
 
-/* ======= Undo/Redo（localStorage永続化） ======= */
-function loadUndoStack(){
-  try{var s=localStorage.getItem('seishokai_undo_v2');if(s)undoStack=JSON.parse(s);}catch(e){}
-  try{var r=localStorage.getItem('seishokai_redo_v2');if(r)redoStack=JSON.parse(r);}catch(e){}
-}
-function saveUndoStack(){
-  try{localStorage.setItem('seishokai_undo_v2',JSON.stringify(undoStack.slice(-20)));
-      localStorage.setItem('seishokai_redo_v2',JSON.stringify(redoStack.slice(-10)));}catch(e){}
-}
-function snapshot(){
-  var snap={s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)};
-  undoStack.push(snap);if(undoStack.length>20)undoStack.shift();
-  redoStack=[];
-  saveUndoStack();
-}
-function undo(){
-  if(!undoStack.length){showSb('これ以上戻せません','e');return;}
-  _lastEditTs=Date.now();
-  redoStack.push({s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)});
-  var snap=undoStack.pop();
-  shifts=JSON.parse(snap.s);CLOSED_DATES=JSON.parse(snap.c);
-  saveShifts();saveClosed();saveUndoStack();renderTab();
-  showSb('1つ戻しました','ok');
-}
-function redo(){
-  if(!redoStack.length){showSb('これ以上進めません','e');return;}
-  _lastEditTs=Date.now();
-  undoStack.push({s:JSON.stringify(shifts),c:JSON.stringify(CLOSED_DATES)});
-  var snap=redoStack.pop();
-  shifts=JSON.parse(snap.s);CLOSED_DATES=JSON.parse(snap.c);
-  saveShifts();saveClosed();saveUndoStack();renderTab();
-  showSb('1つ進めました','ok');
-}
-
-/* ======= 認証 ======= */
-function toggleLogin(){
-  if(isAdmin){isAdmin=false;highlightEmpty=false;document.getElementById('loginBtn').textContent='ログイン';document.getElementById('saveBtn').style.display='none';document.getElementById('hdrEmptyBtn').style.display='none';document.getElementById('tabSettings').style.display='none';document.getElementById('paintBar').style.display='none';paintClinic=null;if(curTab===6)setTab(0);else renderTab();return;}
-  var pw=prompt('パスワード');
-  if(pw===ADMIN_PW){isAdmin=true;document.getElementById('loginBtn').textContent='ログアウト';document.getElementById('saveBtn').style.display='';document.getElementById('hdrEmptyBtn').style.display='';document.getElementById('tabSettings').style.display='';renderTab();}
-  else if(pw!==null)alert('パスワードが違います');
-}
-
-/* ======= ナビ ======= */
+/* ナビ */
 function chgMonth(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}updateMonthLbl();renderTab();}
-function goToday(){var t=new Date();curY=t.getFullYear();curM=t.getMonth();updateMonthLbl();renderTab();}
 function updateMonthLbl(){document.getElementById('monthLbl').textContent=curY+'年'+(curM+1)+'月';}
-function setTab(n){
-  curTab=n;
-  document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',i===n);});
-  ['tab0','tab1','tab2','tab3','tab4','tab5','tab6'].forEach(function(id,i){var el=document.getElementById(id);if(el)el.style.display=i===n?(i===0?'flex':''):'none';});
-  renderTab();
-}
-function renderTab(){
-  if(curTab===0)renderShifts();
-  else if(curTab===1)renderClinicView();
-  else if(curTab===2)renderPersonView();
-  else if(curTab===3)renderReqView();
-  else if(curTab===4)renderClosed();
-  else if(curTab===5)renderSummary();
-  else if(curTab===6)renderSettings();
-}
+function goToday(){curY=today.getFullYear();curM=today.getMonth();updateMonthLbl();renderTab();}
+function setTab(n){curTab=n;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',i===n);});['tab0','tab1','tab2','tab3','tab4','tab5'].forEach(function(id,i){document.getElementById(id).style.display=i===n?'':'none';});renderTab();}
+function renderTab(){if(curTab===0)renderShifts();else if(curTab===1)renderClinicView();else if(curTab===2)renderPersonView();else if(curTab===3)renderReqView();else if(curTab===4)renderClosed();else renderSummary();}
+function goToPerson(docId){selPerson=docId;setTab(2);}
 
-/* ======= Tab 0: シフト表 ======= */
+/* Tab 0: シフト表（表示のみ） */
 function renderShifts(){
-  var days=dim(curY,curM);
-  var DOW=['日','月','火','水','木','金','土'];
-  var todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-  var restIdsCount=new Set(['yasumi','yukyu','daikyu']);
+  var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'];
+  var isToday=function(d){return today.getFullYear()===curY&&today.getMonth()===curM&&today.getDate()===d;};
+  var restIds=new Set(['yasumi','yukyu','daikyu','daishutsu','kyushutsu','kibou_shutskin']);
   var h='<thead><tr><th class="fix-left date-hdr" style="z-index:12;">日付</th>';
-  for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    var w=new Date(curY,curM,d).getDay();
-    var isH=HOL.has(dateStr);
-    var cls=w===0?'sun':w===6?'sat':'';
-    if(isH)cls='sun';
-    var isToday=dateStr===todayStr;
-    h+='<th class="date-hdr '+cls+(isToday?' today-hdr':'')+'">'+(isToday?'<b>':'')+d+'<span style="font-size:8px;margin-left:1px;">'+DOW[w]+'</span>'+(isToday?'</b>':'');
-    if(isH)h+='<span class="hol-badge">祝</span>';
-    h+='</th>';
-  }
-  h+='<th class="date-hdr" style="z-index:12;position:sticky;right:0;background:#e0ddd6;">名前</th>';
-  h+='</tr></thead>';
-
-  h+='<tbody>';
-  doctors.forEach(function(doc,rowIdx){
-    var nameClick=isAdmin?'openBulkFor(\''+doc.id+'\')':'goToPerson(\''+doc.id+'\')';
-    var nameBg=bulkDocId===doc.id?'background:#fff3e0;':'';
-    var altBg=rowIdx%2===1?'background:#fafaf8;':'';
-    /* 出勤日数計算 */
-    var workCount=0;
-    for(var dd=1;dd<=days;dd++){
-      var dds=ds(curY,curM,dd);
-      var sh2=(shifts[dds]||[]).find(function(s){return s.docId===doc.id;});
-      if(sh2&&!restIdsCount.has(sh2.clinicId))workCount++;
-    }
-    var nameAltBg=rowIdx%2===1&&!bulkDocId?'background:#fafaf8;':'';
-    h+='<tr><td class="fix-left-body" style="font-size:11px;font-weight:700;padding:2px 4px;white-space:nowrap;border-right:2px solid #bbb;cursor:pointer;color:#1a5276;'+(nameBg||nameAltBg)+'" onclick="'+nameClick+'">'+doc.n+'<span class="work-count-badge">'+workCount+'</span></td>';
-    for(var d=1;d<=days;d++){
-      var dateStr=ds(curY,curM,d);
-      var w=new Date(curY,curM,d).getDay();
-      var isH=HOL.has(dateStr);
-      var isToday=dateStr===todayStr;
+  for(var d=1;d<=days;d++){var dateStr=ds(curY,curM,d),w=new Date(curY,curM,d).getDay(),isH=HOL.has(dateStr),cls=w===0||isH?'sun':w===6?'sat':'';
+    h+='<th class="date-hdr '+cls+(isToday(d)?' today-hdr':'')+'">'+d+'<span style="font-size:8px;margin-left:1px;">'+DOW[w]+'</span>'+(isH?'<span class="hol-badge">祝</span>':'')+'</th>';}
+  h+='<th class="date-hdr" style="z-index:12;position:sticky;right:0;background:#e0ddd6;">名前</th></tr></thead><tbody>';
+  doctors.forEach(function(doc,ri){
+    var workDays=0;for(var dd=1;dd<=days;dd++){var sh2=(shifts[ds(curY,curM,dd)]||[]).find(function(s){return s.docId===doc.id;});if(sh2&&!restIds.has(sh2.clinicId))workDays++;}
+    var oddBg=ri%2===1?'background:#fafaf8;':'';
+    h+='<tr><td class="fix-left-body" style="font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;border-right:2px solid #bbb;cursor:pointer;color:#1a5276;'+oddBg+'" onclick="goToPerson(\''+doc.id+'\')">'+doc.n+'<span class="work-count-badge">'+workDays+'</span></td>';
+    for(var d=1;d<=days;d++){var dateStr=ds(curY,curM,d),w=new Date(curY,curM,d).getDay(),isH=HOL.has(dateStr);
       var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===doc.id;});
       var bg='',txt='',col='';
-      if(sh){
-        var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
-        var restCheck=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
-        var onClosedDay=restCheck.indexOf(sh.clinicId)<0&&isClosed(dateStr,sh.clinicId);
-        if(onClosedDay){bg='#ff0000';col='#fff';txt='\u26a0'+cname(sh.clinicId);}
-        else if(isKibo){bg='#f3e5f5';col='#7b2d8b';txt='希望休';}
+      if(sh){var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
+        if(isKibo){bg='#f3e5f5';col='#7b2d8b';txt='希望休';}
         else if(sh.clinicId==='yasumi'){bg='#eceff1';col='#78909c';txt='休み';}
         else if(sh.clinicId==='yukyu'){bg='#eceff1';col='#e53935';txt='有給';}
         else if(sh.clinicId==='daikyu'){bg='#eceff1';col='#1a5276';txt='代休';}
@@ -695,964 +224,186 @@ function renderShifts(){
         else if(sh.clinicId==='kibou_shutskin'){bg='#e8f5e9';col='#2e7d32';txt='出勤希望';}
         else if(sh.clinicId==='houmon'){bg='#2c6e8a';col='#fff';txt='訪問';}
         else{var c=getCC(sh.clinicId);bg=c.c;col='#fff';txt=cname(sh.clinicId);}
-      } else {
-        var closedCount=CLINICS.filter(function(c){return isClosed(dateStr,c.id);}).length;
-        var rowBg=w===0||isH?'#fff5f5':w===6?'#f0f5ff':rowIdx%2===1?'#fafaf8':'';
-        if(closedCount>=CLINICS.length){bg='#f0efed';col='#bbb';txt='全休';}
-        else{bg=rowBg;col='';txt='';}
-      }
-      var opacity='',extraStyle='';
-      if(highlightEmpty&&sh){opacity='opacity:.15;';}
-      if(highlightEmpty&&!sh&&txt!=='全休'){bg='#2e7d32';col='#fff';txt='空';extraStyle='font-size:10px!important;text-shadow:0 0 2px rgba(0,0,0,.3);';}
-      var todayBorder=isToday?'box-shadow:inset 0 0 0 1px #fdd835;':'';
-      var click=isAdmin?'onclick="cellClick(\''+dateStr+'\',\''+doc.id+'\')"':'';
-      h+='<td class="shift-cell" style="background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;overflow:hidden;'+opacity+extraStyle+todayBorder+'" '+click+'>'+txt+'</td>';
-    }
-    var rightAltBg=rowIdx%2===1?'background:#fafaf8;':'background:#fff;';
-    h+='<td style="position:sticky;right:0;z-index:5;'+rightAltBg+'font-size:11px;font-weight:700;padding:2px 4px;white-space:nowrap;border-left:2px solid #bbb;color:#1a5276;cursor:pointer;" onclick="goToPerson(\''+doc.id+'\')">'+doc.n+'<span class="work-count-badge">'+workCount+'</span></td>';
-    h+='</tr>';
-  });
-  h+='</tbody>';
-  /* 出勤人数行 */
-  h+='<tfoot>';
-  h+='<tr>';
-  h+='<td class="fix-left doc-count-cell" style="z-index:12;position:sticky;bottom:26px;background:#e8f5e9;color:#2e7d32;font-weight:800;border-right:2px solid #bbb;">出勤</td>';
-  for(var dc=1;dc<=days;dc++){
-    var dcStr=ds(curY,curM,dc);
-    var dcW=new Date(curY,curM,dc).getDay();
-    var dcH=HOL.has(dcStr);
-    var workingCount=(shifts[dcStr]||[]).filter(function(s){return !restIdsCount.has(s.clinicId);}).length;
-    var dcBg=dcStr===todayStr?'#fff9c4':'#e8f5e9';
-    h+='<td class="doc-count-cell" style="position:sticky;bottom:26px;background:'+dcBg+';color:'+(workingCount>0?'#2e7d32':'#bbb')+';font-size:10px;">'+workingCount+'</td>';
-  }
-  h+='<td class="doc-count-cell" style="position:sticky;right:0;bottom:26px;z-index:12;background:#e8f5e9;color:#2e7d32;font-weight:800;">出勤</td>';
-  h+='</tr>';
-  /* 下部日付行 */
-  h+='<tr>';
-  h+='<td class="fix-left" style="z-index:12;position:sticky;bottom:0;background:#ddd;font-size:9px;font-weight:700;padding:4px 2px;">日付</td>';
-  for(var d2=1;d2<=days;d2++){
-    var dateStr2=ds(curY,curM,d2);
-    var w2=new Date(curY,curM,d2).getDay();
-    var isH2=HOL.has(dateStr2);
-    var cls2=w2===0?'sun':w2===6?'sat':'';
-    if(isH2)cls2='sun';
-    var isToday2=dateStr2===todayStr;
-    h+='<td class="date-hdr '+cls2+(isToday2?' today-hdr':'')+'" style="position:sticky;bottom:0;background:'+(isToday2?'#fdd835':'#ddd')+';font-weight:700;">'+d2+'<span style="font-size:8px;margin-left:1px;">'+DOW[w2]+'</span>';
-    if(isH2)h+='<span class="hol-badge">祝</span>';
-    h+='</td>';
-  }
-  h+='<td style="position:sticky;right:0;bottom:0;z-index:12;background:#ddd;font-size:9px;font-weight:700;padding:4px 2px;">名前</td>';
-  h+='</tr></tfoot>';
+      }else{bg=w===0||isH?'#fff5f5':w===6?'#f0f5ff':'';col='';txt='';}
+      var tdStyle='background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;'+(isToday(d)?'box-shadow:inset 0 0 0 1px #fdd835;':'')+(ri%2===1&&!sh?oddBg:'');
+      h+='<td class="shift-cell" style="'+tdStyle+'">'+txt+'</td>';}
+    h+='<td style="position:sticky;right:0;z-index:5;background:#fff;font-size:11px;font-weight:700;padding:2px 6px;white-space:nowrap;border-left:2px solid #bbb;color:#1a5276;'+oddBg+'">'+doc.n+'<span class="work-count-badge">'+workDays+'</span></td></tr>';});
+  /* 出勤人数フッター */
+  h+='<tfoot><tr><td class="fix-left" style="z-index:12;position:sticky;bottom:0;background:#e8f5e9;font-size:9px;font-weight:700;color:#2e7d32;">出勤</td>';
+  for(var d=1;d<=days;d++){var dateStr=ds(curY,curM,d);var cnt=(shifts[dateStr]||[]).filter(function(s){return!restIds.has(s.clinicId);}).length;
+    h+='<td style="position:sticky;bottom:0;background:#e8f5e9;font-size:9px;font-weight:700;color:#2e7d32;'+(isToday(d)?'background:#fffde7;':'')+'">'+cnt+'</td>';}
+  h+='<td style="position:sticky;right:0;bottom:0;background:#e8f5e9;"></td></tr>';
+  h+='<tr><td class="fix-left" style="z-index:12;position:sticky;bottom:0;background:#ddd;font-size:9px;font-weight:700;">日付</td>';
+  for(var d=1;d<=days;d++){var dateStr=ds(curY,curM,d),w=new Date(curY,curM,d).getDay(),isH=HOL.has(dateStr),cls=w===0||isH?'sun':w===6?'sat':'';
+    h+='<td class="date-hdr '+cls+'" style="position:sticky;bottom:0;background:#ddd;font-weight:700;">'+d+'<span style="font-size:8px;margin-left:1px;">'+DOW[w]+'</span>'+(isH?'<span class="hol-badge">祝</span>':'')+'</td>';}
+  h+='<td style="position:sticky;right:0;bottom:0;background:#ddd;font-size:9px;font-weight:700;">名前</td></tr></tfoot></tbody>';
   document.getElementById('shiftTable').innerHTML=h;
-  renderPaintBar();
 }
-
-var _confirmOverwrite=null; /* {dateStr,docId} 上書き確認待ち */
-function cellClick(dateStr,docId){
-  if(!isAdmin)return;
-  if(paintClinic){
-    var cid=paintClinic==='__kibokyu__'?'yasumi':paintClinic;
-    /* 休診日チェック：休み系以外は休診日に登録不可 */
-    var restIds2=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
-    if(restIds2.indexOf(cid)<0&&paintClinic!=='__del__'&&isClosed(dateStr,cid)){
-      showSb(cname(cid)+'は休診日です','e');return;
-    }
-    if(!shifts[dateStr])shifts[dateStr]=[];
-    var idx=shifts[dateStr].findIndex(function(s){return s.docId===docId;});
-    /* 希望休・有給・代休の上書き保護（2回クリックで上書き） */
-    var protectedIds=['yasumi','yukyu','daikyu'];
-    if(idx>=0&&protectedIds.indexOf(shifts[dateStr][idx].clinicId)>=0&&shifts[dateStr][idx].clinicId!==cid){
-      if(_confirmOverwrite&&_confirmOverwrite.dateStr===dateStr&&_confirmOverwrite.docId===docId){
-        _confirmOverwrite=null; /* 2回目→上書き実行 */
-      } else {
-        _confirmOverwrite={dateStr:dateStr,docId:docId};
-        var existLabel=shiftLabel(shifts[dateStr][idx]);
-        showSb(existLabel+'を上書き？もう1回クリック','e');
-        return;
-      }
-    } else {
-      _confirmOverwrite=null;
-    }
-    snapshot();
-    /* 同じ医院なら削除（トグル） */
-    var memo=paintClinic==='__kibokyu__'?'希望':'';
-    if(idx>=0&&shifts[dateStr][idx].clinicId===cid){
-      shifts[dateStr].splice(idx,1);
-      if(!shifts[dateStr].length)delete shifts[dateStr];
-      dbDel(dateStr,docId);
-    } else {
-      var entry={docId:docId,clinicId:cid,memo:memo};
-      if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
-      dbSave(dateStr,docId,cid,memo);
-    }
-    renderShifts();renderClinicSide();
-    return;
-  }
-  /* ペイント未選択: 既存シフトがあれば削除、なければペイントバー表示 */
-  var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===docId;});
-  if(existing){
-    snapshot();
-    shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
-    if(!shifts[dateStr].length)delete shifts[dateStr];
-    dbDel(dateStr,docId);
-    renderShifts();renderClinicSide();
-    return;
-  }
-  document.getElementById('paintBar').style.display='flex';
-  renderPaintBar();
-}
-
-function setPaint(cid){
-  paintClinic=cid;sideMonth=0;
-  if(!cid)document.getElementById('paintBar').style.display='none';
-  renderPaintBar();renderShifts();renderClinicSide();
-}
-
-var sideMonth=0; /* 0=当月, -1=前月, 1=翌月 */
-function renderClinicSide(){
-  var panel=document.getElementById('clinicSidePanel');
-  if(!paintClinic||paintClinic==='__del__'||paintClinic==='__kibokyu__'){
-    panel.style.display='none';return;
-  }
-  var cid=paintClinic;
-  var restIds4=['yasumi','yukyu','daikyu','daishutsu','kyushutsu','kibou_shutskin'];
-  if(restIds4.indexOf(cid)>=0){panel.style.display='none';return;}
-  panel.style.display='block';
-  var col=getCC(cid);
-  var sY=curY,sM=curM+sideMonth;
-  if(sM>11){sM=0;sY++;}if(sM<0){sM=11;sY--;}
-  var days=dim(sY,sM),DOW=['日','月','火','水','木','金','土'];
-  var monthLbl=sY+'年'+(sM+1)+'月';
-  var h='<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:4px;">';
-  h+='<button onclick="sideMonth--;renderClinicSide();" style="border:none;background:#eee;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">‹</button>';
-  h+='<span style="font-size:13px;font-weight:800;color:'+col.c+';">'+cname(cid)+' '+monthLbl+'</span>';
-  h+='<button onclick="sideMonth++;renderClinicSide();" style="border:none;background:#eee;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">›</button>';
-  h+='</div>';
-  for(var d=1;d<=days;d++){
-    var dateStr=ds(sY,sM,d);
-    var w=new Date(sY,sM,d).getDay();
-    var isH=HOL.has(dateStr);
-    var closed=isClosed(dateStr,cid);
-    var assigned=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cid;});
-    var dayCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333';
-    var rowBg=closed?'#f5f5f3':assigned.length>=2?col.b:'#fff';
-    h+='<div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-bottom:1px solid #eee;background:'+rowBg+';">';
-    h+='<span style="font-weight:700;color:'+dayCol+';min-width:32px;font-size:11px;">'+d+DOW[w]+'</span>';
-    if(closed){
-      h+='<span style="color:#bbb;font-size:10px;">休診</span>';
-    } else {
-      h+='<span style="background:'+(assigned.length?col.c:'#eee')+';color:'+(assigned.length?'#fff':'#bbb')+';font-size:10px;font-weight:800;border-radius:4px;padding:1px 5px;min-width:20px;text-align:center;">'+assigned.length+'</span>';
-      var sorted=assigned.slice().sort(function(a,b){var da=doctors.find(function(d){return d.id===a.docId;}),db=doctors.find(function(d){return d.id===b.docId;});var dirA=da&&da.dir===cid?0:da&&da.dir?1:2,dirB=db&&db.dir===cid?0:db&&db.dir?1:2;return dirA-dirB;});
-      h+='<span style="font-size:10px;color:'+col.c+';font-weight:600;">'+sorted.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});if(!doc)return'';var isDir=doc.dir===cid;return isDir?'<b>'+doc.n+'</b>':doc.n;}).join(' ')+'</span>';
-    }
-    h+='</div>';
-  }
-  panel.innerHTML=h;
-}
-function renderPaintBar(){
-  if(!isAdmin)return;
-  var bar=document.getElementById('paintBar');
-  if(!paintClinic){
-    document.getElementById('paintLbl').textContent='↓ 医院を選んでセルをクリック';
-  } else {
-    var n=paintClinic==='__kibokyu__'?'希望休':cname(paintClinic);
-    document.getElementById('paintLbl').textContent='「'+n+'」を塗る → セルをクリック';
-  }
-  var opts='';
-  CLINICS.forEach(function(cl){
-    var c=getCC(cl.id),on=paintClinic===cl.id;
-    opts+='<button class="paint-opt" onclick="setPaint(\''+cl.id+'\')" style="background:'+(on?c.c:'#f5f5f3')+';color:'+(on?'#fff':c.c)+';border-color:'+(on?c.c:'#ddd')+';">'+cl.n+'</button>';
-  });
-  opts+='<span style="margin:0 4px;color:#555;">|</span>';
-  STATUSES.forEach(function(s){
-    var c=getCC(s.id),on=paintClinic===s.id;
-    opts+='<button class="paint-opt" onclick="setPaint(\''+s.id+'\')" style="background:'+(on?c.c:'#f5f5f3')+';color:'+(on?'#fff':c.c)+';border-color:'+(on?c.c:'#ddd')+';">'+s.n+'</button>';
-  });
-  var kiboOn=paintClinic==='__kibokyu__';
-  opts+='<button class="paint-opt" onclick="setPaint(\'__kibokyu__\')" style="background:'+(kiboOn?'#7b2d8b':'#f5f5f3')+';color:'+(kiboOn?'#fff':'#7b2d8b')+';border-color:'+(kiboOn?'#7b2d8b':'#ddd')+';">希望休</button>';
-  /* 削除・一括ボタンの状態更新 */
-  var delBtn=document.getElementById('paintDelBtn');
-  if(delBtn){delBtn.style.background=paintClinic==='__del__'?'#b83030':'#f5f5f3';delBtn.style.color=paintClinic==='__del__'?'#fff':'#ff6b6b';delBtn.style.borderColor=paintClinic==='__del__'?'#b83030':'#ddd';}
-  document.getElementById('paintOpts').innerHTML=opts;
-}
-var highlightEmpty=false;
-function setPaintDel(){paintClinic='__del__';renderPaintBar();renderShifts();}
-function toggleHighlightEmpty(){
-  highlightEmpty=!highlightEmpty;
-  var btn=document.getElementById('paintEmptyBtn');
-  if(btn){btn.style.background=highlightEmpty?'#2e7d32':'#f5f5f3';btn.style.color=highlightEmpty?'#fff':'#2e7d32';btn.style.borderColor=highlightEmpty?'#2e7d32':'#ddd';}
-  var hBtn=document.getElementById('hdrEmptyBtn');
-  if(hBtn){hBtn.style.background=highlightEmpty?'#2e7d32':'';hBtn.style.color=highlightEmpty?'#fff':'#2e7d32';hBtn.style.borderColor=highlightEmpty?'#2e7d32':'';}
-  renderShifts();
-}
-function toggleBulkPanel(){
-  var el=document.getElementById('bulkPanel');
-  if(el.style.display==='none'||!el.style.display){el.style.display='block';bulkDocId=null;bulkClinic=null;renderBulkPanel();}
-  else{el.style.display='none';}
-}
-
-/* ======= 一括入力パネル ======= */
-var bulkDocId=null,bulkClinic=null;
-function openBulk(docId){
-  bulkDocId=docId;bulkClinic=null;
-  renderBulkPanel();
-}
-function openBulkFor(docId){
-  document.getElementById('bulkPanel').style.display='block';
-  bulkDocId=docId;bulkClinic=null;
-  renderBulkPanel();renderShifts();
-}
-function renderBulkPanel(){
-  var el=document.getElementById('bulkPanel');
-  if(!bulkDocId){el.style.display='none';return;}
-  el.style.display='block';
-  var doc=doctors.find(function(d){return d.id===bulkDocId;});
-  var h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
-  h+='<span style="font-size:15px;font-weight:800;">'+doc.n+'</span>';
-  h+='<span style="font-size:12px;color:#666;">に一括入力</span>';
-  h+='<button onclick="bulkDocId=null;renderBulkPanel();renderShifts();" style="margin-left:auto;border:none;background:#eee;padding:4px 12px;border-radius:8px;font-size:11px;cursor:pointer;">✕ 閉じる</button>';
-  h+='</div>';
-  /* Step1: 医院選択 */
-  h+='<div style="font-size:11px;font-weight:700;color:#666;margin-bottom:4px;">① 医院を選択</div>';
-  h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">';
-  CLINICS.forEach(function(c){
-    var col=getCC(c.id),on=bulkClinic===c.id;
-    h+='<button onclick="bulkClinic=\''+c.id+'\';renderBulkPanel();" style="padding:5px 10px;border-radius:10px;border:2px solid '+(on?col.c:'#ddd')+';background:'+(on?col.c:'#fff')+';color:'+(on?'#fff':col.c)+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">'+c.n+'</button>';
-  });
-  STATUSES.forEach(function(s){
-    var col=getCC(s.id),on=bulkClinic===s.id;
-    h+='<button onclick="bulkClinic=\''+s.id+'\';renderBulkPanel();" style="padding:5px 10px;border-radius:10px;border:2px solid '+(on?col.c:'#ddd')+';background:'+(on?col.c:'#fff')+';color:'+(on?'#fff':col.c)+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">'+s.n+'</button>';
-  });
-  var kiboOn=bulkClinic==='__kibokyu__';
-  h+='<button onclick="bulkClinic=\'__kibokyu__\';renderBulkPanel();" style="padding:5px 10px;border-radius:10px;border:2px solid '+(kiboOn?'#7b2d8b':'#ddd')+';background:'+(kiboOn?'#7b2d8b':'#fff')+';color:'+(kiboOn?'#fff':'#7b2d8b')+';font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">希望休</button>';
-  h+='</div>';
-  /* Step2: パターン */
-  if(bulkClinic){
-    var cn=bulkClinic==='__kibokyu__'?'希望休':cname(bulkClinic);
-    h+='<div style="font-size:11px;font-weight:700;color:#666;margin-bottom:4px;">② 「'+cn+'」をどの日に入れる？</div>';
-    h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
-    h+='<button onclick="doBulk(\'all\')" style="padding:6px 14px;border:none;border-radius:10px;background:#e65100;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">全日</button>';
-    h+='<button onclick="doBulk(\'weekday\')" style="padding:6px 14px;border:none;border-radius:10px;background:#2d6a9f;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">平日のみ</button>';
-    h+='<button onclick="doBulk(\'weekend\')" style="padding:6px 14px;border:none;border-radius:10px;background:#7b2d8b;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">土日のみ</button>';
-    h+='</div>';
-    h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;">';
-    ['日','月','火','水','木','金','土'].forEach(function(d,i){
-      h+='<button onclick="doBulk('+i+')" style="padding:5px 12px;border:1px solid #bbb;border-radius:8px;background:#fff;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;color:'+(i===0?'#e05252':i===6?'#4a7fd4':'#333')+';">毎週'+d+'</button>';
-    });
-    h+='</div>';
-    h+='<button onclick="doBulkClear()" style="padding:5px 14px;border:none;border-radius:10px;background:#b83030;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">この月クリア</button>';
-    h+=' <button onclick="fixClosedConflicts()" style="padding:5px 14px;border:none;border-radius:10px;background:#e65100;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">休診日エラー修正</button>';
-  }
-  el.innerHTML=h;
-}
-function doBulk(mode){
-  if(!bulkDocId||!bulkClinic)return;
-  snapshot();
-  var days=dim(curY,curM);
-  var cid=bulkClinic==='__kibokyu__'?'yasumi':bulkClinic;
-  var memo=bulkClinic==='__kibokyu__'?'希望':'';
-  var cnt=0,keepIds=['yasumi','yukyu','daikyu'];
-  for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    var w=new Date(curY,curM,d).getDay();
-    if(mode==='weekday'&&(w===0||w===6))continue;
-    if(mode==='weekend'&&w!==0&&w!==6)continue;
-    if(typeof mode==='number'&&w!==mode)continue;
-    if(!shifts[dateStr])shifts[dateStr]=[];
-    var existing=shifts[dateStr].find(function(s){return s.docId===bulkDocId;});
-    if(existing&&keepIds.indexOf(existing.clinicId)>=0)continue;
-    /* 休診日スキップ（休み系以外） */
-    var restSkip=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
-    if(restSkip.indexOf(cid)<0&&isClosed(dateStr,cid))continue;
-    var idx=shifts[dateStr].findIndex(function(s){return s.docId===bulkDocId;});
-    var entry={docId:bulkDocId,clinicId:cid,memo:memo};
-    if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
-    dbSave(dateStr,bulkDocId,cid,memo);cnt++;
-  }
-  saveShifts();renderShifts();renderClinicSide();
-  showSb(cnt+'日を一括入力','ok');
-}
-function doBulkClear(){
-  if(!bulkDocId)return;
-  snapshot();
-  var days=dim(curY,curM);
-  for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    if(shifts[dateStr]){
-      shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==bulkDocId;});
-      if(!shifts[dateStr].length)delete shifts[dateStr];
-    }
-    dbDel(dateStr,bulkDocId);
-  }
-  saveShifts();renderShifts();
-  showSb('月クリア完了','ok');
-}
-
-/* 休診日エラー一括修正 */
-function fixClosedConflicts(){
-  snapshot();
-  var days=dim(curY,curM),cnt=0;
-  var restIds3=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
-  for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    if(!shifts[dateStr])continue;
-    shifts[dateStr]=shifts[dateStr].filter(function(s){
-      if(restIds3.indexOf(s.clinicId)>=0)return true;
-      if(isClosed(dateStr,s.clinicId)){cnt++;dbDel(dateStr,s.docId);return false;}
-      return true;
-    });
-    if(!shifts[dateStr].length)delete shifts[dateStr];
-  }
-  saveShifts();renderShifts();
-  showSb(cnt+'件の休診日エラーを修正','ok');
-}
-
-/* 訪問チーム日トグル */
-function toggleHoumon(dateStr){
-  var ym=dateStr.slice(0,7);
-  if(!HOUMON_DAYS[ym])HOUMON_DAYS[ym]=[];
-  var idx=HOUMON_DAYS[ym].indexOf(dateStr);
-  if(idx>=0)HOUMON_DAYS[ym].splice(idx,1);
-  else HOUMON_DAYS[ym].push(dateStr);
-  saveClosed();renderShifts();
-}
-
-/* ======= Tab 4: 休診日 ======= */
-function renderClosed(){
-  var days=dim(curY,curM);
-  var DOW=['日','月','火','水','木','金','土'];
-  var h='<thead><tr><th class="fix-left" style="z-index:12;min-width:54px;">日付</th>';
-  CLINICS.forEach(function(c){
-    var col=getCC(c.id);
-    h+='<th style="padding:4px 6px;font-size:10px;font-weight:700;color:'+col.c+';min-width:44px;">'+c.n+'</th>';
-  });
-  h+='<th style="min-width:54px;">日付</th></tr></thead><tbody>';
-  for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    var w=new Date(curY,curM,d).getDay();
-    var isH=HOL.has(dateStr);
-    var rowBg=isH?'#fff0f0':w===0?'#fff5f5':w===6?'#f0f5ff':'#fff';
-    var numCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'var(--ink,#333)';
-    h+='<tr style="background:'+rowBg+'">';
-    h+='<td class="fix-left-body" style="background:'+rowBg+';padding:4px 6px;font-weight:700;font-size:12px;color:'+numCol+';white-space:nowrap;border-right:2px solid #bbb;">'+
-      d+'<span style="font-size:10px;margin-left:2px;">'+DOW[w]+'</span>'+
-      (isH?'<span class="hol-badge">祝</span>':'')+'</td>';
-    CLINICS.forEach(function(c){
-      var closed=isClosed(dateStr,c.id);
-      var col=getCC(c.id);
-      var bg=closed?col.c:'transparent';
-      var tx=closed?'#fff':'';
-      var click=isAdmin?'onclick="toggleClosed(\''+dateStr+'\',\''+c.id+'\')"':'';
-      h+='<td class="closed-cell" style="background:'+bg+';color:'+tx+';" '+click+'>'+(closed?'休':'')+'</td>';
-    });
-    h+='<td style="padding:4px 6px;font-weight:700;font-size:12px;color:'+numCol+';white-space:nowrap;">'+d+'<span style="font-size:10px;margin-left:2px;">'+DOW[w]+'</span></td>';
-    h+='</tr>';
-  }
-  h+='</tbody>';
-  document.getElementById('closedTable').innerHTML=h;
-}
-function toggleClosed(dateStr,cid){
-  snapshot();
-  if(!CLOSED_DATES[cid])CLOSED_DATES[cid]=[];
-  var idx=CLOSED_DATES[cid].indexOf(dateStr);
-  if(idx>=0){CLOSED_DATES[cid].splice(idx,1);}
-  else if(isClosed(dateStr,cid)){
-    if(!CLOSED_DATES[cid+'_open'])CLOSED_DATES[cid+'_open']=[];
-    var oi=CLOSED_DATES[cid+'_open'].indexOf(dateStr);
-    if(oi>=0)CLOSED_DATES[cid+'_open'].splice(oi,1);
-    else CLOSED_DATES[cid+'_open'].push(dateStr);
-  } else {CLOSED_DATES[cid].push(dateStr);}
-  saveClosed();renderClosed();
-}
-
-/* ======= Tab 5: 集計 ======= */
-function renderSummary(){
-  var days=dim(curY,curM);
-  var restIds=new Set(['yasumi','yukyu','daikyu']);
-  /* ドクター別出勤数 */
-  var h='<h3 style="font-size:14px;font-weight:700;margin-bottom:8px;">ドクター別出勤日数（'+(curM+1)+'月）</h3>';
-  h+='<table class="sum-tbl"><thead><tr><th>ドクター</th><th>出勤</th><th>休み</th><th>有給</th><th>希望休</th></tr></thead><tbody>';
-  doctors.forEach(function(doc){
-    var work=0,off=0,yuk=0,kibo=0;
-    for(var d=1;d<=days;d++){
-      var dateStr=ds(curY,curM,d);
-      var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===doc.id;});
-      if(sh){
-        if(sh.clinicId==='yukyu')yuk++;
-        else if(sh.clinicId==='yasumi'&&sh.memo==='希望')kibo++;
-        else if(restIds.has(sh.clinicId))off++;
-        else work++;
-      }
-    }
-    h+='<tr><td style="font-weight:700;">'+doc.n+'</td><td style="font-weight:700;color:#2e7d32;">'+work+'</td><td>'+off+'</td><td style="color:#e53935;">'+yuk+'</td><td style="color:#7b2d8b;">'+kibo+'</td></tr>';
-  });
-  h+='</tbody></table>';
-  /* 医院別人数 */
-  h+='<h3 style="font-size:14px;font-weight:700;margin:20px 0 8px;">医院別配置人数（'+(curM+1)+'月）</h3>';
-  h+='<table class="sum-tbl"><thead><tr><th>日付</th>';
-  CLINICS.forEach(function(c){var col=getCC(c.id);h+='<th style="color:'+col.c+';">'+c.n+'</th>';});
-  h+='</tr></thead><tbody>';
-  for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    var w=new Date(curY,curM,d).getDay();
-    var DOW=['日','月','火','水','木','金','土'];
-    var isH=HOL.has(dateStr);
-    var numCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'';
-    h+='<tr><td style="font-weight:700;color:'+numCol+';">'+d+'('+DOW[w]+')'+(isH?' <span class="hol-badge">祝</span>':'')+'</td>';
-    CLINICS.forEach(function(c){
-      var cnt=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===c.id;}).length;
-      var closed=isClosed(dateStr,c.id);
-      var bg=closed?'#f0f0ee':cnt>0?getCC(c.id).b:'';
-      h+='<td style="background:'+bg+';font-weight:'+(cnt?'700':'400')+';color:'+(closed?'#bbb':cnt?getCC(c.id).c:'#ccc')+';">'+(closed?'休':cnt||'')+'</td>';
-    });
-    h+='</tr>';
-  }
-  h+='</tbody></table>';
-  document.getElementById('summaryView').innerHTML=h;
-}
-
-/* ======= Tab 1: 医院別ビュー（カルーセル） ======= */
+/* Tab 1: 医院別カルーセル */
 var clinicViewMonth={};
 function renderClinicView(){
-  var wrap=document.getElementById('clinicCarousel');
+  var DOW=['日','月','火','水','木','金','土'];
   var h='';
   CLINICS.forEach(function(cl){
-    var cid=cl.id;
-    var col=getCC(cid);
-    var mOff=clinicViewMonth[cid]||0;
-    var sY=curY,sM=curM+mOff;
+    var cid=cl.id,col=getCC(cid);
+    var mOff=clinicViewMonth[cid]||0,sY=curY,sM=curM+mOff;
     if(sM>11){sM-=12;sY++;}if(sM<0){sM+=12;sY--;}
-    var days=dim(sY,sM),DOW=['日','月','火','水','木','金','土'];
+    var days=dim(sY,sM);
     h+='<div style="flex:0 0 280px;scroll-snap-align:start;border:2px solid '+col.c+';border-radius:12px;background:#fff;overflow:hidden;">';
-    /* ヘッダー */
     h+='<div style="background:'+col.c+';color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:center;gap:8px;">';
     h+='<button onclick="clinicViewMonth[\''+cid+'\']=(clinicViewMonth[\''+cid+'\']||0)-1;renderClinicView();" style="border:none;background:rgba(255,255,255,.3);color:#fff;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">‹</button>';
     h+='<span style="font-size:14px;font-weight:800;">'+cl.n+' '+(sM+1)+'月</span>';
-    h+='<button onclick="clinicViewMonth[\''+cid+'\']=(clinicViewMonth[\''+cid+'\']||0)+1;renderClinicView();" style="border:none;background:rgba(255,255,255,.3);color:#fff;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">›</button>';
-    h+='</div>';
-    /* 日リスト */
+    h+='<button onclick="clinicViewMonth[\''+cid+'\']=(clinicViewMonth[\''+cid+'\']||0)+1;renderClinicView();" style="border:none;background:rgba(255,255,255,.3);color:#fff;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">›</button></div>';
     h+='<div style="max-height:calc(100vh - 140px);overflow-y:auto;">';
     for(var d=1;d<=days;d++){
-      var dateStr=ds(sY,sM,d);
-      var w=new Date(sY,sM,d).getDay();
-      var isH=HOL.has(dateStr);
-      var closed=isClosed(dateStr,cid);
-      var assigned=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cid;});
-      var dayCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333';
-      var rowBg=closed?'#f5f5f3':assigned.length>=2?col.b:'#fff';
+      var dateStr=ds(sY,sM,d),w=new Date(sY,sM,d).getDay(),isH=HOL.has(dateStr);
+      var closed=isClosed(dateStr,cid),assigned=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cid;});
+      var dayCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333',rowBg=closed?'#f5f5f3':assigned.length>=2?col.b:'#fff';
       h+='<div style="display:flex;align-items:center;gap:5px;padding:4px 8px;border-bottom:1px solid #eee;background:'+rowBg+';">';
       h+='<span style="font-weight:700;color:'+dayCol+';min-width:30px;font-size:12px;">'+d+DOW[w]+'</span>';
       if(closed){h+='<span style="color:#bbb;font-size:11px;">休診</span>';}
-      else{
-        h+='<span style="background:'+(assigned.length?col.c:'#eee')+';color:'+(assigned.length?'#fff':'#bbb')+';font-size:11px;font-weight:800;border-radius:4px;padding:1px 6px;min-width:22px;text-align:center;">'+assigned.length+'</span>';
-        h+='<span style="font-size:11px;color:'+col.c+';font-weight:600;">'+assigned.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});return doc?doc.n:'';}).join(' ')+'</span>';
-      }
-      h+='</div>';
-    }
-    h+='</div></div>';
-  });
-  wrap.innerHTML=h;
+      else{h+='<span style="background:'+(assigned.length?col.c:'#eee')+';color:'+(assigned.length?'#fff':'#bbb')+';font-size:11px;font-weight:800;border-radius:4px;padding:1px 6px;min-width:22px;text-align:center;">'+assigned.length+'</span>';
+        var sorted=assigned.slice().sort(function(a,b){var da=doctors.find(function(d){return d.id===a.docId;}),db=doctors.find(function(d){return d.id===b.docId;});return(da&&da.dir===cid?0:1)-(db&&db.dir===cid?0:1);});
+        h+='<span style="font-size:11px;color:'+col.c+';font-weight:600;">'+sorted.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});if(!doc)return'';return doc.dir===cid?'<b>'+doc.n+'</b>':doc.n;}).join(' ')+'</span>';}
+      h+='</div>';}
+    h+='</div></div>';});
+  document.getElementById('clinicCarousel').innerHTML=h;
 }
 
-function goToPerson(docId){selPerson=docId;setTab(2);}
-
-/* 個人ビューからシフト編集 */
-var personEditDate=null;
-function personCellClick(dateStr){
-  if(!selPerson||!isAdmin)return;
-  var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===selPerson;});
-  if(existing){
-    /* 既存→削除 */
-    snapshot();
-    shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==selPerson;});
-    if(!shifts[dateStr].length)delete shifts[dateStr];
-    dbDel(dateStr,selPerson);saveShifts();
-    showSb('削除','ok');renderPersonView();
-    return;
-  }
-  /* 空→医院選択パネル表示 */
-  personEditDate=dateStr;
-  renderPersonView();
-}
-function personAssign(cid){
-  if(!personEditDate||!selPerson)return;
-  var realCid=cid==='__kibokyu__'?'yasumi':cid;
-  var restIds3=['yasumi','yukyu','daikyu','daishutsu','kyushutsu'];
-  if(restIds3.indexOf(realCid)<0&&isClosed(personEditDate,realCid)){showSb(cname(realCid)+'は休診日','e');return;}
-  snapshot();
-  if(!shifts[personEditDate])shifts[personEditDate]=[];
-  var idx=shifts[personEditDate].findIndex(function(s){return s.docId===selPerson;});
-  var memo=cid==='__kibokyu__'?'希望':'';
-  var entry={docId:selPerson,clinicId:realCid,memo:memo};
-  if(idx>=0)shifts[personEditDate][idx]=entry;else shifts[personEditDate].push(entry);
-  dbSave(personEditDate,selPerson,realCid,memo);saveShifts();
-  personEditDate=null;
-  showSb('✓','ok');renderPersonView();
-}
-
-/* ======= Tab 2: 個人ビュー ======= */
+/* Tab 2: 個人ビュー */
 var selPerson=null;
 function renderPersonView(){
   var bar=document.getElementById('personSelBar');
-  bar.innerHTML=doctors.map(function(doc){
-    var on=selPerson===doc.id;
-    return '<button class="person-sel'+(on?' on':'')+'" onclick="selPerson=\''+doc.id+'\';renderPersonView();">'+doc.n+'</button>';
-  }).join('');
+  bar.innerHTML=doctors.map(function(doc){return '<button class="person-sel'+(selPerson===doc.id?' on':'')+'" onclick="selPerson=\''+doc.id+'\';renderPersonView();">'+doc.n+'</button>';}).join('');
   if(!selPerson){document.getElementById('personView').innerHTML='<p style="color:#999;text-align:center;padding:40px;">ドクターを選んでください</p>';return;}
   var doc=doctors.find(function(d){return d.id===selPerson;});
-  var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'];
-  var firstDow=new Date(curY,curM,1).getDay();
-  var workDays=0,restIds=new Set(['yasumi','yukyu','daikyu']);
-  /* カウント */
-  for(var d=1;d<=days;d++){
-    var sh=(shifts[ds(curY,curM,d)]||[]).find(function(s){return s.docId===selPerson;});
-    if(sh&&!restIds.has(sh.clinicId))workDays++;
-  }
+  var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'],firstDow=new Date(curY,curM,1).getDay();
+  var restIds=new Set(['yasumi','yukyu','daikyu']);var workDays=0;
+  for(var d=1;d<=days;d++){var sh=(shifts[ds(curY,curM,d)]||[]).find(function(s){return s.docId===selPerson;});if(sh&&!restIds.has(sh.clinicId))workDays++;}
   var h='<h3 style="font-size:18px;font-weight:800;margin-bottom:4px;">'+doc.n+'｜'+(curM+1)+'月</h3>';
   h+='<p style="font-size:12px;color:#666;margin-bottom:10px;">出勤 <b style="color:#2e7d32;font-size:16px;">'+workDays+'</b> 日</p>';
-  /* 曜日ヘッダー */
   h+='<div class="pcal">';
   DOW.forEach(function(d,i){h+='<div style="text-align:center;font-size:10px;font-weight:700;padding:4px;color:'+(i===0?'#e05252':i===6?'#4a7fd4':'#999')+';">'+d+'</div>';});
   for(var i=0;i<firstDow;i++)h+='<div></div>';
   for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    var w=new Date(curY,curM,d).getDay();
-    var isH=HOL.has(dateStr);
+    var dateStr=ds(curY,curM,d),w=new Date(curY,curM,d).getDay(),isH=HOL.has(dateStr);
     var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===selPerson;});
     var cls=w===0||isH?'sun':w===6?'sat':'';
-    var isEditing=personEditDate===dateStr;
-    var pClick=isAdmin&&!isEditing?'onclick="personCellClick(\''+dateStr+'\')"':'';
-    var editBorder=isEditing?'border:2px solid #e65100;':'';
-    h+='<div class="pcal-cell '+cls+'" style="'+(isAdmin?'cursor:pointer;':'')+editBorder+'" '+pClick+'>';
-    h+='<div style="font-weight:800;font-size:14px;color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">'+d+(isH?' <span class="hol-badge" style="font-size:8px;padding:1px 4px;">祝</span>':'')+'</div>';
-    if(sh){
-      var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
-      var col=isKibo?{c:'#7b2d8b',b:'#f3e5f5'}:getCC(sh.clinicId);
-      var lbl=isKibo?'希望休':shiftLabel(sh);
-      h+='<div style="background:'+col.c+';color:#fff;border-radius:6px;padding:4px 6px;font-size:13px;font-weight:700;text-align:center;margin-top:3px;">'+lbl+'</div>';
-      /* 同僚表示 */
-      if(!restIds.has(sh.clinicId)){
-        var mates=(shifts[dateStr]||[]).filter(function(s){return s.docId!==selPerson&&s.clinicId===sh.clinicId;});
-        if(mates.length){
-          h+='<div style="margin-top:2px;">';
-          mates.forEach(function(m){
-            var md=doctors.find(function(dd){return dd.id===m.docId;});
-            h+='<div style="font-size:12px;color:'+col.c+';font-weight:600;line-height:1.5;">'+(md?md.n:'')+'</div>';
-          });
-          h+='</div>';
-        }
-      }
-    }
-    if(isEditing){
-      h+='<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;">';
-      CLINICS.forEach(function(c){var cc=getCC(c.id);h+='<span onclick="event.stopPropagation();personAssign(\''+c.id+'\')" style="background:'+cc.c+';color:#fff;padding:1px 4px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;">'+c.n+'</span>';});
-      h+='<span onclick="event.stopPropagation();personAssign(\'yasumi\')" style="background:#999;color:#fff;padding:1px 4px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;">休</span>';
-      h+='<span onclick="event.stopPropagation();personAssign(\'yukyu\')" style="background:#e53935;color:#fff;padding:1px 4px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;">有給</span>';
-      h+='<span onclick="event.stopPropagation();personAssign(\'__kibokyu__\')" style="background:#7b2d8b;color:#fff;padding:1px 4px;border-radius:4px;font-size:8px;font-weight:700;cursor:pointer;">希望休</span>';
-      h+='<span onclick="event.stopPropagation();personEditDate=null;renderPersonView();" style="background:#eee;color:#333;padding:1px 4px;border-radius:4px;font-size:8px;cursor:pointer;">✕</span>';
-      h+='</div>';
-    }
-    h+='</div>';
-  }
+    h+='<div class="pcal-cell '+cls+'">';
+    h+='<div style="font-weight:800;font-size:14px;color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">'+d+(isH?' <span class="hol-badge" style="font-size:8px;">祝</span>':'')+'</div>';
+    if(sh){var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';var col=isKibo?{c:'#7b2d8b',b:'#f3e5f5'}:getCC(sh.clinicId);
+      h+='<div style="background:'+col.c+';color:#fff;border-radius:6px;padding:4px 6px;font-size:13px;font-weight:700;text-align:center;margin-top:3px;">'+(isKibo?'希望休':shiftLabel(sh))+'</div>';
+      if(!restIds.has(sh.clinicId)){var mates=(shifts[dateStr]||[]).filter(function(s){return s.docId!==selPerson&&s.clinicId===sh.clinicId;});
+        if(mates.length){h+='<div style="margin-top:2px;">';mates.forEach(function(m){var md=doctors.find(function(dd){return dd.id===m.docId;});h+='<div style="font-size:12px;color:'+col.c+';font-weight:600;line-height:1.5;">'+(md?md.n:'')+'</div>';});h+='</div>';}}}
+    h+='</div>';}
   h+='</div>';
   document.getElementById('personView').innerHTML=h;
 }
 
-/* ======= Tab 3: シフト希望申請 ======= */
+/* Tab 3: シフト希望 */
 var reqDocId=null,reqSelDates=new Set(),reqType='yasumi',reqClinicId=null;
 function renderReqView(){
   var bar=document.getElementById('reqDocBar');
-  bar.innerHTML=doctors.map(function(doc){
-    var on=reqDocId===doc.id;
-    return '<button class="person-sel'+(on?' on':'')+'" onclick="reqDocId=\''+doc.id+'\';reqSelDates.clear();renderReqView();">'+doc.n+'</button>';
-  }).join('');
+  bar.innerHTML=doctors.map(function(doc){return '<button class="person-sel'+(reqDocId===doc.id?' on':'')+'" onclick="reqDocId=\''+doc.id+'\';reqSelDates.clear();renderReqView();">'+doc.n+'</button>';}).join('');
   if(!reqDocId){document.getElementById('reqView').innerHTML='<p style="color:#999;text-align:center;padding:40px;">名前を選んでください</p>';return;}
   var doc=doctors.find(function(d){return d.id===reqDocId;});
-  var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'];
-  var firstDow=new Date(curY,curM,1).getDay();
+  var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'],firstDow=new Date(curY,curM,1).getDay();
   var h='<h3 style="font-size:15px;font-weight:800;margin-bottom:8px;">'+doc.n+'｜'+(curM+1)+'月 シフト希望</h3>';
-  /* 種類選択 */
   h+='<div style="margin-bottom:10px;">';
   [{id:'yasumi',n:'休み希望',col:'#999'},{id:'yukyu',n:'有給',col:'#e53935'},{id:'daishutsu',n:'代出',col:'#555'},{id:'houmon1',n:'訪1',col:'#2c6e8a'},{id:'houmon2',n:'訪2',col:'#4a9bb5'},{id:'kibou_shutskin',n:'出勤希望',col:'#2e7d32'},{id:'kibou_clinic',n:'希望医院',col:'#1a5276'}].forEach(function(t){
-    h+='<button class="req-type'+(reqType===t.id?' on':'')+'" onclick="reqType=\''+t.id+'\';renderReqView();" style="'+(reqType===t.id?'border-color:'+t.col+';background:'+t.col:'')+'">'+t.n+'</button>';
-  });
+    h+='<button class="req-type'+(reqType===t.id?' on':'')+'" onclick="reqType=\''+t.id+'\';renderReqView();" style="'+(reqType===t.id?'border-color:'+t.col+';background:'+t.col:'')+'">'+t.n+'</button>';});
   h+='</div>';
-  /* 医院選択（希望医院モード） */
-  if(reqType==='kibou_clinic'){
-    h+='<div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:4px;">';
-    CLINICS.forEach(function(c){
-      var col=getCC(c.id),on=reqClinicId===c.id;
-      h+='<button onclick="reqClinicId=\''+c.id+'\';renderReqView();" style="padding:5px 10px;border-radius:10px;border:2px solid '+(on?col.c:'#ddd')+';background:'+(on?col.c:'#fff')+';color:'+(on?'#fff':col.c)+';font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">'+c.n+'</button>';
-    });
-    h+='</div>';
-  }
-  /* カレンダー */
+  if(reqType==='kibou_clinic'){h+='<div style="margin-bottom:10px;display:flex;flex-wrap:wrap;gap:4px;">';CLINICS.forEach(function(c){var col=getCC(c.id),on=reqClinicId===c.id;h+='<button onclick="reqClinicId=\''+c.id+'\';renderReqView();" style="padding:5px 10px;border-radius:10px;border:2px solid '+(on?col.c:'#ddd')+';background:'+(on?col.c:'#fff')+';color:'+(on?'#fff':col.c)+';font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">'+c.n+'</button>';});h+='</div>';}
   h+='<div class="req-cal">';
   DOW.forEach(function(d,i){h+='<div style="text-align:center;font-size:10px;font-weight:700;padding:4px;color:'+(i===0?'#e05252':i===6?'#4a7fd4':'#999')+';">'+d+'</div>';});
   for(var i=0;i<firstDow;i++)h+='<div></div>';
   for(var d=1;d<=days;d++){
-    var dateStr=ds(curY,curM,d);
-    var w=new Date(curY,curM,d).getDay();
-    var isH=HOL.has(dateStr);
-    var sel=reqSelDates.has(dateStr);
+    var dateStr=ds(curY,curM,d),w=new Date(curY,curM,d).getDay(),isH=HOL.has(dateStr),sel=reqSelDates.has(dateStr);
     var existing=(shifts[dateStr]||[]).find(function(s){return s.docId===reqDocId;});
-    var exLbl=existing?shiftLabel(existing):'';
-    /* 休診医院を集める */
     var closedClinics=CLINICS.filter(function(c){return isClosed(dateStr,c.id);});
     var cellBg=sel?'#f3e5f5':isH?'#fff0f0':w===0?'#fff5f5':w===6?'#f0f5ff':'#fff';
     h+='<div class="req-cell'+(sel?' sel':'')+'" onclick="toggleReqDate(\''+dateStr+'\')" style="background:'+cellBg+';color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">';
     h+='<div style="font-weight:700;">'+d+(isH?' <span class="hol-badge">祝</span>':'')+'</div>';
-    if(closedClinics.length&&closedClinics.length<CLINICS.length){
-      h+='<div style="font-size:7px;color:#999;line-height:1.3;margin-top:1px;">休:'+closedClinics.map(function(c){return c.n;}).join(',')+'</div>';
-    } else if(closedClinics.length>=CLINICS.length){
-      h+='<div style="font-size:7px;color:#bbb;">全休</div>';
-    }
-    if(exLbl)h+='<div style="font-size:8px;color:#7b2d8b;font-weight:600;">現:'+exLbl+'</div>';
+    if(closedClinics.length&&closedClinics.length<CLINICS.length)h+='<div style="font-size:7px;color:#999;line-height:1.3;">休:'+closedClinics.map(function(c){return c.n;}).join(',')+'</div>';
+    if(existing)h+='<div style="font-size:8px;color:#7b2d8b;font-weight:600;">現:'+shiftLabel(existing)+'</div>';
     if(sel)h+='<div style="font-size:9px;color:#7b2d8b;font-weight:800;">✓</div>';
-    h+='</div>';
-  }
-  h+='</div>';
-  /* 送信ボタン */
-  h+='<div style="margin-top:12px;text-align:center;">';
-  h+='<button onclick="submitReq()" style="padding:10px 30px;border:none;background:#7b2d8b;color:#fff;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">'+reqSelDates.size+'日分を申請する</button>';
-  h+='</div>';
-  /* 申請履歴一覧 */
-  var days2=dim(curY,curM),DOW2=['日','月','火','水','木','金','土'];
-  var reqs=[];
-  for(var d2=1;d2<=days2;d2++){
-    var ds2=ds(curY,curM,d2);
-    var ex=(shifts[ds2]||[]).find(function(s){return s.docId===reqDocId;});
-    if(ex)reqs.push({d:d2,ds:ds2,w:new Date(curY,curM,d2).getDay(),sh:ex});
-  }
-  if(reqs.length){
-    h+='<div style="margin-top:16px;border-top:2px solid #eee;padding-top:12px;">';
-    h+='<h4 style="font-size:13px;font-weight:700;margin-bottom:8px;">現在の登録状況</h4>';
-    h+='<table style="border-collapse:collapse;width:100%;font-size:12px;"><tbody>';
-    reqs.forEach(function(r){
-      var isKibo=r.sh.clinicId==='yasumi'&&r.sh.memo==='希望';
-      var bgCol,txtCol='#fff';
-      if(isKibo){bgCol='#7b2d8b';}
-      else if(r.sh.clinicId==='yasumi'){bgCol='#999';}
-      else if(r.sh.clinicId==='yukyu'){bgCol='#e53935';}
-      else if(r.sh.clinicId==='daikyu'){bgCol='#1a5276';}
-      else if(r.sh.clinicId==='daishutsu'){bgCol='#555';}
-      else{bgCol=getCC(r.sh.clinicId).c;}
-      var lbl=shiftLabel(r.sh);
-      h+='<tr style="border-bottom:1px solid #eee;">';
-      h+='<td style="padding:4px 8px;font-weight:700;color:'+(r.w===0?'#e05252':r.w===6?'#4a7fd4':'#333')+';width:70px;">'+r.d+'('+DOW2[r.w]+')</td>';
-      h+='<td style="padding:4px 8px;"><span style="background:'+bgCol+';color:'+txtCol+';padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;">'+lbl+'</span></td>';
-      h+='<td style="padding:4px;width:40px;"><button onclick="cancelReq(\''+r.ds+'\',\''+reqDocId+'\')" style="border:none;background:#fdf0ee;color:#b83030;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;">取消</button></td>';
-      h+='</tr>';
-    });
-    h+='</tbody></table></div>';
-  }
+    h+='</div>';}
+  h+='</div><div style="margin-top:12px;text-align:center;"><button onclick="submitReq()" style="padding:10px 30px;border:none;background:#7b2d8b;color:#fff;border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">'+reqSelDates.size+'日分を申請する</button></div>';
+  /* 登録状況 */
+  var reqs=[],DOW2=['日','月','火','水','木','金','土'];
+  for(var d2=1;d2<=days;d2++){var ds2=ds(curY,curM,d2);var ex=(shifts[ds2]||[]).find(function(s){return s.docId===reqDocId;});if(ex)reqs.push({d:d2,ds:ds2,w:new Date(curY,curM,d2).getDay(),sh:ex});}
+  if(reqs.length){h+='<div style="margin-top:16px;border-top:2px solid #eee;padding-top:12px;"><h4 style="font-size:13px;font-weight:700;margin-bottom:8px;">現在の登録状況</h4><table style="border-collapse:collapse;width:100%;font-size:12px;"><tbody>';
+    reqs.forEach(function(r){var isKibo=r.sh.clinicId==='yasumi'&&r.sh.memo==='希望';var bgCol=isKibo?'#7b2d8b':r.sh.clinicId==='yasumi'?'#999':r.sh.clinicId==='yukyu'?'#e53935':getCC(r.sh.clinicId).c;
+      h+='<tr style="border-bottom:1px solid #eee;"><td style="padding:4px 8px;font-weight:700;color:'+(r.w===0?'#e05252':r.w===6?'#4a7fd4':'#333')+';width:70px;">'+r.d+'('+DOW2[r.w]+')</td><td style="padding:4px 8px;"><span style="background:'+bgCol+';color:#fff;padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;">'+shiftLabel(r.sh)+'</span></td></tr>';});
+    h+='</tbody></table></div>';}
   document.getElementById('reqView').innerHTML=h;
-}
-function cancelReq(dateStr,docId){
-  snapshot();
-  if(shifts[dateStr]){
-    shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
-    if(!shifts[dateStr].length)delete shifts[dateStr];
-  }
-  dbDel(dateStr,docId);saveShifts();
-  showSb('取り消しました','ok');
-  renderReqView();
 }
 function toggleReqDate(dateStr){reqSelDates.has(dateStr)?reqSelDates.delete(dateStr):reqSelDates.add(dateStr);renderReqView();}
 function submitReq(){
   if(!reqDocId||!reqSelDates.size)return;
-  snapshot();
+  var doc=doctors.find(function(d){return d.id===reqDocId;});
+  var reqs=[];
   reqSelDates.forEach(function(dateStr){
+    var cid,memo='',typeName='';
+    if(reqType==='yasumi'){cid='yasumi';memo='希望';typeName='希望休';}
+    else if(reqType==='yukyu'){cid='yukyu';typeName='有給';}
+    else if(reqType==='daishutsu'){cid='daishutsu';typeName='代出';}
+    else if(reqType==='houmon1'){cid='houmon1';typeName='訪1';}
+    else if(reqType==='houmon2'){cid='houmon2';typeName='訪2';}
+    else if(reqType==='kibou_shutskin'){cid='kibou_shutskin';typeName='出勤希望';}
+    else if(reqType==='kibou_clinic'){cid=reqClinicId||'yasumi';typeName=cname(cid);}
     if(!shifts[dateStr])shifts[dateStr]=[];
     var idx=shifts[dateStr].findIndex(function(s){return s.docId===reqDocId;});
-    var cid,memo='';
-    if(reqType==='yasumi'){cid='yasumi';memo='希望';}
-    else if(reqType==='yukyu'){cid='yukyu';}
-    else if(reqType==='daishutsu'){cid='daishutsu';memo='';}
-    else if(reqType==='houmon1'){cid='houmon1';memo='';}
-    else if(reqType==='houmon2'){cid='houmon2';memo='';}
-    else if(reqType==='kibou_shutskin'){cid='kibou_shutskin';memo='希望出勤';}
-    else if(reqType==='kibou_clinic'){cid=reqClinicId||'yasumi';memo='希望医院';}
     var entry={docId:reqDocId,clinicId:cid,memo:memo};
     if(idx>=0)shifts[dateStr][idx]=entry;else shifts[dateStr].push(entry);
-    dbSave(dateStr,reqDocId,cid,memo);
+    reqs.push({docName:doc.n,date:dateStr,type:typeName});
   });
-  reqSelDates.clear();
-  saveShifts();
-  showSb('シフト希望を申請しました','ok');
-  renderReqView();
-}
-
-/* ======= Tab 6: 設定 ======= */
-function renderSettings(){
-  var h='<h3 style="font-size:16px;font-weight:800;margin-bottom:12px;">設定</h3>';
-  /* ドクター管理 */
-  h+='<div style="margin-bottom:20px;">';
-  h+='<h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">ドクター一覧（'+doctors.length+'名）</h4>';
-  h+='<table style="border-collapse:collapse;width:100%;max-width:600px;font-size:12px;"><thead><tr><th style="text-align:left;padding:4px 8px;border-bottom:2px solid #ddd;">名前</th><th style="padding:4px 8px;border-bottom:2px solid #ddd;">院長</th><th style="padding:4px 8px;border-bottom:2px solid #ddd;width:60px;">操作</th></tr></thead><tbody>';
-  doctors.forEach(function(doc,i){
-    var dirName=doc.dir?cname(doc.dir):'';
-    h+='<tr style="border-bottom:1px solid #eee;">';
-    h+='<td style="padding:4px 8px;font-weight:600;">'+doc.n+'</td>';
-    h+='<td style="padding:4px 8px;text-align:center;color:#666;">'+(dirName||'-')+'</td>';
-    h+='<td style="padding:4px 8px;text-align:center;"><button onclick="removeDoctor('+i+')" style="border:none;background:#fdf0ee;color:#b83030;padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;">削除</button></td>';
-    h+='</tr>';
-  });
-  h+='</tbody></table>';
-  h+='<div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">';
-  h+='<input id="newDocName" placeholder="名前" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;width:100px;">';
-  h+='<select id="newDocDir" style="padding:6px;border:1px solid #ddd;border-radius:8px;font-size:11px;"><option value="">院長でない</option>';
-  CLINICS.forEach(function(c){h+='<option value="'+c.id+'">'+c.n+'院長</option>';});
-  h+='</select>';
-  h+='<button onclick="addDoctor()" style="padding:6px 14px;border:none;background:#2e7d32;color:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">追加</button>';
-  h+='</div></div>';
-  /* 医院管理 */
-  h+='<div style="margin-bottom:20px;">';
-  h+='<h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">医院一覧（'+CLINICS.length+'院）</h4>';
-  h+='<table style="border-collapse:collapse;width:100%;max-width:600px;font-size:12px;"><thead><tr><th style="text-align:left;padding:4px 8px;border-bottom:2px solid #ddd;">名前</th><th style="padding:4px 8px;border-bottom:2px solid #ddd;">ID</th><th style="padding:4px 8px;border-bottom:2px solid #ddd;width:60px;">操作</th></tr></thead><tbody>';
-  CLINICS.forEach(function(cl,i){
-    var col=getCC(cl.id);
-    h+='<tr style="border-bottom:1px solid #eee;">';
-    h+='<td style="padding:4px 8px;font-weight:700;color:'+col.c+';">'+cl.n+'</td>';
-    h+='<td style="padding:4px 8px;color:#999;font-size:10px;">'+cl.id+'</td>';
-    h+='<td style="padding:4px 8px;text-align:center;"><button onclick="removeClinic('+i+')" style="border:none;background:#fdf0ee;color:#b83030;padding:2px 8px;border-radius:4px;font-size:10px;cursor:pointer;">削除</button></td>';
-    h+='</tr>';
-  });
-  h+='</tbody></table>';
-  h+='<div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">';
-  h+='<input id="newClinicName" placeholder="医院名" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;width:100px;">';
-  h+='<input id="newClinicId" placeholder="ID（英字）" style="padding:6px 10px;border:1px solid #ddd;border-radius:8px;font-size:12px;width:100px;">';
-  h+='<input id="newClinicColor" type="color" value="#666666" style="width:36px;height:32px;border:1px solid #ddd;border-radius:8px;">';
-  h+='<button onclick="addClinic()" style="padding:6px 14px;border:none;background:#2e7d32;color:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">追加</button>';
-  h+='</div></div>';
-  document.getElementById('settingsView').innerHTML=h;
-}
-function addDoctor(){
-  var name=document.getElementById('newDocName').value.trim();
-  if(!name){showSb('名前を入力','e');return;}
-  var dir=document.getElementById('newDocDir').value;
-  var id='d'+(Date.now()%100000);
-  var doc={id:id,n:name};
-  if(dir)doc.dir=dir;
-  doctors.push(doc);
-  saveAllSettingsToDB();saveCustomLists();
-  showSb(name+'を追加','ok');renderSettings();
-}
-function removeDoctor(i){
-  if(!confirm(doctors[i].n+'を削除しますか？'))return;
-  doctors.splice(i,1);
-  saveAllSettingsToDB();saveCustomLists();
-  showSb('削除しました','ok');renderSettings();
-}
-function addClinic(){
-  var name=document.getElementById('newClinicName').value.trim();
-  var id=document.getElementById('newClinicId').value.trim().toLowerCase();
-  var color=document.getElementById('newClinicColor').value;
-  if(!name||!id){showSb('名前とIDを入力','e');return;}
-  if(CLINICS.find(function(c){return c.id===id;})){showSb('このIDは既に存在します','e');return;}
-  CLINICS.push({id:id,n:name});
-  ALL=CLINICS.concat(STATUSES);
-  /* 動的にCSS追加 */
-  var style=document.createElement('style');
-  style.textContent='.cc-'+id+'{--cc:'+color+';--cb:'+color+'20;}';
-  document.head.appendChild(style);
-  _ccCache={};
-  saveAllSettingsToDB();saveCustomLists();
-  showSb(name+'を追加','ok');renderSettings();
-}
-function removeClinic(i){
-  if(!confirm(CLINICS[i].n+'を削除しますか？'))return;
-  CLINICS.splice(i,1);ALL=CLINICS.concat(STATUSES);
-  saveAllSettingsToDB();saveCustomLists();
-  showSb('削除しました','ok');renderSettings();
-}
-function saveCustomLists(){
-  var data={doctors:doctors,clinics:CLINICS};
-  try{localStorage.setItem('seishokai_lists_v2',JSON.stringify(data));}catch(e){}
-}
-function loadCustomLists(){
-  try{
-    var s=localStorage.getItem('seishokai_lists_v2');
-    if(s){
-      var data=JSON.parse(s);
-      if(data.doctors&&data.doctors.length)doctors=data.doctors;
-      if(data.clinics&&data.clinics.length){CLINICS=data.clinics;ALL=CLINICS.concat(STATUSES);}
-    }
-  }catch(e){}
-}
-
-/* ======= 削除モード対応 ======= */
-var origCellClick=cellClick;
-cellClick=function(dateStr,docId){
-  if(paintClinic==='__del__'){
-    snapshot();
-    if(shifts[dateStr]){
-      shifts[dateStr]=shifts[dateStr].filter(function(s){return s.docId!==docId;});
-      if(!shifts[dateStr].length)delete shifts[dateStr];
-    }
-    dbDel(dateStr,docId);
-    renderShifts();renderClinicSide();
-    return;
-  }
-  origCellClick(dateStr,docId);
-};
-
-/* ======= 初期化 ======= */
-loadCustomLists();
-updateMonthLbl();
-loadUndoStack();
-loadData().then(function(){renderTab();});
-window.addEventListener('beforeunload',function(){saveShifts();saveClosed();});
-
-/* ======= Googleスプレッドシート同期 ======= */
-function syncToSheet(){
-  if(!GAS_URL)return;
-  _syncState='syncing';updateSyncBtn();
-  showSb('スプレッドシート同期中...','');
-  var entries=[];
-  Object.keys(shifts).forEach(function(dateStr){
-    if(dateStr.indexOf('__')===0)return;
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(dateStr))return;
-    var y=parseInt(dateStr.split('-')[0]);
-    if(y<2025||y>2030)return;
-    var parts=dateStr.split('-');
-    var month=parts[0]+'-'+parts[1];
-    var day=parseInt(parts[2]);
-    shifts[dateStr].forEach(function(s){
-      var doc=doctors.find(function(d){return d.id===s.docId;});
-      if(!doc)return;
-      var clinicName=shiftLabel(s);
-      entries.push({month:month,docName:doc.n,day:day,value:clinicName});
-    });
-  });
-  /* シフト同期（ドクター順を保持） */
-  var docOrder=doctors.map(function(d){return d.n;});
-  var p1=fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({action:'writeBulk',entries:entries,docOrder:docOrder})
-  });
-  /* 休診日同期 */
-  var p2=fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
-    body:JSON.stringify({action:'writeClosed',closedData:CLOSED_DATES})
-  });
-  /* シフト希望同期 */
-  var reqs=[];
-  var restIds5=['yasumi','yukyu','daikyu'];
-  Object.keys(shifts).forEach(function(dateStr){
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(dateStr))return;
-    (shifts[dateStr]||[]).forEach(function(s){
-      if(s.memo==='希望'||restIds5.indexOf(s.clinicId)>=0||s.clinicId==='kibou_shutskin'){
-        var doc=doctors.find(function(d){return d.id===s.docId;});
-        if(doc)reqs.push({docName:doc.n,date:dateStr,type:shiftLabel(s)});
-      }
-    });
-  });
-  var p3=fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+  try{localStorage.setItem('seishokai_shifts_v2',JSON.stringify(shifts));}catch(e){}
+  /* GASに送信 */
+  fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
     body:JSON.stringify({action:'writeRequests',requests:reqs})
-  });
-  Promise.all([p1,p2,p3]).then(function(){
-    _syncState='synced';_syncedOnce=true;_dataChangedSinceSync=false;updateSyncBtn();
-    showSb('同期完了 ('+entries.length+'件)','ok');
-  }).catch(function(){
-    _syncState='error';updateSyncBtn();
-    showSb('同期エラー','e');
-  });
-}
-function loadFromSheet(month){
-  if(!GAS_URL)return Promise.resolve();
-  return fetch(GAS_URL+'?action=read&month='+month,{mode:'cors'})
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(data&&data.shifts){
-      Object.keys(data.shifts).forEach(function(dateStr){
-        data.shifts[dateStr].forEach(function(entry){
-          var doc=doctors.find(function(d){return d.n===entry.docName;});
-          if(!doc)return;
-          var cl=ALL.find(function(a){return a.n===entry.clinic;});
-          var cid=cl?cl.id:entry.clinic;
-          if(!shifts[dateStr])shifts[dateStr]=[];
-          var idx=shifts[dateStr].findIndex(function(s){return s.docId===doc.id;});
-          var e={docId:doc.id,clinicId:cid,memo:''};
-          if(idx>=0)shifts[dateStr][idx]=e;else shifts[dateStr].push(e);
-        });
-      });
-      saveShifts();
-    }
-  }).catch(function(e){console.warn('GAS load error:',e);});
+  }).then(function(){showSb('シフト希望を申請しました','ok');}).catch(function(){showSb('申請エラー','e');});
+  reqSelDates.clear();renderReqView();
 }
 
-/* 自動同期: 30秒ごとに変更があればスプレッドシートに同期 */
-var _lastSheetSyncHash='';
-var _sheetSyncPending=false;
-function autoSyncToSheet(){
-  var hash=JSON.stringify(shifts).length+'_'+Object.keys(shifts).length;
-  if(hash===_lastSheetSyncHash)return;
-  if(_sheetSyncPending)return;
-  _sheetSyncPending=true;
-  _lastSheetSyncHash=hash;
-  syncToSheet();
-  setTimeout(function(){_sheetSyncPending=false;},10000);
+/* Tab 4: 休診日 */
+function renderClosed(){
+  var days=dim(curY,curM),DOW=['日','月','火','水','木','金','土'];
+  var h='<thead><tr><th class="fix-left" style="z-index:12;min-width:54px;">日付</th>';
+  CLINICS.forEach(function(c){var col=getCC(c.id);h+='<th style="padding:4px 6px;font-size:10px;font-weight:700;color:'+col.c+';min-width:44px;">'+c.n+'</th>';});
+  h+='<th style="min-width:54px;">日付</th></tr></thead><tbody>';
+  for(var d=1;d<=days;d++){var dateStr=ds(curY,curM,d),w=new Date(curY,curM,d).getDay(),isH=HOL.has(dateStr);
+    var rowBg=isH?'#fff0f0':w===0?'#fff5f5':w===6?'#f0f5ff':'#fff',numCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333';
+    h+='<tr style="background:'+rowBg+'"><td class="fix-left-body" style="background:'+rowBg+';padding:4px 6px;font-weight:700;font-size:12px;color:'+numCol+';white-space:nowrap;border-right:2px solid #bbb;">'+d+'<span style="font-size:10px;margin-left:2px;">'+DOW[w]+'</span>'+(isH?'<span class="hol-badge">祝</span>':'')+'</td>';
+    CLINICS.forEach(function(c){var closed=isClosed(dateStr,c.id),col=getCC(c.id);h+='<td class="closed-cell" style="background:'+(closed?col.c:'transparent')+';color:'+(closed?'#fff':'')+';">'+(closed?'休':'')+'</td>';});
+    h+='<td style="padding:4px 6px;font-weight:700;font-size:12px;color:'+numCol+';white-space:nowrap;">'+d+'<span style="font-size:10px;margin-left:2px;">'+DOW[w]+'</span></td></tr>';}
+  h+='</tbody>';document.getElementById('closedTable').innerHTML=h;
 }
-/* 自動同期は無効化（保存ボタンで手動同期のみ） */
-/* setInterval(autoSyncToSheet,30000); */
 
-/* ======= リアルタイム同期（15秒ごと） ======= */
-var _lastSyncHash='';
-var _lastEditTs=0; /* 最後のローカル編集タイムスタンプ */
-function syncFromDB(){
-  if(Object.keys(_pendingDeletes).length>0||Object.keys(_pendingSaves).length>0||_saveQueue.length>0)return; /* 保存/削除処理中またはキュー未消化はスキップ */
-  /* 最後の編集から5秒以内は同期しない（未送信の変更を保護） */
-  if(Date.now()-_lastEditTs<5000)return;
-  fetch(SB_URL+'/rest/v1/shifts?select=*&limit=10000',{headers:Object.assign({},SB_H)})
-  .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
-  .then(function(rows){
-    if(!rows)return;
-    /* システム行を除外 */
-    rows=rows.filter(function(row){return row.date_str.indexOf('__')!==0&&row.doc_id.indexOf('__')!==0;});
-    /* 再度チェック: fetch中に編集が入った場合は適用しない */
-    if(Object.keys(_pendingSaves).length>0||Object.keys(_pendingDeletes).length>0||_saveQueue.length>0)return;
-    if(Date.now()-_lastEditTs<5000)return;
-    /* 改善されたハッシュ: 全行の内容を確実に含む */
-    var hashParts=[];
-    rows.forEach(function(row){hashParts.push(row.date_str+'|'+row.doc_id+'|'+row.clinic_id+'|'+(row.memo||''));});
-    hashParts.sort();
-    var hash=hashParts.join(';');
-    if(hash===_lastSyncHash)return; /* 変更なし */
-    _lastSyncHash=hash;
-    /* Supabaseデータをshiftsにマージ（Supabaseが優先） */
-    var changed=false;
-    /* Supabaseに存在するエントリのセットを作る */
-    var dbEntries={};
-    rows.forEach(function(row){
-      dbEntries[row.date_str+'_'+row.doc_id]=true;
-      if(!shifts[row.date_str])shifts[row.date_str]=[];
-      var idx=shifts[row.date_str].findIndex(function(s){return s.docId===row.doc_id;});
-      var entry={docId:row.doc_id,clinicId:row.clinic_id,memo:row.memo||''};
-      if(idx>=0){
-        if(shifts[row.date_str][idx].clinicId!==entry.clinicId||shifts[row.date_str][idx].memo!==entry.memo){
-          shifts[row.date_str][idx]=entry;changed=true;
-        }
-      } else {
-        shifts[row.date_str].push(entry);changed=true;
-      }
-    });
-    /* SAFETY: ローカルデータは削除しない。Supabaseからは追加・更新のみ行う */
-    /* ローカルにあってSupabaseに無いエントリはそのまま保持する */
-    if(changed){
-      saveShifts();
-      renderTab();
-      showSb('他の管理者の変更を同期','ok');
-    }
-  }).catch(function(){});
+/* Tab 5: 集計 */
+function renderSummary(){
+  var days=dim(curY,curM),restIds=new Set(['yasumi','yukyu','daikyu']);
+  var h='<h3 style="font-size:14px;font-weight:700;margin-bottom:8px;">ドクター別出勤日数（'+(curM+1)+'月）</h3>';
+  h+='<table class="sum-tbl"><thead><tr><th>ドクター</th><th>出勤</th><th>休み</th><th>有給</th><th>希望休</th></tr></thead><tbody>';
+  doctors.forEach(function(doc){var work=0,off=0,yuk=0,kibo=0;
+    for(var d=1;d<=days;d++){var sh=(shifts[ds(curY,curM,d)]||[]).find(function(s){return s.docId===doc.id;});
+      if(sh){if(sh.clinicId==='yukyu')yuk++;else if(sh.clinicId==='yasumi'&&sh.memo==='希望')kibo++;else if(restIds.has(sh.clinicId))off++;else work++;}}
+    h+='<tr><td style="font-weight:700;">'+doc.n+'</td><td style="font-weight:700;color:#2e7d32;">'+work+'</td><td>'+off+'</td><td style="color:#e53935;">'+yuk+'</td><td style="color:#7b2d8b;">'+kibo+'</td></tr>';});
+  h+='</tbody></table>';
+  h+='<h3 style="font-size:14px;font-weight:700;margin:20px 0 8px;">医院別配置人数（'+(curM+1)+'月）</h3>';
+  h+='<table class="sum-tbl"><thead><tr><th>日付</th>';CLINICS.forEach(function(c){var col=getCC(c.id);h+='<th style="color:'+col.c+';">'+c.n+'</th>';});h+='</tr></thead><tbody>';
+  for(var d=1;d<=days;d++){var dateStr=ds(curY,curM,d),w=new Date(curY,curM,d).getDay(),DOW=['日','月','火','水','木','金','土'],isH=HOL.has(dateStr);
+    h+='<tr><td style="font-weight:700;color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'')+';">'+d+'('+DOW[w]+')'+(isH?' <span class="hol-badge">祝</span>':'')+'</td>';
+    CLINICS.forEach(function(c){var cnt=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===c.id;}).length,closed=isClosed(dateStr,c.id);
+      h+='<td style="background:'+(closed?'#f0f0ee':cnt?getCC(c.id).b:'')+';font-weight:'+(cnt?'700':'400')+';color:'+(closed?'#bbb':cnt?getCC(c.id).c:'#ccc')+';">'+(closed?'休':cnt||'')+'</td>';});
+    h+='</tr>';}h+='</tbody></table>';
+  document.getElementById('summaryView').innerHTML=h;
 }
-/* 最近DB操作したキーを30秒間保護 */
-var _recentDbKeys={};
-function _trackRecentKey(key){
-  _recentDbKeys[key]=Date.now();
-  setTimeout(function(){delete _recentDbKeys[key];},30000);
-}
-/* Supabase同期は無効化（スプレッドシートがバックアップ）*/
-/* setInterval(syncFromDB,15000); */
-/* setTimeout(syncFromDB,3000); */
+
+/* 初期化 */
+updateMonthLbl();loadClosed();loadCache();renderTab();
+/* 起動時にスプレッドシートから読込 */
+setTimeout(refreshFromSheet,500);
 </script>
 </body>
 </html>
