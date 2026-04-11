@@ -35,7 +35,7 @@ function onEdit(e) {
   if (['希望休','有給','代休'].indexOf(oldVal.toString().trim()) >= 0 && val !== oldVal) {
     range.setValue(oldVal);
     if (COLORS[oldVal]) range.setBackground(COLORS[oldVal]).setFontColor('#fff').setFontWeight('bold');
-    SpreadsheetApp.getActiveSpreadsheet().toast(oldVal + 'は保護中。先にDeleteで消してください', '⚠️', 3);
+    SpreadsheetApp.getActiveSpreadsheet().toast(oldVal + ' is protected. Delete first.', '⚠️', 3);
     return;
   }
   if (!val) { range.setBackground(null).setFontColor('#000').setFontWeight('normal'); return; }
@@ -62,71 +62,68 @@ function isClosedDay(cn, y, mn, d) {
   return closed;
 }
 
-/* ===== 横型月シート（行=ドクター、列=日付） ===== */
+/* ===== vertical month sheet (row=date, col=doctor) ===== */
 function createMonthSheet() {
   var ui = SpreadsheetApp.getUi();
-  var result = ui.prompt('月を入力（例: 2026-07）');
+  var result = ui.prompt('Enter month (e.g. 2026-07)');
   if (result.getSelectedButton() !== ui.Button.OK) return;
   var month = result.getResponseText().trim();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var year = parseInt(month.split('-')[0]), mon = parseInt(month.split('-')[1]);
-  var days = new Date(year, mon, 0).getDate();
-  var totalCols = days + 2;
+  var days = new Date(year, mon, 0).getDate(), totalCols = DOC_NAMES.length + 1;
   var sheet = ss.getSheetByName(month);
   if (!sheet) sheet = ss.insertSheet(month);
   sheet.clear();
-  var hdr = ['ドクター'];
-  for (var i = 1; i <= days; i++) hdr.push(i + '(' + DOW[new Date(year, mon-1, i).getDay()] + ')');
-  hdr.push('出勤数');
+  var hdr = ['日付']; DOC_NAMES.forEach(function(n) { hdr.push(n); });
   var allRows = [hdr];
-  DOC_NAMES.forEach(function(n) { var r = [n]; for (var d = 0; d < days + 1; d++) r.push(''); allRows.push(r); });
+  for (var d = 1; d <= days; d++) {
+    var row = [d + '(' + DOW[new Date(year, mon-1, d).getDay()] + ')'];
+    for (var c = 0; c < DOC_NAMES.length; c++) row.push('');
+    allRows.push(row);
+  }
   allRows.push(makeRow(totalCols));
   var cntIdx = allRows.length;
-  CLINIC_NAMES.forEach(function(cn) { var r = ['【'+cn+'】']; for (var d = 0; d < days + 1; d++) r.push(''); allRows.push(r); });
+  CLINIC_NAMES.forEach(function(cn) {
+    var row = ['【' + cn + '】'];
+    for (var c = 0; c < DOC_NAMES.length; c++) row.push('');
+    allRows.push(row);
+  });
   sheet.getRange(1, 1, allRows.length, totalCols).setValues(allRows);
-  var ds = 2, de = DOC_NAMES.length + 1;
-  for (var c = 0; c < days; c++) {
+  for (var c = 0; c < DOC_NAMES.length; c++) {
     var cl = getColLetter(c + 2);
-    for (var ci = 0; ci < CLINIC_NAMES.length; ci++) sheet.getRange(cntIdx + 1 + ci, c + 2).setFormula('=COUNTIF('+cl+ds+':'+cl+de+',"'+CLINIC_NAMES[ci]+'")');
-  }
-  var sc = getColLetter(2), ec = getColLetter(days + 1);
-  for (var r = 0; r < DOC_NAMES.length; r++) {
-    var rn = r + 2;
-    sheet.getRange(rn, days + 2).setFormula('=COUNTA('+sc+rn+':'+ec+rn+')-COUNTIF('+sc+rn+':'+ec+rn+',"休み")-COUNTIF('+sc+rn+':'+ec+rn+',"有給")-COUNTIF('+sc+rn+':'+ec+rn+',"代休")-COUNTIF('+sc+rn+':'+ec+rn+',"希望休")');
+    for (var ci = 0; ci < CLINIC_NAMES.length; ci++) sheet.getRange(cntIdx + 1 + ci, c + 2).setFormula('=COUNTIF(' + cl + '2:' + cl + (days+1) + ',"' + CLINIC_NAMES[ci] + '")');
   }
   sheet.getRange(1, 1, 1, totalCols).setFontWeight('bold').setHorizontalAlignment('center').setBackground('#e0ddd6').setFontSize(9);
   sheet.setFrozenRows(1); sheet.setFrozenColumns(1); sheet.setColumnWidth(1, 60);
   for (var c = 2; c <= totalCols; c++) sheet.setColumnWidth(c, 48);
-  for (var c = 1; c <= days; c++) {
-    var w = new Date(year, mon-1, c).getDay();
-    if (w === 0) { sheet.getRange(1, c+1).setFontColor('#e05252').setBackground('#ffd6d6'); sheet.getRange(2, c+1, DOC_NAMES.length, 1).setBackground('#fff5f5'); }
-    else if (w === 6) { sheet.getRange(1, c+1).setFontColor('#4a7fd4').setBackground('#d6e4ff'); sheet.getRange(2, c+1, DOC_NAMES.length, 1).setBackground('#f0f5ff'); }
+  for (var d = 1; d <= days; d++) {
+    var w = new Date(year, mon-1, d).getDay();
+    if (w === 0) { sheet.getRange(d+1, 1).setFontColor('#e05252').setBackground('#ffd6d6'); sheet.getRange(d+1, 2, 1, DOC_NAMES.length).setBackground('#fff5f5'); }
+    else if (w === 6) { sheet.getRange(d+1, 1).setFontColor('#4a7fd4').setBackground('#d6e4ff'); sheet.getRange(d+1, 2, 1, DOC_NAMES.length).setBackground('#f0f5ff'); }
   }
-  sheet.getRange(2, 1, DOC_NAMES.length, 1).setFontWeight('bold');
-  sheet.getRange(2, 2, DOC_NAMES.length, days).setHorizontalAlignment('center');
+  sheet.getRange(2, 2, days, DOC_NAMES.length).setHorizontalAlignment('center');
   sheet.getRange(1, 1, allRows.length, totalCols).setBorder(true, true, true, true, true, true, '#d0d0cc', SpreadsheetApp.BorderStyle.SOLID);
   if (cntIdx <= allRows.length) sheet.getRange(cntIdx, 1, 1, totalCols).setBackground('#e8f5e9').setFontWeight('bold').setFontColor('#2e7d32');
-  sheet.getRange(2, 2, DOC_NAMES.length, days).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(CLINIC_LIST, true).setAllowInvalid(true).build());
-  for (var c = 1; c <= days; c++) {
+  sheet.getRange(2, 2, days, DOC_NAMES.length).setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(CLINIC_LIST, true).setAllowInvalid(true).build());
+  for (var d2 = 1; d2 <= days; d2++) {
     var cl2 = [];
-    CLINIC_NAMES.forEach(function(cn) { if (isClosedDay(cn, year, mon, c)) cl2.push(cn); });
-    if (cl2.length) sheet.getRange(1, c + 1).setNote('休診: ' + cl2.join(', '));
+    CLINIC_NAMES.forEach(function(cn) { if (isClosedDay(cn, year, mon, d2)) cl2.push(cn); });
+    if (cl2.length) sheet.getRange(d2 + 1, 1).setNote('休診: ' + cl2.join(', '));
   }
-  /* 自動でシフト希望・院長配置・サマリーを実行 */
   applyRequestsAuto(sheet, month, year, mon, days);
   autoFillDirectorsAuto(sheet, month, year, mon, days);
   createClinicSummaryAuto(ss, month, year, mon, days);
-  ui.alert(month + ' 月シート作成完了！\n\n✅ シフト希望を自動反映\n✅ 院長を自動配置\n✅ 医院別サマリーを自動作成\n\n手動で調整後、⚠️エラーチェックを実行してください');
+  ui.alert(month + ' done');
 }
 
 function applyRequests() {
   var ss = SpreadsheetApp.getActiveSpreadsheet(), ui = SpreadsheetApp.getUi();
   var sheet = ss.getActiveSheet(), month = sheet.getName();
-  if (!/^\d{4}-\d{2}$/.test(month)) { ui.alert('月シートを選択してから実行してください'); return; }
+  if (!/^\d{4}-\d{2}$/.test(month)) { ui.alert('Select a month sheet first'); return; }
   var year = parseInt(month.split('-')[0]), mon = parseInt(month.split('-')[1]);
   var days = new Date(year, mon, 0).getDate();
   var cnt = applyRequestsAuto(sheet, month, year, mon, days);
-  ui.alert(cnt + '件のシフト希望を反映しました');
+  ui.alert(cnt + ' requests applied');
 }
 
 function applyRequestsAuto(sheet, month, year, mon, days) {
@@ -135,7 +132,7 @@ function applyRequestsAuto(sheet, month, year, mon, days) {
   if (!reqSheet) return 0;
   var reqData = reqSheet.getDataRange().getValues();
   var data = sheet.getDataRange().getValues();
-  var cnt = 0;
+  var hdr = data[0], cnt = 0;
   for (var i = 1; i < reqData.length; i++) {
     var docName = reqData[i][0], rawDate = reqData[i][1], type = reqData[i][2];
     if (!docName || !rawDate || !type) continue;
@@ -143,14 +140,14 @@ function applyRequestsAuto(sheet, month, year, mon, days) {
     if (dateStr.indexOf(month) !== 0) continue;
     var day = parseInt(dateStr.split('-')[2]);
     if (!day || day < 1 || day > days) continue;
-    var docRow = -1;
-    for (var r = 1; r < data.length; r++) { if (data[r][0] && data[r][0].toString().trim() === docName.toString().trim()) { docRow = r; break; } }
-    if (docRow < 0) continue;
-    if (data[docRow][day] && data[docRow][day].toString().trim()) continue;
+    var docCol = -1;
+    for (var c = 1; c < hdr.length; c++) { if (hdr[c] && hdr[c].toString().trim() === docName.toString().trim()) { docCol = c; break; } }
+    if (docCol < 0) continue;
+    if (data[day] && data[day][docCol] && data[day][docCol].toString().trim()) continue;
     var value = type.toString().trim();
-    sheet.getRange(docRow + 1, day + 1).setValue(value);
-    if (COLORS[value]) sheet.getRange(docRow + 1, day + 1).setBackground(COLORS[value]).setFontColor('#fff').setFontWeight('bold');
-    data[docRow][day] = value;
+    sheet.getRange(day + 1, docCol + 1).setValue(value);
+    if (COLORS[value]) sheet.getRange(day + 1, docCol + 1).setBackground(COLORS[value]).setFontColor('#fff').setFontWeight('bold');
+    if (data[day]) data[day][docCol] = value;
     cnt++;
   }
   return cnt;
@@ -161,21 +158,21 @@ function autoFillDirectors() {
   var m = sheet.getName(), y = parseInt(m.split('-')[0]), mn = parseInt(m.split('-')[1]);
   var days = new Date(y, mn, 0).getDate();
   var cnt = autoFillDirectorsAuto(sheet, m, y, mn, days);
-  SpreadsheetApp.getUi().alert('院長 ' + cnt + '件を自動配置しました');
+  SpreadsheetApp.getUi().alert(cnt + ' directors placed');
 }
 
 function autoFillDirectorsAuto(sheet, month, year, mon, days) {
   var data = sheet.getDataRange().getValues();
-  var cnt = 0;
-  for (var r = 1; r < data.length; r++) {
-    var doc = data[r][0]; if (!doc || !DIRECTORS[doc]) continue;
+  var hdr = data[0], cnt = 0;
+  for (var c = 1; c < hdr.length; c++) {
+    var doc = hdr[c]; if (!doc || !DIRECTORS[doc]) continue;
     var cl = DIRECTORS[doc];
     for (var d = 1; d <= days; d++) {
-      if (data[r][d] && data[r][d].toString().trim()) continue;
+      if (data[d] && data[d][c] && data[d][c].toString().trim()) continue;
       if (isClosedDay(cl, year, mon, d)) continue;
-      sheet.getRange(r + 1, d + 1).setValue(cl);
-      if (COLORS[cl]) sheet.getRange(r + 1, d + 1).setBackground(COLORS[cl]).setFontColor('#fff').setFontWeight('bold');
-      data[r][d] = cl;
+      sheet.getRange(d + 1, c + 1).setValue(cl);
+      if (COLORS[cl]) sheet.getRange(d + 1, c + 1).setBackground(COLORS[cl]).setFontColor('#fff').setFontWeight('bold');
+      if (data[d]) data[d][c] = cl;
       cnt++;
     }
   }
@@ -189,79 +186,81 @@ function copyFromPrevMonth() {
   var pm = mn - 1, py = y; if (pm < 1) { pm = 12; py--; }
   var pn = py + '-' + String(pm).padStart(2, '0');
   var ps = ss.getSheetByName(pn);
-  if (!ps) { ui.alert(pn + 'のシートがありません'); return; }
-  if (ui.alert('前月コピー', pn + 'からコピー？（入力済みスキップ）', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  if (!ps) { ui.alert(pn + ' not found'); return; }
+  if (ui.alert('Copy from ' + pn + '?', ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
   var pd = ps.getDataRange().getValues(), cd = sheet.getDataRange().getValues();
-  var days = new Date(y, mn, 0).getDate(), cnt = 0;
-  for (var r = 1; r < cd.length; r++) {
-    var doc = cd[r][0]; if (!doc || doc.toString().indexOf('【') === 0) continue;
-    var pr = -1;
-    for (var r2 = 1; r2 < pd.length; r2++) { if (pd[r2][0] && pd[r2][0].toString().trim() === doc.toString().trim()) { pr = r2; break; } }
-    if (pr < 0) continue;
+  var days = new Date(y, mn, 0).getDate(), hdr = cd[0], phdr = pd[0], cnt = 0;
+  for (var c = 1; c < hdr.length; c++) {
+    var doc = hdr[c]; if (!doc) continue;
+    var pc = -1;
+    for (var pc2 = 1; pc2 < phdr.length; pc2++) { if (phdr[pc2] && phdr[pc2].toString().trim() === doc.toString().trim()) { pc = pc2; break; } }
+    if (pc < 0) continue;
     var dp = {};
-    for (var d = 1; d < pd[pr].length; d++) {
-      var v = pd[pr][d]; if (!v) continue; v = v.toString().trim(); if (!v) continue;
-      var pday = parseInt(pd[0][d]); if (!pday) continue;
+    for (var d = 1; d < pd.length; d++) {
+      var v = pd[d][pc]; if (!v) continue; v = v.toString().trim(); if (!v) continue;
+      var pday = parseInt(pd[d][0]); if (!pday) continue;
       var w = new Date(py, pm-1, pday).getDay();
       if (!dp[w]) dp[w] = {}; dp[w][v] = (dp[w][v] || 0) + 1;
     }
     for (var d = 1; d <= days; d++) {
-      if (cd[r][d] && cd[r][d].toString().trim()) continue;
+      if (cd[d] && cd[d][c] && cd[d][c].toString().trim()) continue;
       var w = new Date(y, mn-1, d).getDay();
       if (!dp[w]) continue;
       var best = null, bc = 0;
       Object.keys(dp[w]).forEach(function(v) { if (dp[w][v] > bc) { best = v; bc = dp[w][v]; } });
-      if (best) { sheet.getRange(r+1, d+1).setValue(best); if (COLORS[best]) sheet.getRange(r+1, d+1).setBackground(COLORS[best]).setFontColor('#fff').setFontWeight('bold'); cnt++; }
+      if (best) { sheet.getRange(d+1, c+1).setValue(best); if (COLORS[best]) sheet.getRange(d+1, c+1).setBackground(COLORS[best]).setFontColor('#fff').setFontWeight('bold'); cnt++; }
     }
   }
-  ui.alert(cnt + '件コピーしました');
+  ui.alert(cnt + ' copied');
 }
 
 function checkErrors() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var m = sheet.getName(), y = parseInt(m.split('-')[0]), mn = parseInt(m.split('-')[1]);
-  var days = new Date(y, mn, 0).getDate(), errs = [];
-  for (var r = 1; r < data.length; r++) {
-    var doc = data[r][0]; if (!doc || doc.toString().indexOf('【') === 0) continue;
+  var days = new Date(y, mn, 0).getDate(), hdr = data[0], errs = [];
+  for (var c = 1; c < hdr.length; c++) {
+    var doc = hdr[c]; if (!doc || doc.toString().indexOf('【') === 0) continue;
     var wd = 0;
     for (var d = 1; d <= days; d++) {
-      var v = data[r][d]; if (!v) continue; v = v.toString().trim();
+      var v = data[d] ? data[d][c] : null; if (!v) continue; v = v.toString().trim();
       if (['休み','有給','代休','希望休'].indexOf(v) >= 0) continue;
       wd++;
-      if (isClosedDay(v, y, mn, d)) errs.push(doc + ' ' + d + '日: ' + v + 'は休診日');
+      if (isClosedDay(v, y, mn, d)) errs.push(doc + ' ' + d + ': ' + v + ' is closed');
     }
-    if (wd > 25) errs.push(doc + ': ' + wd + '日（多すぎ？）');
-    if (wd > 0 && wd < 8) errs.push(doc + ': ' + wd + '日（少なすぎ？）');
+    if (wd > 25) errs.push(doc + ': ' + wd + ' days (too many?)');
+    if (wd > 0 && wd < 8) errs.push(doc + ': ' + wd + ' days (too few?)');
   }
-  SpreadsheetApp.getUi().alert(errs.length ? '⚠️ ' + errs.length + '件:\n\n' + errs.slice(0, 20).join('\n') : '✅ エラーなし！');
+  SpreadsheetApp.getUi().alert(errs.length ? errs.length + ' errors:\n\n' + errs.slice(0, 20).join('\n') : 'No errors!');
 }
 
 function createClinicSummary() {
   var ui = SpreadsheetApp.getUi();
-  var result = ui.prompt('月を入力（例: 2026-06）');
+  var result = ui.prompt('Enter month (e.g. 2026-06)');
   if (result.getSelectedButton() !== ui.Button.OK) return;
   var month = result.getResponseText().trim();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var src = ss.getSheetByName(month);
-  if (!src) { ui.alert(month + 'のシートがありません'); return; }
+  if (!src) { ui.alert(month + ' not found'); return; }
   var year = parseInt(month.split('-')[0]), mon = parseInt(month.split('-')[1]);
   var days = new Date(year, mon, 0).getDate();
   createClinicSummaryAuto(ss, month, year, mon, days);
-  ui.alert(month + '_医院別 を作成しました');
+  ui.alert(month + '_医院別 created');
 }
 
 function createClinicSummaryAuto(ss, month, year, mon, days) {
   var src = ss.getSheetByName(month);
   if (!src) return;
   var data = src.getDataRange().getValues();
+  var hdr = data[0];
   var clinicOrder = ['ｴｽｶ','ｱｰﾙ','ｳｨｽﾞ','ﾙﾐﾅｽ','茶屋','小牧','知立','八事','大森','京都','銀座','ｱｻﾉ','八事1','八事2','訪1','訪2','東員'];
   var byClinic = {};
   clinicOrder.forEach(function(cn) { byClinic[cn] = {}; });
-  for (var r = 1; r < data.length; r++) {
-    var doc = data[r][0]; if (!doc || doc.toString().indexOf('【') === 0) continue;
+  for (var c = 1; c < hdr.length; c++) {
+    var doc = hdr[c]; if (!doc || doc.toString().indexOf('【') === 0) continue;
     for (var d = 1; d <= days; d++) {
-      var v = data[r][d]; if (!v) continue; v = v.toString().trim();
+      if (!data[d]) continue;
+      var v = data[d][c]; if (!v) continue; v = v.toString().trim();
       if (byClinic[v]) { if (!byClinic[v][d]) byClinic[v][d] = []; byClinic[v][d].push(doc.toString()); }
     }
   }
@@ -271,7 +270,7 @@ function createClinicSummaryAuto(ss, month, year, mon, days) {
   sheet.clear();
   var totalCols = 1 + clinicOrder.length * 2;
   var headerRow = ['日付'];
-  clinicOrder.forEach(function(cn) { headerRow.push(cn); headerRow.push('メンバー'); });
+  clinicOrder.forEach(function(cn) { headerRow.push(cn); headerRow.push('members'); });
   var rows = [headerRow];
   for (var d = 1; d <= days; d++) {
     var w = new Date(year, mon-1, d).getDay();
@@ -314,7 +313,7 @@ function recolorCurrentSheet() {
       if (COLORS[v]) sheet.getRange(r+1, c+1).setBackground(COLORS[v]).setFontColor('#fff').setFontWeight('bold');
     }
   }
-  SpreadsheetApp.getUi().alert('色を再適用しました');
+  SpreadsheetApp.getUi().alert('Colors reapplied');
 }
 
 function getColLetter(n) { var s=''; while(n>0){var m2=(n-1)%26;s=String.fromCharCode(65+m2)+s;n=Math.floor((n-1)/26);}return s; }
@@ -326,13 +325,14 @@ function doGet(e) {
     if (!sh) return ContentService.createTextOutput(JSON.stringify({shifts:{}})).setMimeType(ContentService.MimeType.JSON);
     var data = sh.getDataRange().getValues(), shifts = {}, hdr = data[0];
     for (var r = 1; r < data.length; r++) {
-      var doc = data[r][0]; if (!doc || doc.toString().indexOf('【') === 0) continue;
+      var dayStr = data[r][0]; if (!dayStr) continue;
+      var day = parseInt(dayStr); if (!day || isNaN(day)) continue;
       for (var c = 1; c < hdr.length; c++) {
-        var day = parseInt(hdr[c]); if (!day || isNaN(day)) continue;
+        var docName = hdr[c]; if (!docName || docName.toString().indexOf('【') === 0) continue;
         var v = data[r][c]; if (v && v.toString().trim()) {
           var ds2 = sn + '-' + String(day).padStart(2, '0');
           if (!shifts[ds2]) shifts[ds2] = [];
-          shifts[ds2].push({docName: doc.toString().trim(), clinic: v.toString().trim()});
+          shifts[ds2].push({docName: docName.toString().trim(), clinic: v.toString().trim()});
         }
       }
     }
