@@ -206,7 +206,7 @@ function refreshFromSheet(){
           else if(entry.clinic==='出勤希望'){cid='kibou_shutskin';}
           else if(entry.clinic==='訪問'){cid='houmon';}
           if(!cl){
-            var rawName=entry.clinic.replace(/[（(]休出[）)]/,'');
+            var rawName=entry.clinic.replace('(休出)','').replace('（休出）','');
             var baseCl2=ALL.find(function(a){return a.n===rawName;});
             if(baseCl2){
               cid=entry.clinic.indexOf('休出')>=0?(baseCl2.id+'(休出)'):baseCl2.id;
@@ -355,7 +355,7 @@ function renderClinicView(){
     h+='<div style="max-height:calc(100vh - 120px);overflow-y:auto;scrollbar-width:none;">';
     for(var d=1;d<=days;d++){
       var dateStr=ds(sY,sM,d),w=new Date(sY,sM,d).getDay(),isH=HOL.has(dateStr);
-      var closed=isClosed(dateStr,cid),assigned=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cid||s.clinicId.replace(/[（(]休出[）)]/,'')===cid;});
+      var closed=isClosed(dateStr,cid),assigned=(shifts[dateStr]||[]).filter(function(s){var sid=s.clinicId.replace('(休出)','').replace('（休出）','');return s.clinicId===cid||sid===cid||sid===cname(cid);});
       var dayCol=w===0||isH?'#e05252':w===6?'#4a7fd4':'#333',rowBg=closed?'#f5f5f3':assigned.length>=2?col.b:'#fff';
       h+='<div style="display:flex;align-items:center;gap:3px;padding:2px 5px;border-bottom:1px solid #f0f0f0;background:'+rowBg+';font-size:11px;">';
       h+='<span style="font-weight:700;color:'+dayCol+';min-width:30px;font-size:12px;">'+d+DOW[w]+'</span>';
