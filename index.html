@@ -226,10 +226,12 @@ function refreshFromSheet(){
 }
 
 /* ナビ */
-function chgMonth(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}updateMonthLbl();renderTab();}
+function chgMonth(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}updateMonthLbl();renderTab();saveState();}
 function updateMonthLbl(){document.getElementById('monthLbl').textContent=curY+'年'+(curM+1)+'月';}
-function goToday(){curY=today.getFullYear();curM=today.getMonth();updateMonthLbl();renderTab();}
-function setTab(n){curTab=n;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',parseInt(b.getAttribute('onclick').match(/\d+/)[0])===n);});['tab0','tab1','tab2','tab3','tab4','tab5','tab6'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=id==='tab'+n?'':'none';});renderTab();}
+function goToday(){curY=today.getFullYear();curM=today.getMonth();updateMonthLbl();renderTab();saveState();}
+function setTab(n){curTab=n;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('on',parseInt(b.getAttribute('onclick').match(/\d+/)[0])===n);});['tab0','tab1','tab2','tab3','tab4','tab5','tab6'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=id==='tab'+n?'':'none';});renderTab();saveState();}
+function saveState(){try{history.replaceState(null,'','#'+curY+'-'+String(curM+1).padStart(2,'0')+'-t'+curTab);}catch(e){}}
+function loadState(){var h=location.hash.replace('#','');if(!h)return;var m=h.match(/(\d{4})-(\d{2})-t(\d+)/);if(m){curY=parseInt(m[1]);curM=parseInt(m[2])-1;curTab=parseInt(m[3]);}}
 function renderTab(){if(curTab===0)renderShifts();else if(curTab===1)renderClinicView();else if(curTab===2)renderPersonView();else if(curTab===3)renderReqView();else if(curTab===4)renderClosed();else if(curTab===5)renderSummary();else if(curTab===6)renderVertShifts();}
 function goToPerson(docId){selPerson=docId;setTab(2);}
 
@@ -508,7 +510,7 @@ function renderSummary(){
 }
 
 /* 初期化 */
-updateMonthLbl();loadClosed();loadCache();renderTab();
+loadState();updateMonthLbl();loadClosed();loadCache();setTab(curTab);
 /* 起動時にスプレッドシートから読込 */
 /* 自動読込は無効化。手動で更新ボタンを押す */
 /* setTimeout(refreshFromSheet,500); */
