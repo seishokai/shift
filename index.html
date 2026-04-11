@@ -360,11 +360,11 @@ function renderClinicView(){
       var isEmpty=!closed&&assigned.length===0;
       var rowBg=isEmpty?'#ffebee':closed?'#f5f5f3':assigned.length>=2?col.b:'#fff';
       h+='<div style="display:flex;align-items:center;gap:3px;padding:2px 5px;border-bottom:1px solid #f0f0f0;background:'+rowBg+';font-size:11px;">';
-      h+='<span style="font-weight:700;color:'+dayCol+';min-width:30px;font-size:12px;">'+d+DOW[w]+'</span>';
+      h+='<span style="font-weight:700;color:'+dayCol+';min-width:24px;font-size:10px;">'+d+DOW[w]+'</span>';
       if(closed){h+='<span style="color:#bbb;font-size:11px;">休診</span>';}
-      else{h+='<span style="background:'+(assigned.length?col.c:'#e53935')+';color:#fff;font-size:11px;font-weight:800;border-radius:4px;padding:1px 6px;min-width:22px;text-align:center;">'+(assigned.length||'!')+'</span>';
+      else{h+='<span style="background:'+(assigned.length?col.c:'#e53935')+';color:#fff;font-size:9px;font-weight:800;border-radius:3px;padding:0 4px;min-width:16px;text-align:center;">'+(assigned.length||'!')+'</span>';
         var sorted=assigned.slice().sort(function(a,b){var da=doctors.find(function(d){return d.id===a.docId;}),db=doctors.find(function(d){return d.id===b.docId;});return(da&&da.dir===cid?0:1)-(db&&db.dir===cid?0:1);});
-        h+='<span style="font-size:11px;color:'+col.c+';font-weight:600;">'+sorted.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});if(!doc)return'';return doc.dir===cid?'<b>'+doc.n+'</b>':doc.n;}).join(' ')+'</span>';}
+        h+='<span style="font-size:8px;color:'+col.c+';font-weight:600;white-space:nowrap;">'+sorted.map(function(s){var doc=doctors.find(function(dd){return dd.id===s.docId;});if(!doc)return'';return doc.dir===cid?'<b>'+doc.n+'</b>':doc.n;}).join(' ')+'</span>';}
       h+='</div>';}
     h+='</div></div>';});
   document.getElementById('clinicCarousel').innerHTML=h;
