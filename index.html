@@ -347,7 +347,7 @@ function renderClinicView(){
     var mOff=clinicViewMonth[cid]||0,sY=curY,sM=curM+mOff;
     while(sM>11){sM-=12;sY++;}while(sM<0){sM+=12;sY--;}
     var days=dim(sY,sM);
-    h+='<div style="flex:0 0 200px;scroll-snap-align:start;border:1px solid #e0e0e0;border-radius:8px;background:#fff;overflow:hidden;">';
+    h+='<div style="flex:0 0 150px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;overflow:hidden;">';
     h+='<div style="background:'+col.c+';color:#fff;padding:6px 10px;display:flex;align-items:center;justify-content:center;gap:8px;">';
     h+='<button onclick="clinicViewMonth[\''+cid+'\']=(clinicViewMonth[\''+cid+'\']||0)-1;renderClinicView();" style="border:none;background:rgba(255,255,255,.3);color:#fff;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">‹</button>';
     h+='<span style="font-size:14px;font-weight:800;">'+cl.n+' '+(sM+1)+'月</span>';
