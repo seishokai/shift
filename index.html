@@ -91,7 +91,7 @@ table.grid th{background:#e0ddd6;font-weight:700;position:sticky;top:0;z-index:1
 </div>
 <div id="sb"></div>
 <div id="tab0" class="grid-wrap"><table class="grid" id="shiftTable"></table></div>
-<div id="tab1" class="grid-wrap" style="display:none;padding:10px;"><div id="clinicCarousel" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:6px;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none;"></div></div>
+<div id="tab1" class="grid-wrap" style="display:none;padding:10px;overflow:auto;"><div id="clinicCarousel" style="display:flex;gap:6px;align-items:flex-start;"></div></div>
 <div id="tab2" class="grid-wrap" style="display:none;padding:10px;"><div id="personSelBar" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;"></div><div id="personView"></div></div>
 <div id="tab3" class="grid-wrap" style="display:none;padding:10px;"><div id="reqDocBar" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;"></div><div id="reqView"></div></div>
 <div id="tab4" class="grid-wrap" style="display:none"><table class="grid" id="closedTable"></table></div>
@@ -352,7 +352,7 @@ function renderClinicView(){
     h+='<button onclick="clinicViewMonth[\''+cid+'\']=(clinicViewMonth[\''+cid+'\']||0)-1;renderClinicView();" style="border:none;background:rgba(255,255,255,.3);color:#fff;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">‹</button>';
     h+='<span style="font-size:14px;font-weight:800;">'+cl.n+' '+(sM+1)+'月</span>';
     h+='<button onclick="clinicViewMonth[\''+cid+'\']=(clinicViewMonth[\''+cid+'\']||0)+1;renderClinicView();" style="border:none;background:rgba(255,255,255,.3);color:#fff;border-radius:6px;width:24px;height:24px;font-size:14px;cursor:pointer;">›</button></div>';
-    h+='<div style="max-height:calc(100vh - 120px);overflow-y:auto;scrollbar-width:none;">';
+    h+='<div>';
     for(var d=1;d<=days;d++){
       var dateStr=ds(sY,sM,d),w=new Date(sY,sM,d).getDay(),isH=HOL.has(dateStr);
       var closed=isClosed(dateStr,cid),assigned=(shifts[dateStr]||[]).filter(function(s){var sid=s.clinicId.replace('(休出)','').replace('（休出）','');return s.clinicId===cid||sid===cid||sid===cname(cid);});
