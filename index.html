@@ -205,9 +205,12 @@ function refreshFromSheet(){
           if(entry.clinic==='希望休'){cid='yasumi';memo='希望';}
           else if(entry.clinic==='出勤希望'){cid='kibou_shutskin';}
           else if(entry.clinic==='訪問'){cid='houmon';}
-          else if(!cl&&entry.clinic){
-            var kyuMatch=entry.clinic.match(/^(.+?)[（(]休出[）)]$/);
-            if(kyuMatch){var baseCl=ALL.find(function(a){return a.n===kyuMatch[1];});cid=baseCl?(baseCl.id+'(休出)'):entry.clinic;}
+          if(!cl){
+            var rawName=entry.clinic.replace(/[（(]休出[）)]/,'');
+            var baseCl2=ALL.find(function(a){return a.n===rawName;});
+            if(baseCl2){
+              cid=entry.clinic.indexOf('休出')>=0?(baseCl2.id+'(休出)'):baseCl2.id;
+            }
           }
           shifts[dateStr].push({docId:doc.id,clinicId:cid,memo:memo});
         });
