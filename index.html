@@ -258,7 +258,12 @@ function renderShifts(){
         else if(sh.clinicId==='kyushutsu'){bg='#e67e22';col='#fff';txt='休出';}
         else if(sh.clinicId==='kibou_shutskin'){bg='#e8f5e9';col='#2e7d32';txt='出勤希望';}
         else if(sh.clinicId==='houmon'){bg='#2c6e8a';col='#fff';txt='訪問';}
-        else{var c=getCC(sh.clinicId);bg=c.c;col='#fff';txt=cname(sh.clinicId);}
+        else{
+          var clinicId2=sh.clinicId;
+          var isKyushutsu=clinicId2.indexOf('(休出)')>=0||clinicId2.indexOf('（休出）')>=0;
+          if(isKyushutsu){var baseClinic=clinicId2.replace(/[（(]休出[）)]/,'');var c=getCC(baseClinic);bg=c.c;col='#fff';txt=cname(baseClinic)+'(休出)';}
+          else{var c=getCC(clinicId2);bg=c.c;col='#fff';txt=cname(clinicId2);}
+        }
       }else{bg=w===0||isH?'#fff5f5':w===6?'#f0f5ff':'';col='';txt='';}
       var tdStyle='background:'+bg+';color:'+col+';font-weight:700;font-size:8px;line-height:24px;'+(isToday(d)?'box-shadow:inset 0 0 0 1px #fdd835;':'')+(ri%2===1&&!sh?oddBg:'');
       h+='<td class="shift-cell" style="'+tdStyle+'">'+txt+'</td>';}
@@ -310,7 +315,12 @@ function renderVertShifts(){
         else if(sh.clinicId==='daishutsu'){bg='#777';col='#fff';txt='代出';}
         else if(sh.clinicId==='kyushutsu'){bg='#e67e22';col='#fff';txt='休出';}
         else if(sh.clinicId==='kibou_shutskin'){bg='#e8f5e9';col='#2e7d32';txt='出勤希望';}
-        else{var c=getCC(sh.clinicId);bg=c.c;col='#fff';txt=cname(sh.clinicId);}
+        else{
+          var clinicId3=sh.clinicId;
+          var isKyu2=clinicId3.indexOf('(休出)')>=0||clinicId3.indexOf('（休出）')>=0;
+          if(isKyu2){var bc2=clinicId3.replace(/[（(]休出[）)]/,'');var cc2=getCC(bc2);bg=cc2.c;col='#fff';txt=cname(bc2)+'(休出)';}
+          else{var cc2=getCC(clinicId3);bg=cc2.c;col='#fff';txt=cname(clinicId3);}
+        }
       }
       h+='<td style="background:'+bg+';color:'+col+';font-weight:700;font-size:9px;text-align:center;height:26px;min-width:36px;">'+txt+'</td>';
     });
