@@ -250,7 +250,7 @@ function renderShifts(){
       var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===doc.id;});
       var bg='',txt='',col='';
       if(sh){var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
-        if(isKibo){bg='#f3e5f5';col='#7b2d8b';txt='希望休';}
+        if(isKibo){bg='#bdbdbd';col='#fff';txt='希望休';}
         else if(sh.clinicId==='yasumi'){bg='#eceff1';col='#78909c';txt='休み';}
         else if(sh.clinicId==='yukyu'){bg='#eceff1';col='#e53935';txt='有給';}
         else if(sh.clinicId==='daikyu'){bg='#eceff1';col='#1a5276';txt='代休';}
@@ -308,7 +308,7 @@ function renderVertShifts(){
       var bg='',txt='',col='';
       if(sh){
         var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';
-        if(isKibo){bg='#f3e5f5';col='#7b2d8b';txt='希望休';}
+        if(isKibo){bg='#bdbdbd';col='#fff';txt='希望休';}
         else if(sh.clinicId==='yasumi'){bg='#eceff1';col='#78909c';txt='休み';}
         else if(sh.clinicId==='yukyu'){bg='#eceff1';col='#e53935';txt='有給';}
         else if(sh.clinicId==='daikyu'){bg='#eceff1';col='#1a5276';txt='代休';}
@@ -380,7 +380,7 @@ function renderPersonView(){
     var cls=w===0||isH?'sun':w===6?'sat':'';
     h+='<div class="pcal-cell '+cls+'">';
     h+='<div style="font-weight:800;font-size:14px;color:'+(w===0||isH?'#e05252':w===6?'#4a7fd4':'#333')+';">'+d+(isH?' <span class="hol-badge" style="font-size:8px;">祝</span>':'')+'</div>';
-    if(sh){var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';var col=isKibo?{c:'#7b2d8b',b:'#f3e5f5'}:getCC(sh.clinicId);
+    if(sh){var isKibo=sh.clinicId==='yasumi'&&sh.memo==='希望';var col=isKibo?{c:'#999',b:'#eee'}:getCC(sh.clinicId);
       h+='<div style="background:'+col.c+';color:#fff;border-radius:6px;padding:4px 6px;font-size:13px;font-weight:700;text-align:center;margin-top:3px;">'+(isKibo?'希望休':shiftLabel(sh))+'</div>';
       if(!restIds.has(sh.clinicId)){var mates=(shifts[dateStr]||[]).filter(function(s){return s.docId!==selPerson&&s.clinicId===sh.clinicId;});
         if(mates.length){h+='<div style="margin-top:2px;">';mates.forEach(function(m){var md=doctors.find(function(dd){return dd.id===m.docId;});h+='<div style="font-size:12px;color:'+col.c+';font-weight:600;line-height:1.5;">'+(md?md.n:'')+'</div>';});h+='</div>';}}}
