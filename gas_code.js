@@ -102,6 +102,10 @@ function createMonthSheet() {
   }
   allRows.push(makeRow(totalCols));
   var cntIdx = allRows.length;
+  /* doctor work count row */
+  var wcRow = ['【出勤数】'];
+  for (var c = 0; c < DOC_NAMES.length; c++) wcRow.push('');
+  allRows.push(wcRow);
   CLINIC_NAMES.forEach(function(cn) {
     var row = ['【' + cn + '】'];
     for (var c = 0; c < DOC_NAMES.length; c++) row.push('');
@@ -110,7 +114,8 @@ function createMonthSheet() {
   sheet.getRange(1, 1, allRows.length, totalCols).setValues(allRows);
   for (var c = 0; c < DOC_NAMES.length; c++) {
     var cl = getColLetter(c + 2);
-    for (var ci = 0; ci < CLINIC_NAMES.length; ci++) sheet.getRange(cntIdx + 1 + ci, c + 2).setFormula('=COUNTIF(' + cl + '2:' + cl + (days+1) + ',"' + CLINIC_NAMES[ci] + '")');
+    sheet.getRange(cntIdx + 1, c + 2).setFormula('=COUNTA(' + cl + '2:' + cl + (days+1) + ')-COUNTIF(' + cl + '2:' + cl + (days+1) + ',"休み")-COUNTIF(' + cl + '2:' + cl + (days+1) + ',"希望休")-COUNTIF(' + cl + '2:' + cl + (days+1) + ',"代休")');
+    for (var ci = 0; ci < CLINIC_NAMES.length; ci++) sheet.getRange(cntIdx + 2 + ci, c + 2).setFormula('=COUNTIF(' + cl + '2:' + cl + (days+1) + ',"' + CLINIC_NAMES[ci] + '")');
   }
   sheet.getRange(1, 1, 1, totalCols).setFontWeight('bold').setHorizontalAlignment('center').setBackground('#e0ddd6').setFontSize(9);
   sheet.setFrozenRows(1); sheet.setFrozenColumns(1); sheet.setColumnWidth(1, 60);
