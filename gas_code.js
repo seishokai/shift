@@ -33,6 +33,9 @@ function onOpen() {
 function onEdit(e) {
   var range = e.range;
   if (range.getRow() < 2 || range.getColumn() < 2) return;
+  var sheet = e.source.getActiveSheet();
+  var sheetName = sheet.getName();
+  if (!/^\d{4}-\d{2}$/.test(sheetName)) return;
   var val = range.getValue();
   var oldVal = e.oldValue || '';
   if (['希望休','有給','代休'].indexOf(oldVal.toString().trim()) >= 0 && val !== oldVal) {
@@ -43,6 +46,19 @@ function onEdit(e) {
   }
   if (!val) { range.setBackground(null).setFontColor('#000').setFontWeight('normal'); return; }
   val = val.toString().trim();
+  var restTypes = ['休み','有給','代休','希望休','代出','出勤希望'];
+  if (restTypes.indexOf(val) < 0) {
+    var year = parseInt(sheetName.split('-')[0]), mon = parseInt(sheetName.split('-')[1]);
+    var day = parseInt(sheet.getRange(range.getRow(), 1).getValue());
+    var clinicName = val.replace(/[（(]休出[）)]/,'');
+    if (day && isClosedDay(clinicName, year, mon, day)) {
+      range.setValue(oldVal || '');
+      if (oldVal && COLORS[oldVal]) range.setBackground(COLORS[oldVal]).setFontColor('#fff').setFontWeight('bold');
+      else range.setBackground(null).setFontColor('#000').setFontWeight('normal');
+      SpreadsheetApp.getActiveSpreadsheet().toast(val + ' is closed on ' + day + '!', '⚠️ closed day', 3);
+      return;
+    }
+  }
   if (COLORS[val]) range.setBackground(COLORS[val]).setFontColor('#fff').setFontWeight('bold');
   else range.setBackground(null).setFontColor('#000').setFontWeight('normal');
 }
