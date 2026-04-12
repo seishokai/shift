@@ -1030,8 +1030,8 @@ function renderA(){
       if(closed){
         h+='<span style="color:var(--ink3);font-size:9px;">—</span>';
       } else if(dayS.length){
-        h+='<span style="display:block;font-size:13px;font-weight:800;color:'+cc.c+';">'+dayS.length+'</span>';
-        h+='<span style="display:block;font-size:7px;color:'+cc.c+';line-height:1.4;opacity:.8;">';
+        h+='<span style="display:block;font-size:8px;font-weight:600;color:var(--ink3);">'+dayS.length+'名</span>';
+        h+='<span style="display:block;font-size:9px;color:'+cc.c+';line-height:1.5;font-weight:700;">';
         h+=dayS.map(function(s){
           var doc=doctors.find(function(dd){return dd.id===s.docId;});
           if(!doc)return '';
