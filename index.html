@@ -412,10 +412,10 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
   <button class="clinic-mode-btn on" id="clinicMode0" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--ink);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院縦一覧</button>
   <button class="clinic-mode-btn" id="clinicMode1" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院横一覧</button>
 </div>
-<!-- カルーセル -->
+<!-- 医院横一覧 -->
 <div id="clinicViewCar" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
-<div id="clinicCarouselBar" style="display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;"></div>
-<div id="clinicCarouselBody" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0;"></div>
+<div id="clinicCarouselBar" style="display:none;"></div>
+<div id="clinicCarouselBody" style="flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:0;"></div>
 </div>
 <!-- 横テーブル -->
 <div id="clinicViewTbl" style="display:none;flex:1;overflow:auto;-webkit-overflow-scrolling:touch;">
@@ -996,80 +996,63 @@ function renderA(){
   if(m0){m0.style.background=clinicViewMode===0?'var(--ink)':'var(--card)';m0.style.color=clinicViewMode===0?'#fff':'var(--ink2)';}
   if(m1){m1.style.background=clinicViewMode===1?'var(--ink)':'var(--card)';m1.style.color=clinicViewMode===1?'#fff':'var(--ink2)';}
   if(clinicViewMode===0){renderATable();return;}
-  /* カルーセルモード */
+  /* 医院横一覧モード: 日付縦 × 医院横（全医院を列で表示） */
   var bar=document.getElementById('clinicCarouselBar');
   var body=document.getElementById('clinicCarouselBody');
-  if(!bar||!body)return;
-  if(!carClinicId&&CLINICS.length)carClinicId=CLINICS[0].id;
-  var bh='';
-  CLINICS.forEach(function(cl){
-    var cc=getCC(cl.id);
-    var on=carClinicId===cl.id;
-    bh+='<button class="clinic-car-chip'+(on?' on':'')+'" data-car-cl="'+cl.id+'" style="color:'+(on?'#fff':cc.c)+';background:'+(on?cc.c:'var(--card)')+';border-color:'+(on?cc.c:'var(--border)')+';">'+cl.n+'</button>';
-  });
-  bar.innerHTML=bh;
-  bar.querySelectorAll('[data-car-cl]').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      carClinicId=this.dataset.carCl;
-      renderA();
-      setTimeout(function(){btn.scrollIntoView({inline:'center',block:'nearest'});},50);
-    });
-  });
-  /* 日付リスト（縦） */
-  var cl=CLINICS.find(function(c){return c.id===carClinicId;});
-  if(!cl){body.innerHTML='';return;}
-  var cc=getCC(cl.id);
+  if(!bar)return;
+  bar.innerHTML=''; /* チップ不要 */
+  if(!body)return;
   var days=dim(curY,curM);
   var DOW2=['日','月','火','水','木','金','土'];
-  var h='';
+  var h='<table style="border-collapse:collapse;white-space:nowrap;font-size:9px;width:100%;">';
+  /* ヘッダー: 日付 + 各医院名 */
+  h+='<thead><tr>';
+  h+='<th style="position:sticky;left:0;top:0;z-index:15;background:#edebe6;padding:4px 3px;min-width:36px;border:0.5px solid var(--border);font-size:10px;font-weight:700;">日付</th>';
+  CLINICS.forEach(function(cl){
+    var cc=getCC(cl.id);
+    h+='<th style="position:sticky;top:0;z-index:8;background:'+cc.c+';color:#fff;padding:4px 3px;min-width:52px;border:0.5px solid var(--border);font-size:10px;font-weight:700;text-align:center;">'+cl.n+'</th>';
+  });
+  h+='</tr></thead><tbody>';
   for(var d=1;d<=days;d++){
     var dateStr=ds(d),w=dow(d);
     var isSun=w===0,isSat=w===6,isT=isToday(d);
-    var closed=isClosed(dateStr,cl.id);
-    var rowCls='car-date-row'+(isSun?' sun':isSat?' sat':'')+(isT?' today-row':'')+(closed&&!isT?' closed-row':'');
-    var dateCls='car-date-lbl'+(isSun?' sun':isSat?' sat':'');
-    h+='<div class="'+rowCls+'">';
-    h+='<div class="'+dateCls+'"><span>'+d+'</span><span class="car-dow">'+DOW2[w]+'</span></div>';
-    h+='<div class="car-docs">';
-    if(closed&&!isT){
-      h+='<span style="font-size:11px;color:var(--ink3);">休診</span>';
-    } else {
+    var rowBg=isT?'#fff9e6':isSun?'#fff5f5':isSat?'#f0f5ff':'#fff';
+    var dateCol=isSun?'#c0392b':isSat?'#1a5276':'var(--ink)';
+    var todayBdr=isT?'border-left:3px solid #f39c12;':'';
+    h+='<tr>';
+    h+='<td style="position:sticky;left:0;z-index:6;background:'+rowBg+';padding:4px 4px;font-size:12px;font-weight:700;color:'+dateCol+';border:0.5px solid var(--border);'+todayBdr+'">'+d+'<span style="font-size:8px;font-weight:400;margin-left:1px;">'+DOW2[w]+'</span></td>';
+    CLINICS.forEach(function(cl){
+      var cc=getCC(cl.id);
+      var closed=isClosed(dateStr,cl.id)&&!isT;
       var dayS=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;});
-      if(dayS.length){
-        dayS.forEach(function(s){
+      var cellBg=closed?'#f0efed':rowBg;
+      h+='<td style="background:'+cellBg+';padding:2px 3px;border:0.5px solid var(--border);vertical-align:top;min-width:52px;text-align:center;">';
+      if(closed){
+        h+='<span style="color:var(--ink3);font-size:9px;">—</span>';
+      } else if(dayS.length){
+        h+='<span style="display:block;font-size:13px;font-weight:800;color:'+cc.c+';">'+dayS.length+'</span>';
+        h+='<span style="display:block;font-size:7px;color:'+cc.c+';line-height:1.4;opacity:.8;">';
+        h+=dayS.map(function(s){
           var doc=doctors.find(function(dd){return dd.id===s.docId;});
-          if(!doc)return;
-          var isKyu=s.memo==='休出'||s.memo==='＋',isDai=s.memo==='代出';
-          h+='<span class="car-doc-pill" style="background:'+cc.c+'18;color:'+cc.c+';'+(isKyu?'border:1.5px solid #e67e22;':'')+'">'+doc.n+(isKyu?'<span style="color:#e67e22;">＋</span>':'')+(isDai?'<span style="font-size:9px;color:#999;"> 代</span>':'')+'</span>';
-        });
+          if(!doc)return '';
+          var isKyu=s.memo==='休出'||s.memo==='＋';
+          return doc.n+(isKyu?'＋':'');
+        }).filter(Boolean).join(' ');
+        h+='</span>';
       }
-    }
-    h+='</div></div>';
+      h+='</td>';
+    });
+    h+='</tr>';
   }
+  h+='</tbody></table>';
   body.innerHTML=h;
-  /* 今日の行にスクロール */
   if(curY===today.getFullYear()&&curM===today.getMonth()){
     setTimeout(function(){
-      var tr=body.querySelector('.today-row');
-      if(tr)tr.scrollIntoView({block:'center'});
+      var rows=body.querySelectorAll('tr');
+      var todayIdx=today.getDate();
+      if(rows[todayIdx])rows[todayIdx].scrollIntoView({block:'center'});
     },50);
   }
-  /* スワイプ */
-  renderASwipe(body);
-}
-var _carSwipeReady=false;
-function renderASwipe(el){
-  if(_carSwipeReady)return;
-  _carSwipeReady=true;
-  var sx=0,dx=0;
-  el.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;dx=0;},{passive:true});
-  el.addEventListener('touchmove',function(e){dx=e.touches[0].clientX-sx;},{passive:true});
-  el.addEventListener('touchend',function(){
-    if(Math.abs(dx)<50)return;
-    var idx=CLINICS.findIndex(function(c){return c.id===carClinicId;});
-    if(dx<-50&&idx<CLINICS.length-1){carClinicId=CLINICS[idx+1].id;renderA();}
-    else if(dx>50&&idx>0){carClinicId=CLINICS[idx-1].id;renderA();}
-  });
 }
 function renderATable(){
   var el=document.getElementById('tA');
