@@ -268,6 +268,21 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
 /* 10. スムーズなページ遷移 */
 #vA,#vB-admin{transition:opacity .15s ease;}
 
+/* ===== 医院カルーセル ===== */
+.clinic-car-chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;cursor:pointer;white-space:nowrap;background:var(--card);font-family:inherit;font-weight:700;transition:.15s;flex-shrink:0;}
+.clinic-car-chip:active{transform:scale(.95);}
+.clinic-car-chip.on{color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+.car-date-row{display:flex;align-items:stretch;padding:0 12px;border-bottom:1px solid var(--border);min-height:40px;}
+.car-date-row.sun{background:#fff5f5;}.car-date-row.sat{background:#f0f5ff;}
+.car-date-row.today-row{background:#fff9e6;border-left:3px solid #f39c12;}
+.car-date-row.closed-row{background:#f0efed;opacity:.6;}
+.car-date-lbl{width:52px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;padding:6px 0;font-weight:700;font-size:13px;}
+.car-date-lbl .car-dow{font-size:9px;font-weight:500;color:var(--ink3);}
+.car-date-lbl.sun{color:#c0392b;}.car-date-lbl.sun .car-dow{color:#c0392b;}
+.car-date-lbl.sat{color:#1a5276;}.car-date-lbl.sat .car-dow{color:#1a5276;}
+.car-docs{flex:1;display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:5px 0;}
+.car-doc-pill{padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;}
+
 /* ===== 今日タブ ===== */
 .today-date-banner{text-align:center;padding:12px 0 8px;font-size:22px;font-weight:800;color:var(--ink);letter-spacing:.02em;}
 .today-date-sub{text-align:center;font-size:11px;color:var(--ink3);margin-bottom:16px;}
@@ -391,9 +406,11 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
   </div>
 </div>
 
-<!-- VIEW B: 医院 -->
-<div id="vB" style="display:none">
-<div style="overflow:auto;height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;"><table class="stbl" id="tA" style="border-collapse:collapse;white-space:nowrap;"></table></div></div>
+<!-- VIEW B: 医院カルーセル -->
+<div id="vB" style="display:none;height:calc(100vh - 44px);overflow:hidden;flex-direction:column;">
+<div id="clinicCarouselBar" style="display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;"></div>
+<div id="clinicCarouselBody" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0;"></div>
+</div>
 
 <!-- VIEW C: 今日の配置 (tab2) -->
 <div id="vC" style="display:none;overflow:auto;height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;">
@@ -938,11 +955,12 @@ function chgMonth(d){
 function setTab(n){
   curTab=n;
   var viewIds=['vA','vB','vC','vD','vE','vF','vG'];
+  var flexIds={vB:true}; /* IDs that need display:flex */
   [0,1,2,3,4,5,6].forEach(function(i){
     var htb=document.getElementById('htab'+i);
     if(htb)htb.classList.toggle('on',i===n);
     var vw=document.getElementById(viewIds[i]);
-    if(vw)vw.style.display=i===n?'':'none';
+    if(vw)vw.style.display=i===n?(flexIds[viewIds[i]]?'flex':''):'none';
   });
   renderAll();
 }
@@ -955,60 +973,82 @@ function renderLegend(){
 }
 
 /* ---- VIEW A: 医院表 ---- */
+var carClinicId=null;
 function renderA(){
-  var days=dim(curY,curM);
-  var el=document.getElementById('tA');
-  var DOW2=['日','月','火','水','木','金','土'];
-
-  var h='<thead><tr>';
-  /* 左上コーナー */
-  h+='<th style="position:sticky;top:0;left:0;z-index:15;background:#edebe6;font-size:9px;font-weight:600;color:var(--ink3);padding:3px 5px;min-width:32px;max-width:32px;border:0.5px solid var(--border);border-right:2px solid #d8d4cc;white-space:nowrap;">医院</th>';
-  /* 日付ヘッダー */
-  for(var d=1;d<=days;d++){
-    var w=dow(d),dateStr=ds(d);
-    var bg=w===0?'#fff5f5':w===6?'#f0f5ff':'#edebe6';
-    var col=w===0?'#c0392b':w===6?'#1a5276':'var(--ink)';
-    if(isToday(d))bg='#fffbf0';
-    var todayBdr=isToday(d)?'border-bottom:3px solid #f39c12;':'';
-    h+='<th style="position:sticky;top:0;z-index:8;background:'+bg+';color:'+col+';text-align:center;font-size:9px;font-weight:600;padding:3px 1px;min-width:38px;max-width:38px;border:0.5px solid var(--border);white-space:nowrap;'+todayBdr+'">'+
-      d+'<span style="font-size:8px;font-weight:400;color:'+(w===0?'#c0392b':w===6?'#1a5276':'var(--ink3)')+'">'+DOW2[w]+'</span></th>';
-  }
-  /* 右端コーナー */
-  h+='<th style="position:sticky;top:0;right:0;z-index:15;background:#edebe6;font-size:9px;font-weight:600;color:var(--ink3);padding:3px 5px;min-width:32px;max-width:32px;border:0.5px solid var(--border);border-left:2px solid #d8d4cc;white-space:nowrap;">医院</th>';
-  h+='</tr></thead><tbody>';
-
+  /* 医院選択バー */
+  var bar=document.getElementById('clinicCarouselBar');
+  var body=document.getElementById('clinicCarouselBody');
+  if(!bar||!body)return;
+  if(!carClinicId&&CLINICS.length)carClinicId=CLINICS[0].id;
+  var bh='';
   CLINICS.forEach(function(cl){
-    var col=getCC(cl.id).c;
-    /* 左医院名 */
-    h+='<tr><td style="position:sticky;left:0;z-index:6;background:#edebe6;font-size:9px;font-weight:600;padding:2px 5px;min-width:32px;max-width:32px;color:'+col+';border:0.5px solid var(--border);border-right:2px solid #d8d4cc;cursor:pointer;white-space:nowrap;overflow:hidden;" data-open-clinic="'+cl.id+'">'+cl.n+'</td>';
-    for(var d=1;d<=days;d++){
-      var dateStr=ds(d),w=dow(d);
-      var rowBg=w===0?'#fff5f5':w===6?'#f0f5ff':'var(--card)';
-      if(isToday(d))rowBg='#fffbf0';
-      if(isClosed(dateStr,cl.id)&&!isToday(d))rowBg='#f0efed';
+    var cc=getCC(cl.id);
+    var on=carClinicId===cl.id;
+    bh+='<button class="clinic-car-chip'+(on?' on':'')+'" data-car-cl="'+cl.id+'" style="color:'+(on?'#fff':cc.c)+';background:'+(on?cc.c:'var(--card)')+';border-color:'+(on?cc.c:'var(--border)')+';">'+cl.n+'</button>';
+  });
+  bar.innerHTML=bh;
+  bar.querySelectorAll('[data-car-cl]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      carClinicId=this.dataset.carCl;
+      renderA();
+      setTimeout(function(){btn.scrollIntoView({inline:'center',block:'nearest'});},50);
+    });
+  });
+  /* 日付リスト（縦） */
+  var cl=CLINICS.find(function(c){return c.id===carClinicId;});
+  if(!cl){body.innerHTML='';return;}
+  var cc=getCC(cl.id);
+  var days=dim(curY,curM);
+  var DOW2=['日','月','火','水','木','金','土'];
+  var h='';
+  for(var d=1;d<=days;d++){
+    var dateStr=ds(d),w=dow(d);
+    var isSun=w===0,isSat=w===6,isT=isToday(d);
+    var closed=isClosed(dateStr,cl.id);
+    var rowCls='car-date-row'+(isSun?' sun':isSat?' sat':'')+(isT?' today-row':'')+(closed&&!isT?' closed-row':'');
+    var dateCls='car-date-lbl'+(isSun?' sun':isSat?' sat':'');
+    h+='<div class="'+rowCls+'">';
+    h+='<div class="'+dateCls+'"><span>'+d+'</span><span class="car-dow">'+DOW2[w]+'</span></div>';
+    h+='<div class="car-docs">';
+    if(closed&&!isT){
+      h+='<span style="font-size:11px;color:var(--ink3);">休診</span>';
+    } else {
       var dayS=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;});
-      h+='<td style="min-width:38px;max-width:38px;vertical-align:middle;padding:1px;background:'+rowBg+';border:0.5px solid var(--border);overflow:hidden;text-align:center;">';
       if(dayS.length){
-        h+='<div style="display:flex;flex-direction:column;gap:1px;">';
         dayS.forEach(function(s){
           var doc=doctors.find(function(dd){return dd.id===s.docId;});
           if(!doc)return;
           var isKyu=s.memo==='休出'||s.memo==='＋',isDai=s.memo==='代出';
-          h+='<span style="display:block;background:'+col+'18;color:'+col+';font-size:8px;font-weight:700;padding:1px 2px;border-radius:2px;white-space:nowrap;text-align:center;'+
-            (isKyu?'border-left:2px solid #e67e22;':'')+'">';
-          h+=doc.n+(isKyu?'<span style="color:#e67e22;font-size:7px;">＋</span>':'')+(isDai?'<span style="font-size:6px;color:#999;"> 代</span>':'');
-          h+='</span>';
+          h+='<span class="car-doc-pill" style="background:'+cc.c+'18;color:'+cc.c+';'+(isKyu?'border:1.5px solid #e67e22;':'')+'">'+doc.n+(isKyu?'<span style="color:#e67e22;">＋</span>':'')+(isDai?'<span style="font-size:9px;color:#999;"> 代</span>':'')+'</span>';
         });
-        h+='</div>';
       }
-      h+='</td>';
     }
-    /* 右医院名 */
-    h+='<td style="position:sticky;right:0;z-index:6;background:#edebe6;font-size:9px;font-weight:600;padding:2px 5px;min-width:32px;max-width:32px;color:'+col+';border:0.5px solid var(--border);border-left:2px solid #d8d4cc;cursor:pointer;white-space:nowrap;overflow:hidden;" data-open-clinic="'+cl.id+'">'+cl.n+'</td>';
-    h+='</tr>';
+    h+='</div></div>';
+  }
+  body.innerHTML=h;
+  /* 今日の行にスクロール */
+  if(curY===today.getFullYear()&&curM===today.getMonth()){
+    setTimeout(function(){
+      var tr=body.querySelector('.today-row');
+      if(tr)tr.scrollIntoView({block:'center'});
+    },50);
+  }
+  /* スワイプ */
+  renderASwipe(body);
+}
+var _carSwipeReady=false;
+function renderASwipe(el){
+  if(_carSwipeReady)return;
+  _carSwipeReady=true;
+  var sx=0,dx=0;
+  el.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;dx=0;},{passive:true});
+  el.addEventListener('touchmove',function(e){dx=e.touches[0].clientX-sx;},{passive:true});
+  el.addEventListener('touchend',function(){
+    if(Math.abs(dx)<50)return;
+    var idx=CLINICS.findIndex(function(c){return c.id===carClinicId;});
+    if(dx<-50&&idx<CLINICS.length-1){carClinicId=CLINICS[idx+1].id;renderA();}
+    else if(dx>50&&idx>0){carClinicId=CLINICS[idx-1].id;renderA();}
   });
-
-  el.innerHTML=h+'</tbody>';
 }
 
 
