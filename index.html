@@ -267,6 +267,40 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
 
 /* 10. スムーズなページ遷移 */
 #vA,#vB-admin{transition:opacity .15s ease;}
+
+/* ===== 今日タブ ===== */
+.today-date-banner{text-align:center;padding:12px 0 8px;font-size:22px;font-weight:800;color:var(--ink);letter-spacing:.02em;}
+.today-date-sub{text-align:center;font-size:11px;color:var(--ink3);margin-bottom:16px;}
+.today-clinic-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.today-clinic-card.closed-card{opacity:.5;background:#f5f4f0;}
+.today-clinic-name{font-size:14px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.today-clinic-badge{font-size:10px;font-weight:700;color:#fff;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.today-doc-list{display:flex;flex-wrap:wrap;gap:6px;}
+.today-doc-chip{padding:6px 12px;border-radius:10px;font-size:12px;font-weight:600;white-space:nowrap;}
+.today-doc-chip.plus{border:2px solid #e67e22;}
+
+/* ===== マイシフトタブ ===== */
+.my-doc-chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;cursor:pointer;white-space:nowrap;background:var(--card);color:var(--ink2);font-family:inherit;font-weight:600;transition:.15s;flex-shrink:0;}
+.my-doc-chip:active{transform:scale(.95);}
+.my-doc-chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.my-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.my-cal-dow{text-align:center;font-size:10px;font-weight:700;padding:6px 0;}
+.my-cal-dow.sun{color:#c0392b;}.my-cal-dow.sat{color:#1a5276;}
+.my-cal-cell{border-radius:10px;min-height:72px;padding:5px;background:var(--card);border:1px solid var(--border);display:flex;flex-direction:column;}
+.my-cal-cell.empty{background:transparent;border-color:transparent;}
+.my-cal-cell.sun{background:#fff5f5;}.my-cal-cell.sat{background:#f0f5ff;}
+.my-cal-cell.off{background:#f5f4f0;opacity:.7;}
+.my-cal-cell.today{border:2.5px solid #f39c12;background:#fffcf0;}
+.my-cal-num{font-size:12px;font-weight:700;margin-bottom:3px;}
+.my-cal-cell.sun .my-cal-num{color:#c0392b;}.my-cal-cell.sat .my-cal-num{color:#1a5276;}
+.my-cal-clinic{display:block;padding:2px 4px;border-radius:5px;font-size:10px;font-weight:700;text-align:center;line-height:1.3;}
+.my-cal-members{font-size:8px;color:#888;line-height:1.3;margin-top:2px;text-align:center;}
+@media(max-width:680px){
+  .my-cal-cell{min-height:60px;padding:3px;}
+  .my-cal-clinic{font-size:9px;padding:1px 2px;}
+  .my-cal-members{font-size:7px;}
+  .today-doc-chip{font-size:11px;padding:5px 10px;}
+}
 </style>
 </head>
 <body>
@@ -276,6 +310,7 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
   <div style="display:flex;gap:4px;margin:0 4px;">
     <button class="hdr-tab" id="htab0">シフト一覧</button>
     <button class="hdr-tab" id="htab1">医院別</button>
+    <button class="hdr-tab" id="htab2">今日</button>
   </div>
   <div style="display:flex;align-items:center;gap:2px;margin:0 4px;">
     <button class="mnav-btn2" id="prevBtn" style="width:28px;height:28px;border:1px solid #b0cfe8;border-radius:6px;background:transparent;color:#2d6a9f;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8249;</button>
@@ -360,14 +395,14 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
 <div id="vB" style="display:none">
 <div style="overflow:auto;height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;"><table class="stbl" id="tA" style="border-collapse:collapse;white-space:nowrap;"></table></div></div>
 
-<!-- VIEW D: 集計・有休管理 -->
-<div id="vD" style="display:none">
-
+<!-- VIEW C: 今日の配置 (tab2) -->
+<div id="vC" style="display:none;overflow:auto;height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;">
+<div id="todayDocBar" style="padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;gap:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:10;"></div>
+<div id="todayView" style="padding:12px;"></div>
 </div>
 
-<!-- VIEW C: 人数 -->
-<div id="vC" style="display:none">
-<div class="twrap"><table class="ctbl" id="tC"></table></div></div>
+<!-- VIEW D: (reserved) -->
+<div id="vD" style="display:none;"></div>
 
 <!-- QPOP: 日付タップ後の入力 -->
 <div class="overlay" id="qpopOv">
@@ -1659,9 +1694,163 @@ function renderBViewAll(){
   calWrap.innerHTML=h;
 }
 
-/* ---- VIEW D: 集計・有休管理 ---- */
+/* ---- VIEW: 今日の配置 (tab2) ---- */
+var todayViewDay=0;
+var todayDocId=null; /* null=全体表示, docId=個人カレンダー */
+function renderTodayView(){
+  var el=document.getElementById('todayView');
+  if(!el)return;
+  /* ドクター選択バー */
+  renderTodayDocBar();
+  /* 表示日: 今月モードなら今日、他月なら1日 */
+  if(!todayViewDay){
+    todayViewDay=1;
+    if(curY===today.getFullYear()&&curM===today.getMonth()) todayViewDay=today.getDate();
+  }
+  if(todayDocId) renderTodayPersonalCal(el);
+  else renderTodayClinicView(el, todayViewDay);
+}
+function renderTodayDocBar(){
+  var bar=document.getElementById('todayDocBar');
+  if(!bar)return;
+  var h='<button class="my-doc-chip'+(!todayDocId?' on':'')+'" data-today-doc="">全体</button>';
+  doctors.forEach(function(doc){
+    h+='<button class="my-doc-chip'+(todayDocId===doc.id?' on':'')+'" data-today-doc="'+doc.id+'">'+doc.n+'</button>';
+  });
+  bar.innerHTML=h;
+  bar.querySelectorAll('[data-today-doc]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      todayDocId=this.dataset.todayDoc||null;
+      todayViewDay=0;
+      renderTodayView();
+      /* 選択したボタンにスクロール */
+      setTimeout(function(){btn.scrollIntoView({inline:'center',block:'nearest'});},50);
+    });
+  });
+}
+function renderTodayClinicView(el, viewDay){
+  var dateStr=curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(viewDay).padStart(2,'0');
+  var DOW3=['日','月','火','水','木','金','土'];
+  var w=new Date(curY,curM,viewDay).getDay();
+  var wColor=w===0?'#c0392b':w===6?'#1a5276':'var(--ink)';
+  var daysInMonth=dim(curY,curM);
+
+  var h='<div class="today-date-banner" style="color:'+wColor+'">'+(curM+1)+'月'+viewDay+'日（'+DOW3[w]+'）</div>';
+  h+='<div class="today-date-sub">';
+  if(curY===today.getFullYear()&&curM===today.getMonth()&&viewDay===today.getDate()) h+='今日の配置';
+  else h+=curY+'年'+(curM+1)+'月'+viewDay+'日の配置';
+  h+='</div>';
+
+  /* 日付選択バー */
+  h+='<div style="display:flex;gap:3px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:14px;padding:2px 0;" id="todayDayBar">';
+  for(var dd=1;dd<=daysInMonth;dd++){
+    var dw=new Date(curY,curM,dd).getDay();
+    var isActive=dd===viewDay;
+    var dc=dw===0?'#c0392b':dw===6?'#1a5276':'var(--ink2)';
+    var bg2=isActive?'var(--ink)':'var(--card)';
+    var fc=isActive?'#fff':dc;
+    h+='<button onclick="setTodayViewDay('+dd+')" style="min-width:36px;height:36px;border-radius:10px;border:1px solid '+(isActive?'var(--ink)':'var(--border)')+';background:'+bg2+';color:'+fc+';font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;flex-shrink:0;">';
+    h+='<span style="font-size:11px;line-height:1;">'+dd+'</span>';
+    h+='<span style="font-size:7px;line-height:1;">'+DOW3[dw]+'</span>';
+    h+='</button>';
+  }
+  h+='</div>';
+
+  var allShifts=shifts[dateStr]||[];
+  CLINICS.forEach(function(cl){
+    var dayS=allShifts.filter(function(s){return s.clinicId===cl.id;});
+    var closed=isClosed(dateStr,cl.id);
+    var cc=getCC(cl.id);
+    h+='<div class="today-clinic-card'+(closed?' closed-card':'')+'">';
+    h+='<div class="today-clinic-name">';
+    h+='<span class="today-clinic-badge" style="background:'+cc.c+';">'+(closed?'休診':dayS.length+'名')+'</span>';
+    h+='<span style="color:'+cc.c+';">'+cl.n+'</span>';
+    h+='</div>';
+    if(!closed&&dayS.length){
+      h+='<div class="today-doc-list">';
+      dayS.forEach(function(s){
+        var doc=doctors.find(function(dd2){return dd2.id===s.docId;});
+        if(!doc)return;
+        var isPlus=s.memo==='＋'||s.memo==='休出';
+        h+='<span class="today-doc-chip'+(isPlus?' plus':'')+'" style="background:'+cc.b+';color:'+cc.c+';">';
+        h+=doc.n+(isPlus?'<span style="color:#e67e22;font-weight:800;">＋</span>':'');
+        h+='</span>';
+      });
+      h+='</div>';
+    } else if(closed){
+      h+='<div style="font-size:11px;color:var(--ink3);">本日休診</div>';
+    }
+    h+='</div>';
+  });
+  el.innerHTML=h;
+  setTimeout(function(){
+    var bar=document.getElementById('todayDayBar');
+    if(bar){var btns=bar.querySelectorAll('button');if(btns[viewDay-1])btns[viewDay-1].scrollIntoView({inline:'center',block:'nearest'});}
+  },50);
+}
+function setTodayViewDay(d){
+  todayViewDay=d;
+  var el=document.getElementById('todayView');
+  if(!el)return;
+  renderTodayClinicView(el,d);
+}
+function renderTodayPersonalCal(el){
+  var doc=doctors.find(function(d){return d.id===todayDocId;});
+  if(!doc){el.innerHTML='';return;}
+  var days=dim(curY,curM), firstDow=new Date(curY,curM,1).getDay();
+  var DOW3=['日','月','火','水','木','金','土'];
+
+  var h='<div style="text-align:center;font-size:16px;font-weight:800;color:var(--ink);padding:8px 0 14px;">'+doc.n+' の'+(curM+1)+'月</div>';
+
+  /* カレンダーグリッド */
+  h+='<div class="my-cal-grid">';
+  DOW3.forEach(function(dw,i){
+    h+='<div class="my-cal-dow'+(i===0?' sun':i===6?' sat':'')+'">'+dw+'</div>';
+  });
+  for(var i=0;i<firstDow;i++) h+='<div class="my-cal-cell empty"></div>';
+  for(var d=1;d<=days;d++){
+    var dateStr=curY+'-'+String(curM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var w=new Date(curY,curM,d).getDay();
+    var sh=(shifts[dateStr]||[]).find(function(s){return s.docId===todayDocId;});
+    var isT=isToday(d);
+    var cls='my-cal-cell'+(w===0?' sun':w===6?' sat':'')+(isT?' today':'');
+    var isOff=sh&&(sh.clinicId==='yasumi'||sh.clinicId==='yukyu'||sh.clinicId==='daikyu');
+    if(isOff)cls+=' off';
+    h+='<div class="'+cls+'">';
+    h+='<div class="my-cal-num">'+d+'</div>';
+    if(sh){
+      var cc=getCC(sh.clinicId);
+      var isPlus=sh.memo==='＋'||sh.memo==='休出';
+      if(isOff){
+        var offLabel=sh.clinicId==='yukyu'?'有給':sh.clinicId==='daikyu'?'代休':'休み';
+        var offColor=sh.clinicId==='yukyu'?'#e53935':'#9e9e9e';
+        h+='<span class="my-cal-clinic" style="background:'+offColor+';color:#fff;">'+offLabel+'</span>';
+      } else {
+        h+='<span class="my-cal-clinic" style="background:'+cc.b+';color:'+cc.c+';'+(isPlus?'border:1.5px solid #e67e22;':'')+'">'+cname(sh.clinicId)+(isPlus?'＋':'')+'</span>';
+        /* 同僚 */
+        var notClinic=['yasumi','yukyu','daikyu','daishutsu','houmon'];
+        if(notClinic.indexOf(sh.clinicId)<0){
+          var members=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===sh.clinicId&&s.docId!==todayDocId;});
+          if(members.length>0){
+            h+='<div class="my-cal-members">';
+            h+=members.map(function(s){var d2=doctors.find(function(dd){return dd.id===s.docId;});return d2?d2.n:'';}).filter(Boolean).join(' ');
+            h+='</div>';
+          }
+        }
+      }
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+/* renderMyShift/renderMyShiftCal removed — merged into 今日 tab */
+
+/* ---- VIEW D: 集計・有休管理 (legacy, disabled — vD is now マイシフト) ---- */
 function renderD(){
-  var el=document.getElementById('vD');
+  return; /* disabled: vD is now used by マイシフト tab */
+  var el=document.getElementById('vD_legacy_disabled');
   if(!el)return;
   /* 休み希望ログ（管理者向け全員表示） */
   var kyumiLog=loadKyumiLog();
@@ -2362,6 +2551,7 @@ function scheduleAutoBackup(){
 /* ---- VIEW C: 人数 ---- */
 function renderC(){
   var days=dim(curY,curM),el=document.getElementById('tC');
+  if(!el)return; /* tC no longer exists; vC is now 今日タブ */
   var h='<thead><tr><th class="c-fix" style="background:#edebe6;text-align:left;padding-left:8px;font-size:11px;">医院</th>';
   for(var d=1;d<=days;d++){
     var w=dow(d),cls=w===0?'sun':w===6?'sat':'';
@@ -3390,8 +3580,7 @@ function renderAll(){
   renderLegend();
   if(curTab===0)renderP();
   else if(curTab===1)renderA();
-  else if(curTab===2)renderC();
-  else if(curTab===3)renderD();
+  else if(curTab===2)renderTodayView();
   /* vGはinitKyumiViewGで管理 */
 
 }
@@ -3409,7 +3598,7 @@ document.addEventListener('DOMContentLoaded',function(){
     },200);
   });
   document.getElementById('nextBtn').addEventListener('click',function(){chgMonth(1);});
-  [0,1].forEach(function(i){
+  [0,1,2].forEach(function(i){
     var ht=document.getElementById('htab'+i);if(ht)ht.addEventListener('click',function(){setTab(i);});
   });
   var loginBtn=document.getElementById('loginBtn');if(loginBtn)loginBtn.addEventListener('click',doLogin);
