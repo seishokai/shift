@@ -825,8 +825,14 @@ function isToday(d){return today.getFullYear()===curY&&today.getMonth()===curM&&
 function isClosed(dateStr,cid){
   var d=new Date(dateStr),w=d.getDay();
   if(cid){
-    /* 医院指定あり: スプレッドシートの休診日データのみで判定 */
+    /* 医院指定あり: スプレッドシートの休診日データで判定 */
     if(CLOSED_DATES[dateStr]&&CLOSED_DATES[dateStr].includes(cid))return true;
+    /* シフトデータから推定: この医院にシフトゼロ & 他の医院にデータあり → 休診 */
+    var all=shifts[dateStr]||[];
+    if(all.length>0){
+      var mine=all.filter(function(s){return s.clinicId===cid;});
+      if(mine.length===0)return true;
+    }
     return false;
   }
   /* 医院指定なし（ヘッダー表示用） */
