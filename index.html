@@ -325,7 +325,9 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
   <div style="display:flex;gap:4px;margin:0 4px;">
     <button class="hdr-tab" id="htab0">シフト一覧</button>
     <button class="hdr-tab" id="htab1">医院別</button>
-    <button class="hdr-tab" id="htab2">今日</button>
+    <button class="hdr-tab" id="htab2">個人</button>
+    <button class="clinic-mode-btn on" id="clinicMode0" style="display:none;padding:3px 7px;border-radius:8px;border:1px solid var(--border);background:var(--ink);color:#fff;font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;">縦一覧</button>
+    <button class="clinic-mode-btn" id="clinicMode1" style="display:none;padding:3px 7px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;">横一覧</button>
   </div>
   <div style="display:flex;align-items:center;gap:2px;margin:0 4px;">
     <button class="mnav-btn2" id="prevBtn" style="width:28px;height:28px;border:1px solid #b0cfe8;border-radius:6px;background:transparent;color:#2d6a9f;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8249;</button>
@@ -408,10 +410,6 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
 
 <!-- VIEW B: 医院別 -->
 <div id="vB" style="display:none;height:calc(100vh - 44px);overflow:hidden;flex-direction:column;">
-<div style="display:flex;align-items:center;background:var(--card);border-bottom:1px solid var(--border);padding:4px 12px;gap:6px;flex-shrink:0;">
-  <button class="clinic-mode-btn on" id="clinicMode0" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--ink);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院縦一覧</button>
-  <button class="clinic-mode-btn" id="clinicMode1" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院横一覧</button>
-</div>
 <!-- 医院横一覧 -->
 <div id="clinicViewCar" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
 <div id="clinicCarouselBar" style="display:none;"></div>
@@ -973,6 +971,10 @@ function setTab(n){
     var vw=document.getElementById(viewIds[i]);
     if(vw)vw.style.display=i===n?(flexIds[viewIds[i]]?'flex':''):'none';
   });
+  /* 医院別サブタブの表示切替 */
+  var cm0=document.getElementById('clinicMode0'),cm1=document.getElementById('clinicMode1');
+  if(cm0)cm0.style.display=n===1?'':'none';
+  if(cm1)cm1.style.display=n===1?'':'none';
   renderAll();
 }
 
@@ -1787,32 +1789,27 @@ function renderBViewAll(){
 
 /* ---- VIEW: 今日の配置 (tab2) ---- */
 var todayViewDay=0;
-var todayDocId=null; /* null=全体表示, docId=個人カレンダー */
+var todayDocId=null; /* docId=個人カレンダー */
 function renderTodayView(){
   var el=document.getElementById('todayView');
   if(!el)return;
+  /* 初回: 最初のドクターを選択 */
+  if(!todayDocId&&doctors.length) todayDocId=doctors[0].id;
   /* ドクター選択バー */
   renderTodayDocBar();
-  /* 表示日: 今月モードなら今日、他月なら1日 */
-  if(!todayViewDay){
-    todayViewDay=1;
-    if(curY===today.getFullYear()&&curM===today.getMonth()) todayViewDay=today.getDate();
-  }
-  if(todayDocId) renderTodayPersonalCal(el);
-  else renderTodayClinicView(el, todayViewDay);
+  renderTodayPersonalCal(el);
 }
 function renderTodayDocBar(){
   var bar=document.getElementById('todayDocBar');
   if(!bar)return;
-  var h='<button class="my-doc-chip'+(!todayDocId?' on':'')+'" data-today-doc="">全体</button>';
+  var h='';
   doctors.forEach(function(doc){
     h+='<button class="my-doc-chip'+(todayDocId===doc.id?' on':'')+'" data-today-doc="'+doc.id+'">'+doc.n+'</button>';
   });
   bar.innerHTML=h;
   bar.querySelectorAll('[data-today-doc]').forEach(function(btn){
     btn.addEventListener('click',function(){
-      todayDocId=this.dataset.todayDoc||null;
-      todayViewDay=0;
+      todayDocId=this.dataset.todayDoc||doctors[0].id;
       renderTodayView();
       /* 選択したボタンにスクロール */
       setTimeout(function(){btn.scrollIntoView({inline:'center',block:'nearest'});},50);
