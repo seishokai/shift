@@ -1848,31 +1848,29 @@ function renderTodayClinicView(el, viewDay){
   h+='</div>';
 
   var allShifts=shifts[dateStr]||[];
+  /* 医院を横に並べる */
+  h+='<div style="display:flex;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">';
   CLINICS.forEach(function(cl){
     var dayS=allShifts.filter(function(s){return s.clinicId===cl.id;});
     var closed=isClosed(dateStr,cl.id);
     var cc=getCC(cl.id);
-    h+='<div class="today-clinic-card'+(closed?' closed-card':'')+'">';
-    h+='<div class="today-clinic-name">';
-    h+='<span class="today-clinic-badge" style="background:'+cc.c+';">'+(closed?'休診':dayS.length+'名')+'</span>';
-    h+='<span style="color:'+cc.c+';">'+cl.n+'</span>';
-    h+='</div>';
+    h+='<div style="min-width:72px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;">';
+    /* 医院ヘッダー */
+    h+='<div style="width:100%;text-align:center;padding:6px 2px;background:'+cc.c+';color:#fff;font-size:11px;font-weight:800;">'+cl.n+'</div>';
+    /* 人数 */
+    h+='<div style="padding:3px 0;font-size:9px;color:var(--ink3);font-weight:600;">'+(closed?'休診':dayS.length+'名')+'</div>';
+    /* ドクター名（縦） */
     if(!closed&&dayS.length){
-      h+='<div class="today-doc-list">';
       dayS.forEach(function(s){
         var doc=doctors.find(function(dd2){return dd2.id===s.docId;});
         if(!doc)return;
         var isPlus=s.memo==='＋'||s.memo==='休出';
-        h+='<span class="today-doc-chip'+(isPlus?' plus':'')+'" style="background:'+cc.b+';color:'+cc.c+';">';
-        h+=doc.n+(isPlus?'<span style="color:#e67e22;font-weight:800;">＋</span>':'');
-        h+='</span>';
+        h+='<div style="padding:3px 4px;font-size:12px;font-weight:700;color:'+cc.c+';text-align:center;white-space:nowrap;'+(isPlus?'':'')+'">'+doc.n+(isPlus?'<span style="color:#e67e22;">＋</span>':'')+'</div>';
       });
-      h+='</div>';
-    } else if(closed){
-      h+='<div style="font-size:11px;color:var(--ink3);">本日休診</div>';
     }
     h+='</div>';
   });
+  h+='</div>';
   el.innerHTML=h;
   setTimeout(function(){
     var bar=document.getElementById('todayDayBar');
