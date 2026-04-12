@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#f5f4f0;--card:#fff;--ink:#1a1a18;--ink2:#6b6965;--ink3:#b0ada8;--border:#e8e5e0;--hdr:#1a1a18;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:13px;padding-bottom:20px;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:13px;padding-bottom:0;}
 /* CLINIC COLORS */
 .cc-esca{--cc:#c0392b;--cb:#fdf0ee;}.cc-r{--cc:#7030a0;--cb:#f5eef8;}
 .cc-wiz{--cc:#1e8449;--cb:#e9f7ef;}.cc-luminas{--cc:#27ae60;--cb:#e8f5e9;}
@@ -19,10 +19,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .cc-yukyu{--cc:#c0392b;--cb:#f0f0ee;}.cc-daikyu{--cc:#1a5276;--cb:#e8f4fd;}
 .cc-daishutsu{--cc:#555;--cb:#f0f0ee;}.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
 /* HEADER */
-.hdr{background:#e8f4fd;color:#1a1a18;height:40px;display:flex;align-items:center;padding:0 10px;gap:4px;position:sticky;top:0;z-index:200;box-shadow:0 1px 6px rgba(0,0,0,.10);transition:background .3s;}
+.hdr{background:#e8f4fd;color:#1a1a18;height:30px;display:flex;align-items:center;padding:0 6px;gap:2px;position:sticky;top:0;z-index:200;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:background .3s;}
 .hdr.admin-mode{background:#e8f5e9 !important;}
-.hdr-title{font-size:14px;font-weight:800;letter-spacing:.02em;color:#1a1a18;white-space:nowrap;}
-.hdr-tab{background:transparent;border:1px solid #b0cfe8;color:#2d6a9f;font-family:inherit;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer;transition:.15s;white-space:nowrap;}
+.hdr-title{font-size:12px;font-weight:800;letter-spacing:.02em;color:#1a1a18;white-space:nowrap;}
+.hdr-tab{background:transparent;border:1px solid #b0cfe8;color:#2d6a9f;font-family:inherit;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;cursor:pointer;transition:.15s;white-space:nowrap;}
 .hdr-tab.on{background:#2d6a9f;color:#fff;border-color:#2d6a9f;}
 .hdr-tab:active{opacity:.8;}
 .month-nav-bar{display:none;}
@@ -39,8 +39,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .twrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .stbl{border-collapse:collapse;white-space:nowrap;}
 .stbl th,.stbl td{border:0.5px solid var(--border);}
-.col-head{position:sticky;left:0;z-index:12;background:#edebe6;font-size:11px;font-weight:600;padding:6px 8px;min-width:64px;max-width:64px;border-right:1px solid #d8d4cc;}
-.date-th{min-width:46px;text-align:center;background:#edebe6;padding:5px 2px;font-size:11px;font-weight:500;position:sticky;top:0;z-index:8;}
+.col-head{position:sticky;left:0;z-index:12;background:#edebe6;font-size:10px;font-weight:600;padding:2px 4px;min-width:50px;max-width:50px;border-right:1px solid #d8d4cc;}
+.date-th{min-width:40px;text-align:center;background:#edebe6;padding:2px 1px;font-size:10px;font-weight:500;position:sticky;top:0;z-index:8;}
 .dow{display:block;font-size:9px;font-weight:400;color:var(--ink3);margin-top:1px;}
 .date-th.sun,.tc.sun{background:#fff5f5!important;}
 .date-th.sat,.tc.sat{background:#f0f5ff!important;}
@@ -48,7 +48,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .tc.today-c{background:#fff9e6!important;}
 .date-th.closed-h{background:#ececea!important;opacity:.75;}
 .tc.closed-c{background:#f0efed!important;}
-.tc{min-width:30px;vertical-align:top;padding:1px;background:var(--card);text-align:center;}
+.tc{min-width:28px;vertical-align:top;padding:0px;background:var(--card);text-align:center;}
 .pills{display:flex;flex-direction:column;gap:1px;min-height:20px;align-items:center;}
 .pill{display:inline-flex;align-items:center;justify-content:center;padding:1px 3px;border-radius:3px;font-size:9px;font-weight:600;line-height:1.3;}
 /* COUNT */
@@ -111,7 +111,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .btn-ghost{background:var(--bg);color:var(--ink2);flex:0 0 auto;padding:13px 18px;}
 .btn-del{background:#fdf0ee;color:#b83030;flex:0 0 auto;padding:13px 14px;}
 /* ===== VIEW B 2ペインレイアウト ===== */
-.b-layout{display:flex;height:calc(100vh - 44px);overflow:hidden;}
+.b-layout{display:flex;height:calc(100vh - 30px);overflow:hidden;}
 .b-left{flex:0 0 340px;border-right:1px solid var(--border);overflow-y:hidden;display:flex;flex-direction:column;min-width:0;}
 .b-right{flex:1;overflow:auto;background:var(--bg);}
 .b-right-title{padding:8px 12px;font-size:11px;font-weight:600;color:var(--ink3);background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;}
@@ -147,7 +147,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .all-pill{display:block;padding:1px 2px;border-radius:2px;font-size:8px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 /* スマホ: 右ペインは非表示 */
 @media(max-width:680px){
-  #vA, #vB-view{height:calc(100vh - 44px) !important;}
+  #vA, #vB-view{height:calc(100vh - 30px) !important;}
   #docCalOv, #clinicCalOv{align-items:flex-start !important;padding:12px 0 0 0 !important;}
   #docCalOv .sheet, #clinicCalOv .sheet{max-width:100% !important;border-radius:0 0 18px 18px !important;max-height:92vh !important;padding:16px 12px 32px !important;}
   #docCalGrid, #clinicCalGrid{padding:0 4px;}
@@ -237,7 +237,7 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
 
 /* 4. モバイルでタブボタン改善 */
 @media(max-width:680px){
-  .hdr{height:44px;padding:0 6px;}
+  .hdr{height:32px;padding:0 6px;}
   .hdr-tab{padding:5px 12px;font-size:12px;}
   .mnav-btn2{width:32px;height:32px;font-size:18px;}
   #mLbl{font-size:13px !important;}
@@ -329,16 +329,15 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
     <button class="clinic-mode-btn on" id="clinicMode0" style="display:none;padding:3px 7px;border-radius:8px;border:1px solid var(--border);background:var(--ink);color:#fff;font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;">縦一覧</button>
     <button class="clinic-mode-btn" id="clinicMode1" style="display:none;padding:3px 7px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;">横一覧</button>
   </div>
-  <div style="display:flex;align-items:center;gap:2px;margin:0 4px;">
-    <button class="mnav-btn2" id="prevBtn" style="width:28px;height:28px;border:1px solid #b0cfe8;border-radius:6px;background:transparent;color:#2d6a9f;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8249;</button>
-    <span id="mLbl" style="font-size:12px;font-weight:700;min-width:75px;text-align:center;color:#1a1a18;"></span>
-    <button class="mnav-btn2" id="nextBtn" style="width:28px;height:28px;border:1px solid #b0cfe8;border-radius:6px;background:transparent;color:#2d6a9f;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8250;</button>
-    <button id="thisMonthBtn" style="margin-left:2px;padding:2px 8px;height:24px;border:1px solid #b0cfe8;border-radius:6px;background:transparent;color:#2d6a9f;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">今月</button>
+  <div style="display:flex;align-items:center;gap:1px;margin:0 2px;">
+    <button class="mnav-btn2" id="prevBtn" style="width:22px;height:22px;border:1px solid #b0cfe8;border-radius:5px;background:transparent;color:#2d6a9f;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8249;</button>
+    <span id="mLbl" style="font-size:11px;font-weight:700;min-width:68px;text-align:center;color:#1a1a18;"></span>
+    <button class="mnav-btn2" id="nextBtn" style="width:22px;height:22px;border:1px solid #b0cfe8;border-radius:5px;background:transparent;color:#2d6a9f;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8250;</button>
+    <button id="thisMonthBtn" style="margin-left:1px;padding:1px 6px;height:20px;border:1px solid #b0cfe8;border-radius:5px;background:transparent;color:#2d6a9f;font-family:inherit;font-size:9px;font-weight:700;cursor:pointer;">今月</button>
   </div>
   <div style="flex:1;"></div>
   <button class="hdr-btn" id="printBtn" style="font-size:13px;">🖨</button>
 </div>
-<div class="legend" id="legend"></div>
 
 <!-- VIEW A: 人 -->
 <div id="vA">
@@ -409,7 +408,7 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
 </div>
 
 <!-- VIEW B: 医院別 -->
-<div id="vB" style="display:none;height:calc(100vh - 44px);overflow:hidden;flex-direction:column;">
+<div id="vB" style="display:none;height:calc(100vh - 30px);overflow:hidden;flex-direction:column;">
 <!-- 医院横一覧 -->
 <div id="clinicViewCar" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
 <div id="clinicCarouselBar" style="display:none;"></div>
@@ -422,7 +421,7 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
 </div>
 
 <!-- VIEW C: 今日の配置 (tab2) -->
-<div id="vC" style="display:none;overflow:auto;height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;">
+<div id="vC" style="display:none;overflow:auto;height:calc(100vh - 30px);-webkit-overflow-scrolling:touch;">
 <div id="todayDocBar" style="padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;display:flex;gap:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:10;"></div>
 <div id="todayView" style="padding:12px;"></div>
 </div>
@@ -1115,14 +1114,12 @@ function renderAllView(targetId){
     return '<th style="min-width:28px;width:28px;text-align:center;position:sticky;top:0;'+pos+':0;background:#d0d0d0;z-index:15;padding:2px 2px;font-size:9px;font-weight:700;border:0.5px solid #bbb;'+border+'white-space:nowrap;">日付</th>';
   }
   function docTh(doc){
-    return '<th style="min-width:36px;max-width:36px;text-align:center;font-size:9px;position:sticky;top:0;z-index:9;background:#d0d0d0;padding:2px 1px;cursor:pointer;overflow:hidden;border:0.5px solid #bbb;font-weight:700;" data-open-doc="'+doc.id+'">'+
-      doc.n+(doc.memo?'<span style="display:block;font-size:6px;color:#555;font-weight:400">'+doc.memo+'</span>':'')+
-      '</th>';
+    return '<th style="min-width:36px;max-width:36px;text-align:center;font-size:8px;position:sticky;top:0;z-index:9;background:#d0d0d0;padding:1px 1px;cursor:pointer;overflow:hidden;border:0.5px solid #bbb;font-weight:700;line-height:1.1;" data-open-doc="'+doc.id+'">'+
+      doc.n+'</th>';
   }
   function docThBot(doc){
-    return '<th style="min-width:36px;max-width:36px;text-align:center;font-size:9px;position:sticky;bottom:0;z-index:9;background:#d0d0d0;padding:2px 1px;cursor:pointer;overflow:hidden;border:0.5px solid #bbb;font-weight:700;" data-open-doc="'+doc.id+'">'+
-      doc.n+(doc.memo?'<span style="display:block;font-size:6px;color:#555;font-weight:400">'+doc.memo+'</span>':'')+
-      '</th>';
+    return '<th style="min-width:36px;max-width:36px;text-align:center;font-size:8px;position:sticky;bottom:0;z-index:9;background:#d0d0d0;padding:1px 1px;cursor:pointer;overflow:hidden;border:0.5px solid #bbb;font-weight:700;line-height:1.1;" data-open-doc="'+doc.id+'">'+
+      doc.n+'</th>';
   }
   function dateThBot(pos){
     var border=pos==='left'?'border-right:2px solid #aaa;':'border-left:2px solid #aaa;';
@@ -1177,7 +1174,7 @@ function renderAllView(targetId){
   }
   h+='</tbody></table>';
   var guideBar='';
-el.innerHTML='<div style="overflow:auto;height:calc(100vh - 44px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
+el.innerHTML='<div style="overflow:auto;height:calc(100vh - 30px);-webkit-overflow-scrolling:touch;">'+h+'</div>';
 
   el.querySelectorAll('[data-open-doc]').forEach(function(th){
     th.addEventListener('click',function(){
@@ -1319,6 +1316,7 @@ function renderP(){
   document.getElementById('vB-view').style.display='none';
   /* ドクター選択バー非表示 */
   document.getElementById('docSelBar').innerHTML='';
+  document.getElementById('docSelBar').style.display='none';
   var bLeft=document.querySelector('.b-left');
   var bRight=document.getElementById('bRightPanel');
   /* 常に全員シフト表を表示 */
