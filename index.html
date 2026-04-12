@@ -406,10 +406,21 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
   </div>
 </div>
 
-<!-- VIEW B: 医院カルーセル -->
+<!-- VIEW B: 医院別 -->
 <div id="vB" style="display:none;height:calc(100vh - 44px);overflow:hidden;flex-direction:column;">
+<div style="display:flex;align-items:center;background:var(--card);border-bottom:1px solid var(--border);padding:4px 12px;gap:6px;flex-shrink:0;">
+  <button class="clinic-mode-btn on" id="clinicMode0" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--ink);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院別</button>
+  <button class="clinic-mode-btn" id="clinicMode1" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院横一覧</button>
+</div>
+<!-- カルーセル -->
+<div id="clinicViewCar" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
 <div id="clinicCarouselBar" style="display:flex;gap:6px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;"></div>
 <div id="clinicCarouselBody" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0;"></div>
+</div>
+<!-- 横テーブル -->
+<div id="clinicViewTbl" style="display:none;flex:1;overflow:auto;-webkit-overflow-scrolling:touch;">
+<table class="stbl" id="tA" style="border-collapse:collapse;white-space:nowrap;"></table>
+</div>
 </div>
 
 <!-- VIEW C: 今日の配置 (tab2) -->
@@ -973,9 +984,19 @@ function renderLegend(){
 }
 
 /* ---- VIEW A: 医院表 ---- */
+var clinicViewMode=0; /* 0=カルーセル, 1=横テーブル */
 var carClinicId=null;
 function renderA(){
-  /* 医院選択バー */
+  /* サブタブ切り替えの表示 */
+  var vCar=document.getElementById('clinicViewCar');
+  var vTbl=document.getElementById('clinicViewTbl');
+  if(vCar)vCar.style.display=clinicViewMode===0?'flex':'none';
+  if(vTbl)vTbl.style.display=clinicViewMode===1?'':'none';
+  var m0=document.getElementById('clinicMode0'),m1=document.getElementById('clinicMode1');
+  if(m0){m0.style.background=clinicViewMode===0?'var(--ink)':'var(--card)';m0.style.color=clinicViewMode===0?'#fff':'var(--ink2)';}
+  if(m1){m1.style.background=clinicViewMode===1?'var(--ink)':'var(--card)';m1.style.color=clinicViewMode===1?'#fff':'var(--ink2)';}
+  if(clinicViewMode===1){renderATable();return;}
+  /* カルーセルモード */
   var bar=document.getElementById('clinicCarouselBar');
   var body=document.getElementById('clinicCarouselBody');
   if(!bar||!body)return;
@@ -1049,6 +1070,53 @@ function renderASwipe(el){
     if(dx<-50&&idx<CLINICS.length-1){carClinicId=CLINICS[idx+1].id;renderA();}
     else if(dx>50&&idx>0){carClinicId=CLINICS[idx-1].id;renderA();}
   });
+}
+function renderATable(){
+  var el=document.getElementById('tA');
+  if(!el)return;
+  var days=dim(curY,curM);
+  var DOW2=['日','月','火','水','木','金','土'];
+  var h='<thead><tr>';
+  h+='<th style="position:sticky;top:0;left:0;z-index:15;background:#edebe6;font-size:9px;font-weight:600;color:var(--ink3);padding:3px 5px;min-width:32px;max-width:32px;border:0.5px solid var(--border);border-right:2px solid #d8d4cc;white-space:nowrap;">医院</th>';
+  for(var d=1;d<=days;d++){
+    var w=dow(d);
+    var bg=w===0?'#fff5f5':w===6?'#f0f5ff':'#edebe6';
+    var col=w===0?'#c0392b':w===6?'#1a5276':'var(--ink)';
+    if(isToday(d))bg='#fffbf0';
+    var todayBdr=isToday(d)?'border-bottom:3px solid #f39c12;':'';
+    h+='<th style="position:sticky;top:0;z-index:8;background:'+bg+';color:'+col+';text-align:center;font-size:9px;font-weight:600;padding:3px 1px;min-width:38px;max-width:38px;border:0.5px solid var(--border);white-space:nowrap;'+todayBdr+'">'+
+      d+'<span style="font-size:8px;font-weight:400;color:'+(w===0?'#c0392b':w===6?'#1a5276':'var(--ink3)')+'">'+DOW2[w]+'</span></th>';
+  }
+  h+='<th style="position:sticky;top:0;right:0;z-index:15;background:#edebe6;font-size:9px;font-weight:600;color:var(--ink3);padding:3px 5px;min-width:32px;max-width:32px;border:0.5px solid var(--border);border-left:2px solid #d8d4cc;white-space:nowrap;">医院</th>';
+  h+='</tr></thead><tbody>';
+  CLINICS.forEach(function(cl){
+    var col=getCC(cl.id).c;
+    h+='<tr><td style="position:sticky;left:0;z-index:6;background:#edebe6;font-size:9px;font-weight:600;padding:2px 5px;min-width:32px;max-width:32px;color:'+col+';border:0.5px solid var(--border);border-right:2px solid #d8d4cc;white-space:nowrap;overflow:hidden;">'+cl.n+'</td>';
+    for(var d=1;d<=days;d++){
+      var dateStr=ds(d),w=dow(d);
+      var rowBg=w===0?'#fff5f5':w===6?'#f0f5ff':'var(--card)';
+      if(isToday(d))rowBg='#fffbf0';
+      if(isClosed(dateStr,cl.id)&&!isToday(d))rowBg='#f0efed';
+      var dayS=(shifts[dateStr]||[]).filter(function(s){return s.clinicId===cl.id;});
+      h+='<td style="min-width:38px;max-width:38px;vertical-align:middle;padding:1px;background:'+rowBg+';border:0.5px solid var(--border);overflow:hidden;text-align:center;">';
+      if(dayS.length){
+        h+='<div style="display:flex;flex-direction:column;gap:1px;">';
+        dayS.forEach(function(s){
+          var doc=doctors.find(function(dd){return dd.id===s.docId;});
+          if(!doc)return;
+          var isKyu=s.memo==='休出'||s.memo==='＋',isDai=s.memo==='代出';
+          h+='<span style="display:block;background:'+col+'18;color:'+col+';font-size:8px;font-weight:700;padding:1px 2px;border-radius:2px;white-space:nowrap;text-align:center;'+(isKyu?'border-left:2px solid #e67e22;':'')+'">';
+          h+=doc.n+(isKyu?'<span style="color:#e67e22;font-size:7px;">＋</span>':'')+(isDai?'<span style="font-size:6px;color:#999;"> 代</span>':'');
+          h+='</span>';
+        });
+        h+='</div>';
+      }
+      h+='</td>';
+    }
+    h+='<td style="position:sticky;right:0;z-index:6;background:#edebe6;font-size:9px;font-weight:600;padding:2px 5px;min-width:32px;max-width:32px;color:'+col+';border:0.5px solid var(--border);border-left:2px solid #d8d4cc;white-space:nowrap;overflow:hidden;">'+cl.n+'</td>';
+    h+='</tr>';
+  });
+  el.innerHTML=h+'</tbody>';
 }
 
 
@@ -3641,6 +3709,10 @@ document.addEventListener('DOMContentLoaded',function(){
   [0,1,2].forEach(function(i){
     var ht=document.getElementById('htab'+i);if(ht)ht.addEventListener('click',function(){setTab(i);});
   });
+  /* 医院別サブタブ切り替え */
+  var cm0=document.getElementById('clinicMode0'),cm1=document.getElementById('clinicMode1');
+  if(cm0)cm0.addEventListener('click',function(){clinicViewMode=0;renderA();});
+  if(cm1)cm1.addEventListener('click',function(){clinicViewMode=1;renderA();});
   var loginBtn=document.getElementById('loginBtn');if(loginBtn)loginBtn.addEventListener('click',doLogin);
   var authCancelBtn=document.getElementById('authCancelBtn');if(authCancelBtn)authCancelBtn.addEventListener('click',function(){document.getElementById('authOv').classList.remove('on');});
   var authOv=document.getElementById('authOv');if(authOv)authOv.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
