@@ -409,8 +409,8 @@ tr.today-row td:last-child{box-shadow:inset -3px 0 0 #f39c12, inset 0 2px 0 #f39
 <!-- VIEW B: 医院別 -->
 <div id="vB" style="display:none;height:calc(100vh - 44px);overflow:hidden;flex-direction:column;">
 <div style="display:flex;align-items:center;background:var(--card);border-bottom:1px solid var(--border);padding:4px 12px;gap:6px;flex-shrink:0;">
-  <button class="clinic-mode-btn on" id="clinicMode0" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--ink);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院別</button>
-  <button class="clinic-mode-btn" id="clinicMode1" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院横一覧</button>
+  <button class="clinic-mode-btn on" id="clinicMode0" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--ink);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院横一覧</button>
+  <button class="clinic-mode-btn" id="clinicMode1" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--ink2);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;">医院縦一覧</button>
 </div>
 <!-- カルーセル -->
 <div id="clinicViewCar" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
@@ -984,18 +984,18 @@ function renderLegend(){
 }
 
 /* ---- VIEW A: 医院表 ---- */
-var clinicViewMode=0; /* 0=カルーセル, 1=横テーブル */
+var clinicViewMode=0; /* 0=横テーブル, 1=カルーセル */
 var carClinicId=null;
 function renderA(){
   /* サブタブ切り替えの表示 */
   var vCar=document.getElementById('clinicViewCar');
   var vTbl=document.getElementById('clinicViewTbl');
-  if(vCar)vCar.style.display=clinicViewMode===0?'flex':'none';
-  if(vTbl)vTbl.style.display=clinicViewMode===1?'':'none';
+  if(vTbl)vTbl.style.display=clinicViewMode===0?'':'none';
+  if(vCar)vCar.style.display=clinicViewMode===1?'flex':'none';
   var m0=document.getElementById('clinicMode0'),m1=document.getElementById('clinicMode1');
   if(m0){m0.style.background=clinicViewMode===0?'var(--ink)':'var(--card)';m0.style.color=clinicViewMode===0?'#fff':'var(--ink2)';}
   if(m1){m1.style.background=clinicViewMode===1?'var(--ink)':'var(--card)';m1.style.color=clinicViewMode===1?'#fff':'var(--ink2)';}
-  if(clinicViewMode===1){renderATable();return;}
+  if(clinicViewMode===0){renderATable();return;}
   /* カルーセルモード */
   var bar=document.getElementById('clinicCarouselBar');
   var body=document.getElementById('clinicCarouselBody');
