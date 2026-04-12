@@ -1,5 +1,31 @@
 /* ===== 定数 ===== */
 var CLINIC_LIST = ['ｴｽｶ','ｱｰﾙ','ｳｨｽﾞ','ﾙﾐﾅｽ','茶屋','知立','小牧','八事','大森','京都','銀座','ｱｻﾉ','八事1','八事2','訪1','訪2','東員','休み','有給','代休','代出','希望休','ｴｽｶ(休出)','ｱｰﾙ(休出)','ｳｨｽﾞ(休出)','ﾙﾐﾅｽ(休出)','茶屋(休出)','知立(休出)','小牧(休出)','八事(休出)','大森(休出)','京都(休出)','銀座(休出)','ｱｻﾉ(休出)','東員(休出)'];
+
+/* ===== Supabase連携 ===== */
+var SB_URL = 'https://trsugjpvhlkwjvtloype.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyc3VnanB2aGxrd2p2dGxveXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc4ODQsImV4cCI6MjA5MDQzMzg4NH0.GASbFeN_dLduCw81DQen8e4Hwc0TkHrcZWbB8dgNsec';
+
+/* クリニック名 → アプリ内ID */
+var CLINIC_TO_ID = {
+  'ｴｽｶ':'esca','ｱｰﾙ':'r','ｳｨｽﾞ':'wiz','ﾙﾐﾅｽ':'luminas',
+  '茶屋':'chaya','ｱｻﾉ':'asano','知立':'chiryu','小牧':'komaki',
+  '八事':'yagoto','八事1':'yagoto','八事2':'yagoto','大森':'omori',
+  '京都':'kyoto','銀座':'ginza','訪1':'houmon','訪2':'houmon','訪問':'houmon','東員':'toin',
+  '休み':'yasumi','有給':'yukyu','代休':'daikyu','代出':'daishutsu','希望休':'yasumi',
+  'ｴｽｶ(休出)':'esca','ｱｰﾙ(休出)':'r','ｳｨｽﾞ(休出)':'wiz','ﾙﾐﾅｽ(休出)':'luminas',
+  '茶屋(休出)':'chaya','知立(休出)':'chiryu','小牧(休出)':'komaki','八事(休出)':'yagoto',
+  '大森(休出)':'omori','京都(休出)':'kyoto','銀座(休出)':'ginza','ｱｻﾉ(休出)':'asano','東員(休出)':'toin'
+};
+
+/* ドクター名 → アプリ内ID */
+var DOC_TO_ID = {
+  '小池':'d1','越知':'d2','荒木':'d3','山田':'d4','古田':'d5','原':'d6',
+  '竹内':'d7','大西':'d8','田村':'d9','立松':'d10','武内':'d11','長谷川':'d12','長谷':'d12',
+  '永江':'d13','加藤':'d14','れみ':'d15','西村':'d16','鈴木':'d17','中山':'d18',
+  '星野':'d19','綱島':'d20','向田':'d21','鶴田':'d22','清水':'d23','内藤':'d24',
+  '上野':'d25','珠里':'d26','小倉':'d27','浦野':'d28','土屋':'d29','英':'d30',
+  '明石':'d31','太田':'d32','河野':'d33','青木':'d34','岩田':'d35','木村':'d36'
+};
 var DOW = ['日','月','火','水','木','金','土'];
 var COLORS = {
   'ｴｽｶ':'#c0392b','ｱｰﾙ':'#7030a0','ｳｨｽﾞ':'#1e8449','ﾙﾐﾅｽ':'#27ae60',
@@ -44,12 +70,25 @@ function onEdit(e) {
     SpreadsheetApp.getActiveSpreadsheet().toast(oldVal + ' is protected. Delete first.', '⚠️', 3);
     return;
   }
-  if (!val) { range.setBackground(null).setFontColor('#000').setFontWeight('normal'); return; }
+  /* セル情報を取得 */
+  var year = parseInt(sheetName.split('-')[0]), mon = parseInt(sheetName.split('-')[1]);
+  var day = parseInt(sheet.getRange(range.getRow(), 1).getValue());
+  var docName = sheet.getRange(1, range.getColumn()).getValue();
+  if (!docName) docName = '';
+  docName = docName.toString().trim();
+
+  if (!val) {
+    range.setBackground(null).setFontColor('#000').setFontWeight('normal');
+    /* 削除をSupabaseに同期 */
+    if (day && docName && DOC_TO_ID[docName]) {
+      var dateStr = sheetName + '-' + String(day).padStart(2, '0');
+      syncDeleteToSupabase(dateStr, DOC_TO_ID[docName]);
+    }
+    return;
+  }
   val = val.toString().trim();
   var restTypes = ['休み','有給','代休','希望休','代出','出勤希望'];
   if (restTypes.indexOf(val) < 0) {
-    var year = parseInt(sheetName.split('-')[0]), mon = parseInt(sheetName.split('-')[1]);
-    var day = parseInt(sheet.getRange(range.getRow(), 1).getValue());
     var clinicName = val.replace(/[（(]休出[）)]/,'');
     if (day && isClosedDay(clinicName, year, mon, day)) {
       range.setValue(oldVal || '');
@@ -61,6 +100,54 @@ function onEdit(e) {
   }
   if (COLORS[val]) range.setBackground(COLORS[val]).setFontColor('#fff').setFontWeight('bold');
   else range.setBackground(null).setFontColor('#000').setFontWeight('normal');
+
+  /* 変更をSupabaseに差分同期 */
+  if (day && docName && DOC_TO_ID[docName] && CLINIC_TO_ID[val]) {
+    var dateStr = sheetName + '-' + String(day).padStart(2, '0');
+    var memo = '';
+    if (val.indexOf('(休出)') >= 0 || val.indexOf('（休出）') >= 0) memo = '休出';
+    if (val === '訪1') memo = '訪問1';
+    if (val === '訪2') memo = '訪問2';
+    if (val === '八事1') memo = '八事1';
+    if (val === '八事2') memo = '八事2';
+    syncToSupabase(dateStr, DOC_TO_ID[docName], CLINIC_TO_ID[val], memo);
+  }
+}
+
+/* ===== Supabase差分同期 ===== */
+function syncToSupabase(dateStr, docId, clinicId, memo) {
+  try {
+    var payload = JSON.stringify({date_str: dateStr, doc_id: docId, clinic_id: clinicId, memo: memo || ''});
+    UrlFetchApp.fetch(SB_URL + '/rest/v1/shifts', {
+      method: 'post',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
+      payload: payload,
+      muteHttpExceptions: true
+    });
+  } catch (e) {
+    Logger.log('Supabase sync error: ' + e.message);
+  }
+}
+
+function syncDeleteToSupabase(dateStr, docId) {
+  try {
+    UrlFetchApp.fetch(SB_URL + '/rest/v1/shifts?date_str=eq.' + dateStr + '&doc_id=eq.' + docId, {
+      method: 'delete',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json'
+      },
+      muteHttpExceptions: true
+    });
+  } catch (e) {
+    Logger.log('Supabase delete error: ' + e.message);
+  }
 }
 
 function makeRow(cols) { var r = []; for (var i = 0; i < cols; i++) r.push(''); return r; }
