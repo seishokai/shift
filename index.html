@@ -17,11 +17,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .cc-kyoto{--cc:#6b3a87;--cb:#f2ecf8;}.cc-ginza{--cc:#7d6608;--cb:#f8f3e2;}
 .cc-houmon{--cc:#2c6e8a;--cb:#e6eef5;}.cc-yasumi{--cc:#999;--cb:#f2f2f0;}.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
 .cc-yukyu{--cc:#c0392b;--cb:#f0f0ee;}.cc-daikyu{--cc:#1a5276;--cb:#e8f4fd;}
+.cc-ll{--cc:#00abe2;--cb:#e0f4fc;}.cc-minami{--cc:#cccc00;--cb:#fffff0;}
+.cc-aoi{--cc:#b97034;--cb:#faf0e6;}.cc-anjo{--cc:#ff0000;--cb:#fff0f0;}
 .cc-daishutsu{--cc:#555;--cb:#f0f0ee;}.cc-kyushutsu{--cc:#e67e22;--cb:#fef5e7;}
 /* HEADER */
 .hdr{background:#e8f4fd;color:#1a1a18;height:30px;display:flex;align-items:center;padding:0 6px;gap:2px;position:sticky;top:0;z-index:200;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:background .3s;}
 .hdr.admin-mode{background:#e8f5e9 !important;}
-.hdr-title{font-size:12px;font-weight:800;letter-spacing:.02em;color:#1a1a18;white-space:nowrap;}
+.hdr-title{font-size:12px;font-weight:800;letter-spacing:.02em;color:#1a1a18;white-space:nowrap;cursor:pointer;user-select:none;}
 .hdr-tab{background:transparent;border:1px solid #b0cfe8;color:#2d6a9f;font-family:inherit;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;cursor:pointer;transition:.15s;white-space:nowrap;}
 .hdr-tab.on{background:#2d6a9f;color:#fff;border-color:#2d6a9f;}
 .hdr-tab:active{opacity:.8;}
@@ -830,6 +832,81 @@ var STATUSES = [
 ];
 var ALL = CLINICS.concat(STATUSES);
 
+/* ===== 正翔会 DATA ===== */
+var CLINICS_S = [
+  {id:'ll',n:'LL',cc:'cc-ll'},{id:'minami',n:'南',cc:'cc-minami'},
+  {id:'aoi',n:'葵',cc:'cc-aoi'},{id:'anjo',n:'安城',cc:'cc-anjo'},
+];
+var ALL_S = CLINICS_S.concat(STATUSES);
+var doctors_S = [
+  {id:'s1',n:'大西',r:'A',memo:''},{id:'s2',n:'上之郷',r:'A',memo:''},
+  {id:'s3',n:'大久保',r:'A',memo:''},{id:'s4',n:'田中',r:'A',memo:'週4'},
+  {id:'s5',n:'伊藤',r:'A',memo:''},{id:'s6',n:'梅村',r:'A',memo:'週6'},
+  {id:'s7',n:'森',r:'A',memo:''},{id:'s8',n:'森脩',r:'A',memo:'週6'},
+  {id:'s9',n:'竹村',r:'A',memo:''},{id:'s10',n:'若山',r:'A',memo:''},
+  {id:'s11',n:'谷口',r:'A',memo:''},{id:'s12',n:'松清',r:'A',memo:''},
+  {id:'s13',n:'岡崎',r:'A',memo:'休診日'},{id:'s14',n:'あおい',r:'A',memo:''},
+  {id:'s15',n:'みなみ',r:'A',memo:''},{id:'s16',n:'安城',r:'A',memo:''},
+];
+var CLOSED_S = {};
+var CLOSED_DATES_S = {};
+/* Parse compact shift data for 正翔会 */
+var EXCEL_DATA_S = (function(){
+  var raw = [
+'2026-03-30|s1:aoi,s2:yasumi,s3:ll,s5:ll,s7:aoi,s8:ll,s9:yasumi',
+'2026-03-31|s1:aoi,s2:yukyu,s5:yukyu,s6:ll,s7:ll,s8:minami,s9:minami,s10:aoi',
+'2026-04-01|s1:aoi,s2:yasumi,s3:ll,s5:ll,s7:aoi,s8:ll,s9:yasumi,s11:ll,s15:minami,s16:anjo',
+'2026-04-02|s1:aoi,s2:yukyu,s5:yukyu,s6:ll,s7:ll,s8:minami,s9:minami,s10:aoi,s11:ll,s16:anjo',
+'2026-04-03|s1:aoi,s2:yukyu,s3:ll,s4:minami,s5:anjo,s6:ll,s8:minami,s9:ll,s10:aoi,s11:minami',
+'2026-04-04|s1:aoi,s2:ll,s3:ll,s4:minami,s5:yasumi,s6:anjo,s7:ll,s8:yukyu,s9:minami,s10:aoi,s11:minami',
+'2026-04-05|s1:minami,s2:ll,s3:minami,s4:yukyu,s5:yasumi,s6:ll,s7:ll,s9:yasumi,s11:minami,s14:aoi,s16:anjo',
+'2026-04-06|s1:aoi,s2:yukyu,s3:ll,s4:minami,s5:anjo,s6:ll,s7:aoi,s8:minami,s9:yasumi',
+'2026-04-07|s1:minami,s5:ll,s6:anjo,s7:aoi,s8:minami,s9:ll,s11:ll',
+'2026-04-08|s1:aoi,s2:yukyu,s3:ll,s5:anjo,s7:ll,s8:ll,s9:anjo,s10:aoi,s11:aoi,s15:minami',
+'2026-04-09|s1:ll,s2:yukyu,s4:minami,s5:yasumi,s6:ll,s7:aoi,s8:minami,s11:ll,s16:anjo',
+'2026-04-10|s1:aoi,s2:yukyu,s3:ll,s4:minami,s5:anjo,s6:ll,s7:aoi,s8:yukyu,s9:minami,s10:aoi,s11:minami',
+'2026-04-11|s1:aoi,s2:ll,s3:ll,s4:minami,s5:anjo,s7:ll,s8:minami,s9:yukyu,s10:aoi,s11:minami',
+'2026-04-12|s1:ll,s2:ll,s3:ll,s5:yasumi,s6:anjo,s7:yasumi,s8:yasumi,s9:minami,s11:yasumi,s14:aoi,s15:minami',
+'2026-04-13|s1:minami,s2:ll,s3:yasumi,s4:minami,s5:ll,s7:ll,s8:aoi,s9:minami',
+'2026-04-14|s2:yasumi,s3:yasumi,s4:minami,s5:ll,s6:anjo,s7:aoi,s8:minami,s9:minami,s11:ll',
+'2026-04-15|s2:aoi,s3:ll,s5:ll,s7:aoi,s8:ll,s9:yasumi,s15:minami,s16:anjo',
+'2026-04-16|s1:aoi,s2:yukyu,s3:ll,s5:yasumi,s6:ll,s7:minami,s8:minami,s9:yasumi,s10:aoi,s16:anjo',
+'2026-04-17|s1:aoi,s2:yukyu,s3:ll,s5:anjo,s6:ll,s8:minami,s9:ll,s10:aoi,s11:minami',
+'2026-04-18|s1:aoi,s2:yukyu,s3:ll,s4:minami,s5:anjo,s6:anjo,s7:ll,s8:minami,s9:ll,s10:aoi,s11:minami',
+'2026-04-19|s2:yasumi,s3:ll,s4:minami,s5:yasumi,s6:ll,s7:ll,s8:yasumi,s9:minami,s11:minami,s14:aoi,s16:anjo',
+'2026-04-20|s1:aoi,s2:ll,s3:yasumi,s4:minami,s5:ll,s6:anjo,s7:aoi,s8:minami,s9:yasumi,s11:ll',
+'2026-04-21|s1:minami,s2:ll,s3:yasumi,s5:ll,s6:anjo,s7:aoi,s8:minami,s9:ll,s11:aoi,s12:aoi',
+'2026-04-22|s2:aoi,s3:ll,s5:anjo,s7:yasumi,s8:ll,s9:aoi,s11:ll,s12:aoi,s15:minami',
+'2026-04-23|s1:aoi,s2:yasumi,s3:yukyu,s4:minami,s5:yasumi,s6:ll,s7:ll,s8:minami,s9:ll,s10:aoi,s12:minami,s16:anjo',
+'2026-04-24|s1:aoi,s2:yasumi,s3:ll,s4:minami,s5:anjo,s6:anjo,s7:ll,s8:minami,s9:ll,s10:aoi,s12:minami',
+'2026-04-25|s1:aoi,s2:ll,s3:ll,s4:minami,s5:anjo,s6:anjo,s7:ll,s8:minami,s9:yasumi,s10:aoi,s11:minami',
+'2026-04-26|s1:ll,s2:ll,s3:ll,s5:yasumi,s6:anjo,s7:yasumi,s8:yasumi,s9:yasumi,s11:anjo,s14:aoi,s15:minami',
+'2026-04-27|s1:aoi,s2:yukyu,s3:ll,s4:minami,s5:anjo,s6:ll,s7:ll,s8:minami,s9:aoi,s11:anjo',
+'2026-04-28|s2:yukyu,s3:ll,s4:minami,s5:ll,s6:anjo,s7:aoi,s8:minami,s9:ll,s11:aoi',
+'2026-04-29|s13:ll,s14:aoi,s15:minami,s16:anjo',
+'2026-04-30|s1:ll,s2:yukyu,s3:yukyu,s4:minami,s5:ll,s6:ll,s7:aoi,s8:minami,s9:aoi,s11:aoi,s16:anjo',
+'2026-05-01|s1:aoi,s3:ll,s5:anjo,s6:ll,s7:ll,s8:minami,s9:minami,s10:aoi,s11:anjo',
+'2026-05-02|s1:aoi,s3:ll,s4:minami,s5:anjo,s6:anjo,s7:ll,s8:minami,s9:ll,s10:aoi,s11:minami',
+  ];
+  var result = {};
+  raw.forEach(function(line){
+    var parts = line.split('|');
+    var dateStr = parts[0];
+    var entries = parts[1].split(',');
+    result[dateStr] = entries.map(function(e){
+      var kv = e.split(':');
+      return {docId:kv[0], clinicId:kv[1], memo:''};
+    });
+  });
+  return result;
+})();
+/* ===== END 正翔会 DATA ===== */
+
+/* ===== Original 清翔会 references (for group switching) ===== */
+var CLINICS_K = CLINICS;
+var ALL_K = ALL;
+var EXCEL_DATA_K = EXCEL_DATA;
+
 let doctors = [
   {id:'d1',n:'小池',r:'A',memo:''},{id:'d2',n:'越知',r:'A',memo:''},{id:'d3',n:'荒木',r:'A',memo:''},
   {id:'d4',n:'山田',r:'A',memo:''},{id:'d5',n:'古田',r:'A',memo:''},{id:'d6',n:'原',r:'A',memo:''},
@@ -846,12 +923,17 @@ let doctors = [
 ];
 
 let CLOSED = {komaki:[2],chiryu:[3],kyoto:[4],omori:[4],chaya:[4]};
-const CLOSED_DATES = {"2026-04-01":["chiryu"],"2026-04-02":["chaya","omori","kyoto"],"2026-04-06":["houmon"],"2026-04-07":["komaki"],"2026-04-08":["chiryu"],"2026-04-09":["chaya","omori","kyoto"],"2026-04-12":["wiz","luminas","omori"],"2026-04-13":["houmon","kyoto"],"2026-04-14":["komaki"],"2026-04-15":["chiryu"],"2026-04-16":["chaya","omori","kyoto"],"2026-04-17":["kyoto"],"2026-04-20":["houmon"],"2026-04-21":["komaki"],"2026-04-22":["chiryu"],"2026-04-23":["chaya","omori","kyoto"],"2026-04-26":["wiz","luminas","omori"],"2026-04-27":["houmon"],"2026-04-28":["komaki"],"2026-04-29":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-04-30":["chaya","omori","kyoto"],"2026-05-03":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-05-04":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-05-05":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-05-06":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-05-11":["houmon","kyoto"],"2026-05-12":["komaki"],"2026-05-13":["chiryu"],"2026-05-14":["chaya","omori","kyoto"],"2026-05-15":["kyoto"],"2026-05-18":["houmon"],"2026-05-19":["komaki","kyoto"],"2026-05-20":["chiryu"],"2026-05-21":["chaya","omori","kyoto"],"2026-05-24":["wiz","luminas","omori","houmon"],"2026-05-25":["houmon"],"2026-05-26":["komaki"],"2026-05-27":["chiryu"],"2026-05-28":["chaya","omori","kyoto"],"2026-06-01":["houmon"],"2026-06-02":["komaki"],"2026-06-03":["chiryu"],"2026-06-04":["chaya","omori","kyoto"],"2026-06-07":["wiz","luminas"],"2026-06-08":["houmon"],"2026-06-09":["komaki"],"2026-06-10":["chiryu"],"2026-06-11":["chaya","omori","kyoto"],"2026-06-14":["esca","r","omori"],"2026-06-15":["houmon","kyoto"],"2026-06-16":["komaki"],"2026-06-17":["chiryu"],"2026-06-18":["chaya","omori","kyoto"],"2026-06-19":["kyoto"],"2026-06-21":["wiz","luminas"],"2026-06-22":["houmon"],"2026-06-23":["komaki"],"2026-06-24":["chiryu"],"2026-06-25":["chaya","omori","kyoto"],"2026-06-28":["esca","r","omori"],"2026-06-29":["houmon"],"2026-06-30":["komaki"],"2026-07-01":["chiryu"],"2026-07-02":["chaya","omori","kyoto"],"2026-07-05":["wiz","luminas"],"2026-07-06":["houmon"],"2026-07-07":["komaki"],"2026-07-08":["chiryu"],"2026-07-09":["chaya","omori","kyoto"],"2026-07-11":["kyoto"],"2026-07-12":["esca","r","omori"],"2026-07-13":["houmon"],"2026-07-14":["komaki"],"2026-07-15":["chiryu","kyoto"],"2026-07-16":["chaya","omori","kyoto"],"2026-07-19":["wiz","luminas","kyoto"],"2026-07-20":["houmon"],"2026-07-21":["komaki"],"2026-07-22":["chiryu"],"2026-07-23":["chaya","omori","kyoto"],"2026-07-26":["esca","r","omori"],"2026-07-27":["houmon"],"2026-07-28":["komaki"],"2026-07-29":["chiryu"],"2026-07-30":["chaya","omori","kyoto"]};
+let CLOSED_DATES = {"2026-04-01":["chiryu"],"2026-04-02":["chaya","omori","kyoto"],"2026-04-06":["houmon"],"2026-04-07":["komaki"],"2026-04-08":["chiryu"],"2026-04-09":["chaya","omori","kyoto"],"2026-04-12":["wiz","luminas","omori"],"2026-04-13":["houmon","kyoto"],"2026-04-14":["komaki"],"2026-04-15":["chiryu"],"2026-04-16":["chaya","omori","kyoto"],"2026-04-17":["kyoto"],"2026-04-20":["houmon"],"2026-04-21":["komaki"],"2026-04-22":["chiryu"],"2026-04-23":["chaya","omori","kyoto"],"2026-04-26":["wiz","luminas","omori"],"2026-04-27":["houmon"],"2026-04-28":["komaki"],"2026-04-29":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-04-30":["chaya","omori","kyoto"],"2026-05-03":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-05-04":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-05-05":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-05-06":["wiz","luminas","chaya","komaki","chiryu","omori","kyoto","houmon"],"2026-05-11":["houmon","kyoto"],"2026-05-12":["komaki"],"2026-05-13":["chiryu"],"2026-05-14":["chaya","omori","kyoto"],"2026-05-15":["kyoto"],"2026-05-18":["houmon"],"2026-05-19":["komaki","kyoto"],"2026-05-20":["chiryu"],"2026-05-21":["chaya","omori","kyoto"],"2026-05-24":["wiz","luminas","omori","houmon"],"2026-05-25":["houmon"],"2026-05-26":["komaki"],"2026-05-27":["chiryu"],"2026-05-28":["chaya","omori","kyoto"],"2026-06-01":["houmon"],"2026-06-02":["komaki"],"2026-06-03":["chiryu"],"2026-06-04":["chaya","omori","kyoto"],"2026-06-07":["wiz","luminas"],"2026-06-08":["houmon"],"2026-06-09":["komaki"],"2026-06-10":["chiryu"],"2026-06-11":["chaya","omori","kyoto"],"2026-06-14":["esca","r","omori"],"2026-06-15":["houmon","kyoto"],"2026-06-16":["komaki"],"2026-06-17":["chiryu"],"2026-06-18":["chaya","omori","kyoto"],"2026-06-19":["kyoto"],"2026-06-21":["wiz","luminas"],"2026-06-22":["houmon"],"2026-06-23":["komaki"],"2026-06-24":["chiryu"],"2026-06-25":["chaya","omori","kyoto"],"2026-06-28":["esca","r","omori"],"2026-06-29":["houmon"],"2026-06-30":["komaki"],"2026-07-01":["chiryu"],"2026-07-02":["chaya","omori","kyoto"],"2026-07-05":["wiz","luminas"],"2026-07-06":["houmon"],"2026-07-07":["komaki"],"2026-07-08":["chiryu"],"2026-07-09":["chaya","omori","kyoto"],"2026-07-11":["kyoto"],"2026-07-12":["esca","r","omori"],"2026-07-13":["houmon"],"2026-07-14":["komaki"],"2026-07-15":["chiryu","kyoto"],"2026-07-16":["chaya","omori","kyoto"],"2026-07-19":["wiz","luminas","kyoto"],"2026-07-20":["houmon"],"2026-07-21":["komaki"],"2026-07-22":["chiryu"],"2026-07-23":["chaya","omori","kyoto"],"2026-07-26":["esca","r","omori"],"2026-07-27":["houmon"],"2026-07-28":["komaki"],"2026-07-29":["chiryu"],"2026-07-30":["chaya","omori","kyoto"]};
 const HOL = new Set(['2026-01-01','2026-01-12','2026-02-11','2026-02-23','2026-03-20',
   '2026-04-29','2026-05-03','2026-05-04','2026-05-05','2026-05-06',
   '2026-07-20','2026-08-11','2026-09-21','2026-09-22','2026-09-23',
   '2026-10-12','2026-11-03','2026-11-23','2026-12-23']);
 
+var doctors_K = doctors;
+var CLOSED_K = CLOSED;
+var CLOSED_DATES_K = CLOSED_DATES;
+
+let curGroup = 0; /* 0=清翔会, 1=正翔会 */
 let shifts = {}, curY=2026, curM=3, curTab=0;
 let isAdmin=true, selDocId=null, selClinicId=null, qpopDate=null, showAllClinics=false;
 let multiSelDates=new Set(), isDragging=false;
@@ -876,6 +958,29 @@ function getCC(id){
   return ccache[id]=r;
 }
 function cname(id){var p=ALL.find(function(x){return x.id===id;});return p?p.n:id;}
+
+/* ---- GROUP SWITCH ---- */
+function switchGroup(){
+  curGroup = curGroup === 0 ? 1 : 0;
+  if(curGroup === 0){
+    CLINICS = CLINICS_K; ALL = ALL_K; doctors = doctors_K;
+    CLOSED = CLOSED_K; CLOSED_DATES = CLOSED_DATES_K;
+    shifts = {}; Object.assign(shifts, EXCEL_DATA_K);
+  } else {
+    CLINICS = CLINICS_S; ALL = ALL_S; doctors = doctors_S;
+    CLOSED = CLOSED_S; CLOSED_DATES = CLOSED_DATES_S;
+    shifts = {}; Object.assign(shifts, EXCEL_DATA_S);
+  }
+  /* Clear color cache */
+  Object.keys(ccache).forEach(function(k){ delete ccache[k]; });
+  /* Reset selections */
+  selDocId = null; selClinicId = null; todayDocId = null;
+  /* Update title */
+  var title = curGroup === 0 ? '清翔会' : '正翔会';
+  document.getElementById('hdrTitle').textContent = title;
+  document.title = title + ' シフト';
+  renderAll();
+}
 
 /* ---- DATE ---- */
 function dim(y,m){return new Date(y,m+1,0).getDate();}
@@ -3671,6 +3776,7 @@ function renderAll(){
 
 /* ---- EVENTS ---- */
 document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('hdrTitle').addEventListener('click',function(){switchGroup();});
   document.getElementById('prevBtn').addEventListener('click',function(){chgMonth(-1);});
   document.getElementById('thisMonthBtn').addEventListener('click',function(){
     curY=today.getFullYear();curM=today.getMonth();
