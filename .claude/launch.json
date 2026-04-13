@@ -1,0 +1,1 @@
+{"version":"0.0.1","configurations":[{"name":"shift-preview","runtimeExecutable":"npx","runtimeArgs":["-y","http-server","-p","8772","-c-1","."],"port":8772}]}
