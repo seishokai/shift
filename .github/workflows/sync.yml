@@ -1,0 +1,38 @@
+name: Sync Shift Data
+
+on:
+  repository_dispatch:
+    types: [sync-shift]
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'  # 15分ごと
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm install cheerio
+
+      - name: Run sync script
+        run: node scripts/sync.js
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet index.html; then
+            echo "No changes"
+          else
+            git add index.html
+            git commit -m "auto-sync: シフトデータ更新 $(date +'%Y-%m-%d %H:%M')"
+            git push
+          fi
