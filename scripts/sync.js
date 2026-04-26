@@ -64,17 +64,12 @@ async function fetchText(url){
 
 async function getSheetList(){
   const html = await fetchText(PUBHTML);
-  // extract sheet menu: {name:'26年7月', gid:'123'}
   const items = [];
-  // try to parse bootstrapData
-  const m = html.match(/"sheetsMenuData"\s*,\s*\[\[(.*?)\]\]/s);
-  // Fallback: use regex on switcher items
-  const re = /<li[^>]*id="sheet-button-(\d+)"[^>]*>([\s\S]*?)<\/li>/g;
+  // pubhtml embeds JS like: ...(GID" == gid)});items.push({name: "NAME", pageUrl: "..."
+  const re = /(\d+)"\s*==\s*gid\)\}\)\s*;\s*items\.push\(\{\s*name:\s*"([^"]+)"/g;
   let mm;
   while((mm = re.exec(html))){
-    const gid = mm[1];
-    const name = mm[2].replace(/<[^>]+>/g,'').trim();
-    items.push({name, gid});
+    items.push({gid: mm[1], name: mm[2]});
   }
   return items;
 }
