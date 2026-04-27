@@ -1,20 +1,22 @@
-// Sync script for both 清翔会 (EXCEL_DATA) and 正翔会 (EXCEL_DATA_S)
-// Reads legend rows in the spreadsheet to build a dynamic color->clinic mapping per sheet.
+// Sync script using Google Sheets API v4 (live data, includes cell background colors)
+// Reads legend rows in each month sheet to build a dynamic color->clinic map.
+// SAFE MODE: never deletes existing entries; only adds/updates.
 
 const fs = require('fs');
 const path = require('path');
-const cheerio = require('cheerio');
 
-const PUBHTML = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-k3oggMr8RmnfQp8B_M8afOLX5FQbBO7puwG3SUAb4rGVETSqYC8J-COVXKeIL2PI727e8sq4BsFh/pubhtml';
+const SHEET_ID = '1tKjXNJNPInAl0CTXHKd3G-792JNiU37inY0p6hlUPwM';
+const API_KEY = process.env.GOOGLE_API_KEY;
+if(!API_KEY){ console.error('GOOGLE_API_KEY env var is required'); process.exit(1); }
 
-// 正翔会 doctor name -> id (cols 0-T)
+// 正翔会 doctor name -> id
 const NAME_TO_S = {
   '大西':'s1','上之郷':'s2','大久保':'s3','田中':'s4',
   '伊藤':'s5','梅村':'s6','森':'s7','森脩':'s8',
   '竹村':'s9','若山':'s10','谷口':'s11','松清':'s12','後藤':'s13'
 };
 
-// 清翔会 doctor name -> id (cols U-BD)
+// 清翔会 doctor name -> id
 const NAME_TO_D = {
   '小池':'d1','越知':'d2','荒木':'d3','山田':'d4','古田':'d5','原':'d6',
   '竹内':'d7','大西':'d8','田村':'d9','立松':'d10','武内':'d11','長谷':'d12',
@@ -24,10 +26,10 @@ const NAME_TO_D = {
   '英':'d30','明石':'d31','太田':'d32','河野':'d33','青木':'d34','岩田':'d35'
 };
 
-// 清翔会 clinic-name (Japanese) -> id
+// 清翔会 clinic name -> id
 const CLINIC_NAME_TO_ID_K = {
   'エスカ':'esca','ｴｽｶ':'esca',
-  'アール':'r','ｱｰﾙ':'r','アール':'r',
+  'アール':'r','ｱｰﾙ':'r',
   'ウィズ':'wiz','ｳｨｽﾞ':'wiz','ウイズ':'wiz',
   'ルミナス':'luminas','ﾙﾐﾅｽ':'luminas',
   '茶屋':'chaya',
@@ -41,7 +43,7 @@ const CLINIC_NAME_TO_ID_K = {
   '訪問':'houmon'
 };
 
-// 正翔会 clinic-name -> id
+// 正翔会 clinic name -> id
 const CLINIC_NAME_TO_ID_S = {
   'LL':'ll','ll':'ll',
   '南':'minami',
@@ -49,92 +51,70 @@ const CLINIC_NAME_TO_ID_S = {
   '安城':'anjo'
 };
 
-// Doctor name skip-set (closed-day columns / group headers)
-const SKIP_NAMES = new Set([
-  '岡崎','あおい','みなみ','安城','正翔会','清翔会','済翔会','休診日','日付','曜日',
-  '日','月','火','水','木','金','土','','月日','スタッフ','+',null,undefined
-]);
-
 function pad(n){return String(n).padStart(2,'0');}
 
-// Build CSS class -> background color from <style> blocks
-function buildClassColorMap(html){
-  const map = {};
-  const styleBlocks = html.match(/<style[^>]*>([\s\S]*?)<\/style>/g) || [];
-  for(const block of styleBlocks){
-    const rules = block.match(/\.[a-zA-Z0-9_-]+\s*\{[^}]*\}/g) || [];
-    for(const rule of rules){
-      const cls = rule.match(/^\.([a-zA-Z0-9_-]+)/);
-      const bg = rule.match(/background-color:\s*(#[0-9a-fA-F]{3,8}|rgb\([^)]+\))/);
-      if(cls && bg) map[cls[1]] = normalizeColor(bg[1]);
-    }
+// ---------- Sheets API helpers ----------
+
+async function fetchJson(url){
+  const res = await fetch(url);
+  if(!res.ok){
+    const body = await res.text();
+    throw new Error(`HTTP ${res.status}: ${body.slice(0,300)}`);
   }
-  return map;
+  return await res.json();
 }
 
-function normalizeColor(c){
-  if(!c) return null;
-  c = c.trim().toLowerCase();
-  if(c.startsWith('#')){
-    if(c.length === 4) c = '#' + c[1]+c[1] + c[2]+c[2] + c[3]+c[3];
-    return c;
-  }
-  const m = c.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
-  if(m) return '#'+pad2(+m[1])+pad2(+m[2])+pad2(+m[3]);
-  return c;
+async function getSheets(){
+  // List all sheets (titles + sheetIds)
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?fields=sheets(properties(title,sheetId))&key=${API_KEY}`;
+  const data = await fetchJson(url);
+  return (data.sheets||[]).map(s=>({title:s.properties.title, sheetId:s.properties.sheetId}));
 }
-function pad2(n){return n.toString(16).padStart(2,'0');}
 
-// Heuristic: white-ish == empty
+async function getSheetGrid(title){
+  // Fetch one sheet's full grid with formatted values + background colors
+  const range = encodeURIComponent(title);
+  const fields = encodeURIComponent('sheets(data(rowData(values(formattedValue,effectiveFormat(backgroundColor)))))');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?ranges=${range}&includeGridData=true&fields=${fields}&key=${API_KEY}`;
+  const data = await fetchJson(url);
+  const sheet = (data.sheets||[])[0];
+  if(!sheet || !sheet.data || !sheet.data[0]) return [];
+  const rowData = sheet.data[0].rowData || [];
+  return rowData.map(row=>{
+    const values = row.values || [];
+    return values.map(cell=>{
+      const text = (cell.formattedValue||'').toString().trim();
+      const bg = cell.effectiveFormat && cell.effectiveFormat.backgroundColor;
+      const color = bg ? rgbToHex(bg) : null;
+      return {text, color};
+    });
+  });
+}
+
+function rgbToHex(c){
+  // c.red/green/blue are 0..1 floats (may be omitted if 0)
+  const r = Math.round((c.red||0)*255);
+  const g = Math.round((c.green||0)*255);
+  const b = Math.round((c.blue||0)*255);
+  return '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
 function isWhite(color){
   if(!color) return true;
-  const m = color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/);
+  const m = color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i);
   if(!m) return false;
   const r = parseInt(m[1],16), g = parseInt(m[2],16), b = parseInt(m[3],16);
   return r>240 && g>240 && b>240;
 }
 
-async function fetchText(url){
-  const res = await fetch(url);
-  if(!res.ok) throw new Error('HTTP '+res.status+' '+url);
-  return await res.text();
-}
+// ---------- Extraction ----------
 
-async function getSheetList(){
-  const html = await fetchText(PUBHTML);
-  const items = [];
-  const re = /(\d+)"\s*==\s*gid\)\}\)\s*;\s*items\.push\(\{\s*name:\s*"([^"]+)"/g;
-  let mm;
-  while((mm = re.exec(html))){
-    items.push({gid: mm[1], name: mm[2]});
-  }
-  return items;
-}
-
-function extractMonth(name){
-  const m = name.match(/(\d+)年(\d+)月/);
+function extractMonth(title){
+  const m = title.match(/(\d+)年(\d+)月/);
   if(!m) return null;
   return {year: 2000+parseInt(m[1]), month: parseInt(m[2])};
 }
 
-// Parse a sheet: returns {grid:[][], classColor:{}}
-function parseSheet(html){
-  const classColor = buildClassColorMap(html);
-  const $ = cheerio.load(html);
-  const trs = $('table tr').toArray();
-  const grid = trs.map(tr=>{
-    return $(tr).find('td').toArray().map(td=>{
-      const text = $(td).text().trim();
-      const cls = ($(td).attr('class')||'').split(/\s+/);
-      let color = null;
-      for(const c of cls){ if(classColor[c]){ color = classColor[c]; break; } }
-      return {text, color};
-    });
-  });
-  return {grid, classColor};
-}
-
-// Build color->clinicId map by scanning legend area for cells whose text matches a known clinic name
 function buildColorMap(grid, nameToId){
   const map = {};
   for(let i=0;i<grid.length;i++){
@@ -143,7 +123,6 @@ function buildColorMap(grid, nameToId){
       const cell = row[j];
       const id = nameToId[cell.text];
       if(id && cell.color && !isWhite(cell.color)){
-        // first occurrence wins (legend usually appears once)
         if(!map[cell.color]) map[cell.color] = id;
       }
     }
@@ -151,7 +130,6 @@ function buildColorMap(grid, nameToId){
   return map;
 }
 
-// Decode cell -> clinic/status id
 function decodeCell(cell, colorToClinic){
   if(!cell) return null;
   const t = cell.text;
@@ -166,7 +144,6 @@ function decodeCell(cell, colorToClinic){
   return null;
 }
 
-// Find header row index (the row that contains many doctor names)
 function findHeaderRow(grid, nameToId){
   let bestIdx = -1, bestCount = 0;
   for(let i=0;i<Math.min(grid.length,8);i++){
@@ -178,7 +155,6 @@ function findHeaderRow(grid, nameToId){
   return bestCount >= 3 ? bestIdx : -1;
 }
 
-// Build colIndex -> doctorId from header row
 function buildColMap(headerRow, nameToId){
   const m = {};
   for(let j=0;j<headerRow.length;j++){
@@ -188,7 +164,6 @@ function buildColMap(headerRow, nameToId){
   return m;
 }
 
-// Find ALL day-candidate columns across the full width
 function findDayCols(grid, startRow){
   const counts = {};
   for(let i=startRow;i<Math.min(grid.length,startRow+35);i++){
@@ -204,13 +179,11 @@ function findDayCols(grid, startRow){
   return Object.keys(counts).filter(k=>counts[k]>=5).map(Number).sort((a,b)=>a-b);
 }
 
-// Pick the day column nearest to the median doctor column for the group
 function pickDayCol(dayCols, colMap){
   const docCols = Object.keys(colMap).map(Number);
   if(docCols.length === 0 || dayCols.length === 0) return -1;
   const minD = Math.min(...docCols);
   const maxD = Math.max(...docCols);
-  // Prefer day col immediately before the leftmost doctor col, but not too far
   let best = -1, bestDist = Infinity;
   for(const d of dayCols){
     let dist;
@@ -222,7 +195,7 @@ function pickDayCol(dayCols, colMap){
   return best;
 }
 
-function extractGroupWithMap(grid, nameToDoctor, colorToClinic){
+function extractGroup(grid, nameToDoctor, colorToClinic){
   const headerIdx = findHeaderRow(grid, nameToDoctor);
   if(headerIdx < 0) return null;
   const colMap = buildColMap(grid[headerIdx], nameToDoctor);
@@ -246,10 +219,9 @@ function extractGroupWithMap(grid, nameToDoctor, colorToClinic){
   return {days};
 }
 
-// ========== index.html update ==========
+// ---------- index.html update (SAFE MODE) ----------
 
 function updateExcelDataS(html, monthYearMap){
-  // Compact format
   const m = html.match(/var EXCEL_DATA_S = \(function\(\)\{\s*var raw = \[([\s\S]*?)\];/);
   if(!m) throw new Error('EXCEL_DATA_S block not found');
   const existing = {};
@@ -261,7 +233,7 @@ function updateExcelDataS(html, monthYearMap){
     for(const day of Object.keys(ym.data.days)){
       const key = `${ym.year}-${pad(ym.month)}-${pad(day)}`;
       const entries = ym.data.days[day];
-      // SAFE MODE: never delete; only add/update when pubhtml has entries
+      // SAFE: skip empty entries (don't delete)
       if(entries.length === 0) continue;
       const line = entries.map(e=>e.docId+':'+e.clinicId).join(',');
       if(existing[key] !== line){ existing[key] = line; changed++; }
@@ -274,7 +246,6 @@ function updateExcelDataS(html, monthYearMap){
 }
 
 function updateExcelData(html, monthYearMap){
-  // JSON format on a single line: const EXCEL_DATA = {...};
   const m = html.match(/const EXCEL_DATA = (\{[\s\S]*?\});/);
   if(!m) throw new Error('EXCEL_DATA block not found');
   let existing;
@@ -285,70 +256,67 @@ function updateExcelData(html, monthYearMap){
     for(const day of Object.keys(ym.data.days)){
       const key = `${ym.year}-${pad(ym.month)}-${pad(day)}`;
       const entries = ym.data.days[day].map(e=>({docId:e.docId,clinicId:e.clinicId,memo:''}));
-      // SAFE MODE: never delete; only add/update when pubhtml has entries
+      // SAFE: skip empty entries (don't delete)
       if(entries.length === 0) continue;
       const oldStr = JSON.stringify(existing[key]||[]);
       const newStr = JSON.stringify(entries);
       if(oldStr !== newStr){ existing[key] = entries; changed++; }
     }
   }
-  // Sort keys for stable diff
   const sorted = {};
   Object.keys(existing).sort().forEach(k=>{ sorted[k] = existing[k]; });
   const newBlock = `const EXCEL_DATA = ${JSON.stringify(sorted)};`;
   return {html: html.replace(m[0], newBlock), changed};
 }
 
+// ---------- main ----------
+
 async function main(){
   const indexPath = path.join(__dirname,'..','index.html');
   let html = fs.readFileSync(indexPath,'utf8');
 
-  const sheets = await getSheetList();
-  console.log('Sheets:', sheets.length);
+  console.log('Fetching sheet list...');
+  const sheets = await getSheets();
+  const monthSheets = sheets.filter(s=>extractMonth(s.title));
+  console.log(`Found ${monthSheets.length} month sheets`);
 
-  // First pass: fetch all sheets, build global color->clinic maps
+  // Fetch all month grids
   const fetched = [];
-  for(const s of sheets){
-    const ym = extractMonth(s.name);
-    if(!ym) continue;
-    const sheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-k3oggMr8RmnfQp8B_M8afOLX5FQbBO7puwG3SUAb4rGVETSqYC8J-COVXKeIL2PI727e8sq4BsFh/pubhtml/sheet?headers=false&gid=${s.gid}`;
+  for(const s of monthSheets){
+    const ym = extractMonth(s.title);
+    console.log(`Fetching ${s.title}...`);
     try {
-      const sheetHtml = await fetchText(sheetUrl);
-      const parsed = parseSheet(sheetHtml);
-      fetched.push({name:s.name, ym, grid: parsed.grid});
+      const grid = await getSheetGrid(s.title);
+      fetched.push({title:s.title, ym, grid});
+      console.log(`  rows: ${grid.length}`);
     } catch(e){
-      console.error(`Fetch failed ${s.name}: ${e.message}`);
+      console.error(`  FAIL: ${e.message}`);
     }
   }
-  // Build global color maps by merging legends from all sheets
+
+  // Build global color maps from legends across all sheets
   const globalColorS = {};
   const globalColorD = {};
   for(const f of fetched){
     Object.assign(globalColorS, buildColorMap(f.grid, CLINIC_NAME_TO_ID_S));
     Object.assign(globalColorD, buildColorMap(f.grid, CLINIC_NAME_TO_ID_K));
   }
-  console.log(`Global 正翔会 color map: ${Object.keys(globalColorS).length} colors`);
-  console.log(`Global 清翔会 color map: ${Object.keys(globalColorD).length} colors`);
+  console.log(`Color map: 正翔会 ${Object.keys(globalColorS).length}, 清翔会 ${Object.keys(globalColorD).length}`);
 
   const sResults = [];
   const dResults = [];
   for(const f of fetched){
-    const {ym, grid} = f;
-    console.log(`Processing ${f.name}`);
-    try {
-      const sData = extractGroupWithMap(grid, NAME_TO_S, globalColorS);
-      const dData = extractGroupWithMap(grid, NAME_TO_D, globalColorD);
-
-      if(sData){
-        console.log(`  正翔会: ${Object.keys(sData.days).length} days`);
-        sResults.push({year:ym.year, month:ym.month, data:sData});
-      }
-      if(dData){
-        console.log(`  清翔会: ${Object.keys(dData.days).length} days`);
-        dResults.push({year:ym.year, month:ym.month, data:dData});
-      }
-    } catch(e){
-      console.error(`  Failed: ${e.message}`);
+    const sData = extractGroup(f.grid, NAME_TO_S, globalColorS);
+    const dData = extractGroup(f.grid, NAME_TO_D, globalColorD);
+    if(sData){
+      const total = Object.values(sData.days).reduce((a,d)=>a+d.length,0);
+      console.log(`  ${f.title} 正翔会: ${Object.keys(sData.days).length} days, ${total} entries`);
+      sResults.push({year:f.ym.year, month:f.ym.month, data:sData});
+    }
+    if(dData){
+      const total = Object.values(dData.days).reduce((a,d)=>a+d.length,0);
+      console.log(`  ${f.title} 清翔会: ${Object.keys(dData.days).length} days, ${total} entries`);
+      dResults.push({year:f.ym.year, month:f.ym.month, data:dData});
     }
   }
 
@@ -363,7 +331,7 @@ async function main(){
     html = r.html; totalChanged += r.changed;
     console.log(`清翔会 changes: ${r.changed}`);
   }
-  console.log(`Total changes: ${totalChanged}`);
+  console.log(`Total: ${totalChanged}`);
   if(totalChanged === 0){ console.log('No changes'); return; }
   fs.writeFileSync(indexPath, html, 'utf8');
   console.log('index.html updated');

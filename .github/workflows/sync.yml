@@ -1,11 +1,11 @@
 name: Sync Shift Data
 
 on:
-  workflow_dispatch:  # 手動実行のみ（自動同期は安全確認後に再有効化）
-  # repository_dispatch:
-  #   types: [sync-shift]
+  workflow_dispatch:        # GitHub UIから手動実行
+  repository_dispatch:      # Apps Scriptボタン経由
+    types: [sync-shift]
   # schedule:
-  #   - cron: '*/15 * * * *'
+  #   - cron: '*/30 * * * *'  # 30分ごと（必要なら有効化）
 
 jobs:
   sync:
@@ -19,10 +19,9 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install deps
-        run: npm install cheerio
-
       - name: Run sync script
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: node scripts/sync.js
 
       - name: Commit & push if changed
