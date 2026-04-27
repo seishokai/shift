@@ -214,20 +214,17 @@ function extractGroup(grid, nameToDoctor, colorToClinic, debugTitle){
       }
       console.log(`  [DEBUG] row${r} (${row.length} cells): ${texts.slice(0,40).join(' | ')}`);
     }
-    // Dump all colored cells in row for day=13 (土)
+    // Dump 鶴田 column for ALL days
+    const tcol = Object.keys(colMap).find(k=>colMap[k]==='d22');
+    console.log(`  [DEBUG] 鶴田 col=${tcol}, dump for all days:`);
     for(let i=headerIdx+1;i<grid.length;i++){
       const row = grid[i] || [];
       const dayText = (row[dayCol]||{}).text || '';
-      if(dayText === '13'){
-        console.log(`  [DEBUG] day 13 row (${row.length} cells), colored cells:`);
-        for(let j=0;j<row.length;j++){
-          const c = row[j];
-          if(c && c.color && !isWhite(c.color)){
-            console.log(`    col${j}: text="${c.text}" color=${c.color}`);
-          }
-        }
-        break;
-      }
+      const day = parseInt(dayText,10);
+      if(isNaN(day) || day<1 || day>31) continue;
+      const cell = row[tcol];
+      if(!cell){ console.log(`    day${day}: NO CELL (row len=${row.length})`); continue; }
+      console.log(`    day${day}: text="${cell.text}" color=${cell.color}`);
     }
   }
   const days = {};
