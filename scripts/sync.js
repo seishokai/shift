@@ -205,12 +205,14 @@ function extractGroup(grid, nameToDoctor, colorToClinic, debugTitle){
   // DEBUG: 鶴田 (d22)
   if(debugTitle && nameToDoctor['鶴田']==='d22'){
     console.log(`  [DEBUG] ${debugTitle} headerIdx=${headerIdx} dayCol=${dayCol}`);
-    // Dump ALL header cells with their text
-    const hdr = grid[headerIdx] || [];
-    console.log(`  [DEBUG] header row (${hdr.length} cells):`);
-    for(let j=0;j<hdr.length;j++){
-      const t = hdr[j].text;
-      if(t) console.log(`    col${j}: "${t}"`);
+    // Dump ALL of grid rows 0-5
+    for(let r=0;r<Math.min(6,grid.length);r++){
+      const row = grid[r] || [];
+      const texts = [];
+      for(let j=0;j<row.length;j++){
+        if(row[j] && row[j].text) texts.push(`${j}:${row[j].text}`);
+      }
+      console.log(`  [DEBUG] row${r} (${row.length} cells): ${texts.slice(0,40).join(' | ')}`);
     }
     // Dump all colored cells in row for day=13 (土)
     for(let i=headerIdx+1;i<grid.length;i++){
