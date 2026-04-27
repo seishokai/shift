@@ -214,9 +214,29 @@ function extractGroup(grid, nameToDoctor, colorToClinic, debugTitle){
       }
       console.log(`  [DEBUG] row${r} (${row.length} cells): ${texts.slice(0,40).join(' | ')}`);
     }
-    // Dump 鶴田 column for ALL days
+    // Dump header cols 40-65
+    console.log(`  [DEBUG] header cols 40-65:`);
+    for(let j=40;j<66;j++){
+      const c = grid[headerIdx][j];
+      console.log(`    col${j}: text="${c?c.text:'?'}"`);
+    }
+    // Show day 13 row colored cells (full)
+    for(let i=headerIdx+1;i<grid.length;i++){
+      const row = grid[i] || [];
+      const dayText = (row[dayCol]||{}).text || '';
+      if(dayText === '13'){
+        console.log(`  [DEBUG] day 13 row, ALL cells with non-white color:`);
+        for(let j=0;j<row.length;j++){
+          const c = row[j];
+          if(c && c.color && !isWhite(c.color)){
+            console.log(`    col${j}: text="${c.text}" color=${c.color}`);
+          }
+        }
+        break;
+      }
+    }
     const tcol = Object.keys(colMap).find(k=>colMap[k]==='d22');
-    console.log(`  [DEBUG] 鶴田 col=${tcol}, dump for all days:`);
+    console.log(`  [DEBUG] 鶴田 col=${tcol}, sample days:`);
     for(let i=headerIdx+1;i<grid.length;i++){
       const row = grid[i] || [];
       const dayText = (row[dayCol]||{}).text || '';
