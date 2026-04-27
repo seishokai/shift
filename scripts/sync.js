@@ -204,15 +204,27 @@ function extractGroup(grid, nameToDoctor, colorToClinic, debugTitle){
   if(dayCol < 0) return null;
   // DEBUG: 鶴田 (d22)
   if(debugTitle && nameToDoctor['鶴田']==='d22'){
-    const tcol = Object.keys(colMap).find(k=>colMap[k]==='d22');
-    console.log(`  [DEBUG] ${debugTitle} 鶴田 col=${tcol}, dayCol=${dayCol}, headerIdx=${headerIdx}`);
-    if(tcol !== undefined){
-      // Show first 10 data rows for this column
-      for(let i=headerIdx+1;i<Math.min(headerIdx+12,grid.length);i++){
-        const row = grid[i] || [];
-        const cell = row[tcol];
-        const day = (row[dayCol]||{}).text || '';
-        console.log(`    row${i} day=${day} 鶴田 cell:`, JSON.stringify(cell));
+    console.log(`  [DEBUG] ${debugTitle} headerIdx=${headerIdx} dayCol=${dayCol}`);
+    // Dump ALL header cells with their text
+    const hdr = grid[headerIdx] || [];
+    console.log(`  [DEBUG] header row (${hdr.length} cells):`);
+    for(let j=0;j<hdr.length;j++){
+      const t = hdr[j].text;
+      if(t) console.log(`    col${j}: "${t}"`);
+    }
+    // Dump all colored cells in row for day=13 (土)
+    for(let i=headerIdx+1;i<grid.length;i++){
+      const row = grid[i] || [];
+      const dayText = (row[dayCol]||{}).text || '';
+      if(dayText === '13'){
+        console.log(`  [DEBUG] day 13 row (${row.length} cells), colored cells:`);
+        for(let j=0;j<row.length;j++){
+          const c = row[j];
+          if(c && c.color && !isWhite(c.color)){
+            console.log(`    col${j}: text="${c.text}" color=${c.color}`);
+          }
+        }
+        break;
       }
     }
   }
