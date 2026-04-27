@@ -202,69 +202,37 @@ function extractGroup(grid, nameToDoctor, colorToClinic, debugTitle){
   const dayCols = findDayCols(grid, headerIdx+1);
   const dayCol = pickDayCol(dayCols, colMap);
   if(dayCol < 0) return null;
-  // DEBUG: 鶴田 (d22)
-  if(debugTitle && nameToDoctor['鶴田']==='d22'){
-    console.log(`  [DEBUG] ${debugTitle} headerIdx=${headerIdx} dayCol=${dayCol}`);
-    // Dump ALL of grid rows 0-5
-    for(let r=0;r<Math.min(6,grid.length);r++){
-      const row = grid[r] || [];
-      const texts = [];
-      for(let j=0;j<row.length;j++){
-        if(row[j] && row[j].text) texts.push(`${j}:${row[j].text}`);
-      }
-      console.log(`  [DEBUG] row${r} (${row.length} cells): ${texts.slice(0,40).join(' | ')}`);
-    }
-    // Dump header cols 40-65
-    console.log(`  [DEBUG] header cols 40-65:`);
-    for(let j=40;j<66;j++){
-      const c = grid[headerIdx][j];
-      console.log(`    col${j}: text="${c?c.text:'?'}"`);
-    }
-    // Show day 13 row colored cells (full)
-    for(let i=headerIdx+1;i<grid.length;i++){
-      const row = grid[i] || [];
-      const dayText = (row[dayCol]||{}).text || '';
-      if(dayText === '13'){
-        console.log(`  [DEBUG] day 13 row, ALL cells with non-white color:`);
-        for(let j=0;j<row.length;j++){
-          const c = row[j];
-          if(c && c.color && !isWhite(c.color)){
-            console.log(`    col${j}: text="${c.text}" color=${c.color}`);
-          }
-        }
-        break;
-      }
-    }
-    const tcol = Object.keys(colMap).find(k=>colMap[k]==='d22');
-    console.log(`  [DEBUG] 鶴田 col=${tcol}, sample days:`);
-    for(let i=headerIdx+1;i<grid.length;i++){
-      const row = grid[i] || [];
-      const dayText = (row[dayCol]||{}).text || '';
-      const day = parseInt(dayText,10);
-      if(isNaN(day) || day<1 || day>31) continue;
-      const cell = row[tcol];
-      if(!cell){ console.log(`    day${day}: NO CELL (row len=${row.length})`); continue; }
-      console.log(`    day${day}: text="${cell.text}" color=${cell.color}`);
-    }
-  }
-  const days = {};
+  // (debug removed)
+  // Collect entries by (monthOffset, day): monthOffset=0 for the sheet's month, +1 for next month
+  // Detect rollover when day number decreases significantly (e.g., 30 -> 1)
+  const result = []; // [{monthOffset, day, entries}]
+  let monthOffset = 0;
+  let lastDay = 0;
   for(let i=headerIdx+1;i<grid.length;i++){
     const row = grid[i] || [];
     const dt = (row[dayCol]||{}).text || '';
     const day = parseInt(dt,10);
     if(isNaN(day) || day<1 || day>31 || String(day)!==dt) continue;
+    // Rollover detection
+    if(day < lastDay - 5){ monthOffset++; }
+    lastDay = day;
     const entries = [];
     for(const colIdx of Object.keys(colMap)){
       const cell = row[colIdx];
       const id = decodeCell(cell, colorToClinic);
       if(id) entries.push({docId: colMap[colIdx], clinicId: id});
     }
-    days[day] = entries;
+    result.push({monthOffset, day, entries});
   }
-  return {days};
+  return {result};
 }
 
 // ---------- index.html update (SAFE MODE) ----------
+
+function shiftYM(year, month, offset){
+  const idx = (year*12 + (month-1)) + offset;
+  return {year: Math.floor(idx/12), month: (idx%12)+1};
+}
 
 function updateExcelDataS(html, monthYearMap){
   const m = html.match(/var EXCEL_DATA_S = \(function\(\)\{\s*var raw = \[([\s\S]*?)\];/);
@@ -275,12 +243,12 @@ function updateExcelDataS(html, monthYearMap){
   while((mm = re.exec(m[1]))){ existing[mm[1]] = mm[2]; }
   let changed = 0;
   for(const ym of monthYearMap){
-    for(const day of Object.keys(ym.data.days)){
-      const key = `${ym.year}-${pad(ym.month)}-${pad(day)}`;
-      const entries = ym.data.days[day];
+    for(const r of ym.data.result){
+      const eff = shiftYM(ym.year, ym.month, r.monthOffset);
+      const key = `${eff.year}-${pad(eff.month)}-${pad(r.day)}`;
       // SAFE: skip empty entries (don't delete)
-      if(entries.length === 0) continue;
-      const line = entries.map(e=>e.docId+':'+e.clinicId).join(',');
+      if(r.entries.length === 0) continue;
+      const line = r.entries.map(e=>e.docId+':'+e.clinicId).join(',');
       if(existing[key] !== line){ existing[key] = line; changed++; }
     }
   }
@@ -298,9 +266,10 @@ function updateExcelData(html, monthYearMap){
   catch(e){ throw new Error('EXCEL_DATA JSON parse failed: '+e.message); }
   let changed = 0;
   for(const ym of monthYearMap){
-    for(const day of Object.keys(ym.data.days)){
-      const key = `${ym.year}-${pad(ym.month)}-${pad(day)}`;
-      const entries = ym.data.days[day].map(e=>({docId:e.docId,clinicId:e.clinicId,memo:''}));
+    for(const r of ym.data.result){
+      const eff = shiftYM(ym.year, ym.month, r.monthOffset);
+      const key = `${eff.year}-${pad(eff.month)}-${pad(r.day)}`;
+      const entries = r.entries.map(e=>({docId:e.docId,clinicId:e.clinicId,memo:''}));
       // SAFE: skip empty entries (don't delete)
       if(entries.length === 0) continue;
       const oldStr = JSON.stringify(existing[key]||[]);
@@ -352,15 +321,15 @@ async function main(){
   const dResults = [];
   for(const f of fetched){
     const sData = extractGroup(f.grid, NAME_TO_S, globalColorS);
-    const dData = extractGroup(f.grid, NAME_TO_D, globalColorD, f.title==='26年6月'?f.title:null);
+    const dData = extractGroup(f.grid, NAME_TO_D, globalColorD);
     if(sData){
-      const total = Object.values(sData.days).reduce((a,d)=>a+d.length,0);
-      console.log(`  ${f.title} 正翔会: ${Object.keys(sData.days).length} days, ${total} entries`);
+      const total = sData.result.reduce((a,r)=>a+r.entries.length,0);
+      console.log(`  ${f.title} 正翔会: ${sData.result.length} rows, ${total} entries`);
       sResults.push({year:f.ym.year, month:f.ym.month, data:sData});
     }
     if(dData){
-      const total = Object.values(dData.days).reduce((a,d)=>a+d.length,0);
-      console.log(`  ${f.title} 清翔会: ${Object.keys(dData.days).length} days, ${total} entries`);
+      const total = dData.result.reduce((a,r)=>a+r.entries.length,0);
+      console.log(`  ${f.title} 清翔会: ${dData.result.length} rows, ${total} entries`);
       dResults.push({year:f.ym.year, month:f.ym.month, data:dData});
     }
   }
