@@ -261,10 +261,8 @@ function updateExcelDataS(html, monthYearMap){
     for(const day of Object.keys(ym.data.days)){
       const key = `${ym.year}-${pad(ym.month)}-${pad(day)}`;
       const entries = ym.data.days[day];
-      if(entries.length === 0){
-        if(existing[key]){ delete existing[key]; changed++; }
-        continue;
-      }
+      // SAFE MODE: never delete; only add/update when pubhtml has entries
+      if(entries.length === 0) continue;
       const line = entries.map(e=>e.docId+':'+e.clinicId).join(',');
       if(existing[key] !== line){ existing[key] = line; changed++; }
     }
@@ -287,10 +285,8 @@ function updateExcelData(html, monthYearMap){
     for(const day of Object.keys(ym.data.days)){
       const key = `${ym.year}-${pad(ym.month)}-${pad(day)}`;
       const entries = ym.data.days[day].map(e=>({docId:e.docId,clinicId:e.clinicId,memo:''}));
-      if(entries.length === 0){
-        if(existing[key]){ delete existing[key]; changed++; }
-        continue;
-      }
+      // SAFE MODE: never delete; only add/update when pubhtml has entries
+      if(entries.length === 0) continue;
       const oldStr = JSON.stringify(existing[key]||[]);
       const newStr = JSON.stringify(entries);
       if(oldStr !== newStr){ existing[key] = entries; changed++; }

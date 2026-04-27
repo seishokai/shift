@@ -1,11 +1,11 @@
 name: Sync Shift Data
 
 on:
-  repository_dispatch:
-    types: [sync-shift]
-  workflow_dispatch:
-  schedule:
-    - cron: '*/15 * * * *'  # 15分ごと
+  workflow_dispatch:  # 手動実行のみ（自動同期は安全確認後に再有効化）
+  # repository_dispatch:
+  #   types: [sync-shift]
+  # schedule:
+  #   - cron: '*/15 * * * *'
 
 jobs:
   sync:
