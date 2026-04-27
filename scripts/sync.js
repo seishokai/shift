@@ -202,27 +202,7 @@ function extractGroup(grid, nameToDoctor, colorToClinic, debugTitle){
   const dayCols = findDayCols(grid, headerIdx+1);
   const dayCol = pickDayCol(dayCols, colMap);
   if(dayCol < 0) return null;
-  // DEBUG: find ALL rows where day=2 in 26年6月
-  if(nameToDoctor['鶴田']==='d22'){
-    let mo=0,ld=0;
-    for(let i=headerIdx+1;i<grid.length;i++){
-      const row=grid[i]||[];
-      const dt=(row[dayCol]||{}).text||'';
-      const day=parseInt(dt,10);
-      if(isNaN(day)||day<1||day>31||String(day)!==dt)continue;
-      if(day<ld-5)mo++;
-      ld=day;
-      if(day===2 || day===3){
-        const tcol=Number(Object.keys(colMap).find(k=>colMap[k]==='d22'));
-        const c=row[tcol]||{};
-        let entryCount=0;
-        for(const ci of Object.keys(colMap)){
-          if(decodeCell(row[ci],colorToClinic)) entryCount++;
-        }
-        console.log(`  [TRACE] gridRow=${i} day=${day} mo=${mo} 鶴田Cell=${JSON.stringify(c)} entries=${entryCount}`);
-      }
-    }
-  }
+  // (debug removed)
   // Collect entries by (monthOffset, day): monthOffset=0 for the sheet's month, +1 for next month
   // Detect rollover when day number decreases significantly (e.g., 30 -> 1)
   const result = []; // [{monthOffset, day, entries}]
@@ -264,6 +244,8 @@ function updateExcelDataS(html, monthYearMap){
   let changed = 0;
   for(const ym of monthYearMap){
     for(const r of ym.data.result){
+      // Only write the sheet's OWN month (skip preview/overflow rows)
+      if(r.monthOffset !== 0) continue;
       const eff = shiftYM(ym.year, ym.month, r.monthOffset);
       const key = `${eff.year}-${pad(eff.month)}-${pad(r.day)}`;
       // SAFE: skip empty entries (don't delete)
@@ -287,6 +269,8 @@ function updateExcelData(html, monthYearMap){
   let changed = 0;
   for(const ym of monthYearMap){
     for(const r of ym.data.result){
+      // Only write the sheet's OWN month (skip preview/overflow rows)
+      if(r.monthOffset !== 0) continue;
       const eff = shiftYM(ym.year, ym.month, r.monthOffset);
       const key = `${eff.year}-${pad(eff.month)}-${pad(r.day)}`;
       const entries = r.entries.map(e=>({docId:e.docId,clinicId:e.clinicId,memo:''}));
