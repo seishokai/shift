@@ -195,13 +195,27 @@ function pickDayCol(dayCols, colMap){
   return best;
 }
 
-function extractGroup(grid, nameToDoctor, colorToClinic){
+function extractGroup(grid, nameToDoctor, colorToClinic, debugTitle){
   const headerIdx = findHeaderRow(grid, nameToDoctor);
   if(headerIdx < 0) return null;
   const colMap = buildColMap(grid[headerIdx], nameToDoctor);
   const dayCols = findDayCols(grid, headerIdx+1);
   const dayCol = pickDayCol(dayCols, colMap);
   if(dayCol < 0) return null;
+  // DEBUG: 鶴田 (d22)
+  if(debugTitle && nameToDoctor['鶴田']==='d22'){
+    const tcol = Object.keys(colMap).find(k=>colMap[k]==='d22');
+    console.log(`  [DEBUG] ${debugTitle} 鶴田 col=${tcol}, dayCol=${dayCol}, headerIdx=${headerIdx}`);
+    if(tcol !== undefined){
+      // Show first 10 data rows for this column
+      for(let i=headerIdx+1;i<Math.min(headerIdx+12,grid.length);i++){
+        const row = grid[i] || [];
+        const cell = row[tcol];
+        const day = (row[dayCol]||{}).text || '';
+        console.log(`    row${i} day=${day} 鶴田 cell:`, JSON.stringify(cell));
+      }
+    }
+  }
   const days = {};
   for(let i=headerIdx+1;i<grid.length;i++){
     const row = grid[i] || [];
@@ -307,7 +321,7 @@ async function main(){
   const dResults = [];
   for(const f of fetched){
     const sData = extractGroup(f.grid, NAME_TO_S, globalColorS);
-    const dData = extractGroup(f.grid, NAME_TO_D, globalColorD);
+    const dData = extractGroup(f.grid, NAME_TO_D, globalColorD, f.title==='26年6月'?f.title:null);
     if(sData){
       const total = Object.values(sData.days).reduce((a,d)=>a+d.length,0);
       console.log(`  ${f.title} 正翔会: ${Object.keys(sData.days).length} days, ${total} entries`);
