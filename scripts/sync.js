@@ -202,21 +202,26 @@ function extractGroup(grid, nameToDoctor, colorToClinic, debugTitle){
   const dayCols = findDayCols(grid, headerIdx+1);
   const dayCol = pickDayCol(dayCols, colMap);
   if(dayCol < 0) return null;
-  // DEBUG d22 days 2,3
+  // DEBUG: find ALL rows where day=2 in 26年6月
   if(nameToDoctor['鶴田']==='d22'){
-    const tcol = Number(Object.keys(colMap).find(k=>colMap[k]==='d22'));
-    let scanned=0;
+    let mo=0,ld=0;
     for(let i=headerIdx+1;i<grid.length;i++){
       const row=grid[i]||[];
       const dt=(row[dayCol]||{}).text||'';
       const day=parseInt(dt,10);
       if(isNaN(day)||day<1||day>31||String(day)!==dt)continue;
-      if(scanned++>5)break;
-      const c=row[tcol];
-      const id=decodeCell(c,colorToClinic);
-      console.log(`  [DBG] 鶴田 col=${tcol} day${day}: cell=${JSON.stringify(c)} → decoded=${id} (in map? ${c&&c.color in colorToClinic})`);
+      if(day<ld-5)mo++;
+      ld=day;
+      if(day===2 || day===3){
+        const tcol=Number(Object.keys(colMap).find(k=>colMap[k]==='d22'));
+        const c=row[tcol]||{};
+        let entryCount=0;
+        for(const ci of Object.keys(colMap)){
+          if(decodeCell(row[ci],colorToClinic)) entryCount++;
+        }
+        console.log(`  [TRACE] gridRow=${i} day=${day} mo=${mo} 鶴田Cell=${JSON.stringify(c)} entries=${entryCount}`);
+      }
     }
-    console.log(`  [DBG] colorToClinic for ginza? `, Object.entries(colorToClinic).filter(([k,v])=>v==='ginza'));
   }
   // Collect entries by (monthOffset, day): monthOffset=0 for the sheet's month, +1 for next month
   // Detect rollover when day number decreases significantly (e.g., 30 -> 1)
